@@ -37,16 +37,16 @@ namespace Chess.Game
                     newBoardState = HandleNormal(move);
                     break;
                 case MoveType.MOVE_CAPTURE:
-                    _enPassantPossible = false;
                     newBoardState = HandleCapture(move);
+                    _enPassantPossible = false;
                     break;
                 case MoveType.MOVE_CASTLE:
-                    _enPassantPossible = false;
                     newBoardState = HandleCastle(move);
+                    _enPassantPossible = false;
                     break;
                 case MoveType.MOVE_PROMOTION:
-                    _enPassantPossible = false;
                     newBoardState = HandlePromotion(move);
+                    _enPassantPossible = false;
                     break;
                 case MoveType.MOVE_ILLEGAL:
                 default:
@@ -180,7 +180,6 @@ namespace Chess.Game
                     };
                     if (square.Piece is Pawn && (newRank == 0 || newRank == 7))
                     {
-                        move.IsUserInputRequired = true;
                         move.AddOption("Queen");
                         move.AddOption("Rook");
                         move.AddOption("Knight");
@@ -257,7 +256,7 @@ namespace Chess.Game
                 default:
                     throw new Exception("Unrecognized option");
             }
-            return move.BoardState.AddPiece(move.To, piece).RemoveAt(move.From);
+            return move.BoardState.RemoveAt(move.To).AddPiece(move.To, piece).RemoveAt(move.From);
         }
         protected BoardState HandleCastle(Move move)
         {

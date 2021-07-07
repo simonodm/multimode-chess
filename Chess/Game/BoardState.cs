@@ -82,10 +82,6 @@ namespace Chess.Game
 
         public BoardState RemoveAt(int file, int rank)
         {
-            if(_board[file, rank].Piece == null)
-            {
-                throw new Exception($"No piece found on square {rank}{file}");
-            }
             var newBoard = CopyBoard();
             newBoard[file, rank].Piece.Square = null;
             newBoard[file, rank].Piece = null;

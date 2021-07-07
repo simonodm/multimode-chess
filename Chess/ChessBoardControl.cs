@@ -36,6 +36,10 @@ namespace Chess
                 {
                     if(move != default(Move))
                     {
+                        if(move.IsUserInputRequired)
+                        {
+                            move.SelectOption(0);
+                        }
                         Game.ProcessMove(move);
                         UpdateBoard();
                     }

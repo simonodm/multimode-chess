@@ -29,5 +29,11 @@ namespace Chess.Game
             Options.Add(new Option(Options.Count, optionName));
         }
 
+        public void SelectOption(int optionId)
+        {
+            IsUserInputRequired = false;
+            SelectedOption = Options[optionId];
+        }
+
     }
 }
