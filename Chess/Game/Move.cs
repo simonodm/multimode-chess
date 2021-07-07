@@ -7,21 +7,27 @@ using Chess.Game.Pieces;
 
 namespace Chess.Game
 {
-    struct Move
+    class Move
     {
         public IGamePiece Piece;
         public BoardSquare From;
         public BoardSquare To;
         public BoardState BoardState;
+        public bool IsUserInputRequired = false;
+        public List<Option> Options { get; private set; }
+        public Option SelectedOption;
 
-        public static bool operator ==(Move moveA, Move moveB)
+        public Move(){}
+
+        public void AddOption(string optionName)
         {
-            return moveA.Equals(moveB);
+            if(!IsUserInputRequired)
+            {
+                IsUserInputRequired = true;
+                Options = new List<Option>();
+            }
+            Options.Add(new Option(Options.Count, optionName));
         }
 
-        public static bool operator !=(Move moveA, Move moveB)
-        {
-            return !moveA.Equals(moveB);
-        }
     }
 }

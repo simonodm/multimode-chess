@@ -44,9 +44,9 @@ namespace Chess.Game
                     _enPassantPossible = false;
                     newBoardState = HandleCastle(move);
                     break;
-                case MoveType.MOVE_SPECIAL:
+                case MoveType.MOVE_PROMOTION:
                     _enPassantPossible = false;
-                    newBoardState = HandleSpecial(move);
+                    newBoardState = HandlePromotion(move);
                     break;
                 case MoveType.MOVE_ILLEGAL:
                 default:
@@ -178,6 +178,15 @@ namespace Chess.Game
                         Piece = square.Piece,
                         BoardState = currentState
                     };
+                    if (square.Piece is Pawn && (newRank == 0 || newRank == 7))
+                    {
+                        move.IsUserInputRequired = true;
+                        move.AddOption("Queen");
+                        move.AddOption("Rook");
+                        move.AddOption("Knight");
+                        move.AddOption("Bishop");
+                    }
+                    
                     if(!IsMoveBlocked(move))
                     {
                         moves.Add(move);
@@ -189,7 +198,7 @@ namespace Chess.Game
 
         protected MoveType GetMoveType(Move move)
         {
-            if (IsMoveBlocked(move) || IsPreventedByCheck(move))
+            if(IsMoveBlocked(move) || IsPreventedByCheck(move))
             {
                 return MoveType.MOVE_ILLEGAL;
             }
@@ -212,11 +221,44 @@ namespace Chess.Game
             return MoveType.MOVE_ILLEGAL;
         }
 
-        protected BoardState HandleSpecial(Move move)
+        protected BoardState HandlePromotion(Move move)
         {
-            return move.BoardState; // TODO
+            IGamePiece piece;
+            switch(move.SelectedOption.Id)
+            {
+                case 0:
+                    piece = new Queen
+                    {
+                        Square = move.To,
+                        Player = move.Piece.Player
+                    };
+                    break;
+                case 1:
+                    piece = new Rook
+                    {
+                        Square = move.To,
+                        Player = move.Piece.Player
+                    };
+                    break;
+                case 2:
+                    piece = new Knight
+                    {
+                        Square = move.To,
+                        Player = move.Piece.Player
+                    };
+                    break;
+                case 3:
+                    piece = new Bishop
+                    {
+                        Square = move.To,
+                        Player = move.Piece.Player
+                    };
+                    break;
+                default:
+                    throw new Exception("Unrecognized option");
+            }
+            return move.BoardState.AddPiece(move.To, piece).RemoveAt(move.From);
         }
-
         protected BoardState HandleCastle(Move move)
         {
             var rookSquare = GetCastleRookSquare(move);
@@ -297,7 +339,7 @@ namespace Chess.Game
 
         private bool IsPromotion(Move move)
         {
-            return false;
+            return move.SelectedOption != null;
         }
 
         private bool IsCastle(Move move)
