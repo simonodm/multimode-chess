@@ -29,16 +29,7 @@ namespace Chess
         /// </summary>
         private void InitializeComponent()
         {
-            this.chessBoardControl1 = new Chess.ChessBoardControl();
             this.SuspendLayout();
-            // 
-            // chessBoardControl1
-            // 
-            this.chessBoardControl1.Location = new System.Drawing.Point(12, 12);
-            this.chessBoardControl1.Name = "chessBoardControl1";
-            this.chessBoardControl1.Size = new System.Drawing.Size(578, 578);
-            this.chessBoardControl1.TabIndex = 0;
-            this.chessBoardControl1.Text = "chessBoardControl1";
             // 
             // Form1
             // 
@@ -46,7 +37,6 @@ namespace Chess
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(16)))), ((int)(((byte)(24)))));
             this.ClientSize = new System.Drawing.Size(900, 602);
-            this.Controls.Add(this.chessBoardControl1);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -55,8 +45,6 @@ namespace Chess
         }
 
         #endregion
-
-        private ChessBoardControl chessBoardControl1;
     }
 }
 

@@ -23,6 +23,12 @@ namespace Chess
         private void Form1_Load(object sender, EventArgs e)
         {
             _game = new ChessGame(new ClassicRules());
+            var gameControl = new GameControl(_game)
+            {
+                Size = new Size(ClientRectangle.Width, ClientRectangle.Height),
+                Location = new Point(0, 0)
+            };
+            Controls.Add(gameControl);
         }
     }
 }

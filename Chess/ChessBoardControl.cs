@@ -22,6 +22,12 @@ namespace Chess
             _tileMap = new ChessBoardTileControl[8, 8];
         }
 
+        public ChessBoardControl(ChessGame game)
+        {
+            Game = game;
+            _tileMap = new ChessBoardTileControl[8, 8];
+        }
+
         private void Tile_Click(object sender, EventArgs e)
         {
             var tile = (ChessBoardTileControl)sender;
