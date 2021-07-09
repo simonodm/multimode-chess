@@ -19,7 +19,7 @@ namespace Chess.Game
         private bool _enPassantPossible = false;
         private IGamePiece _enPassantPiece;
 
-        public BoardState Move(Move move)
+        public virtual BoardState Move(Move move)
         {
             MoveType type = GetMoveType(move);
             BoardState newBoardState;
@@ -41,6 +41,10 @@ namespace Chess.Game
                     newBoardState = HandlePromotion(move);
                     _enPassantPossible = false;
                     break;
+                case MoveType.MOVE_EN_PASSANT:
+                    newBoardState = HandleEnPassant(move);
+                    _enPassantPossible = false;
+                    break;
                 case MoveType.MOVE_ILLEGAL:
                 default:
                     return move.BoardState;
@@ -51,22 +55,22 @@ namespace Chess.Game
             return newBoardState;
         }
 
-        public bool IsGameOver(BoardState state)
+        public virtual bool IsGameOver(BoardState state)
         {
             return IsCheck(state) && GetAllLegalMoves(state).Count == 0;
         }
 
-        public GameResult GetGameResult()
+        public virtual GameResult GetGameResult()
         {
             return new GameResult();
         }
 
-        public BoardScore GetBoardScore()
+        public virtual BoardScore GetBoardScore()
         {
             return new BoardScore();
         }
 
-        public BoardState GetDefaultBoard()
+        public virtual BoardState GetDefaultBoard()
         {
             var state = new BoardState();
             for (int player = 0; player < PLAYER_COUNT; player++)
@@ -123,7 +127,7 @@ namespace Chess.Game
             return state;
         }
 
-        public List<Move> GetAllLegalMoves(BoardState currentState)
+        public virtual List<Move> GetAllLegalMoves(BoardState currentState)
         {
             var moveList = new List<Move>();
             foreach (var square in currentState.GetAllSquares())
@@ -136,12 +140,25 @@ namespace Chess.Game
             return moveList;
         }
 
-        public List<Move> GetLegalMoves(BoardSquare square, BoardState currentState)
+        public virtual List<Move> GetLegalMoves(BoardSquare square, BoardState currentState)
         {
             return GetNonBlockedMoves(square, currentState).FindAll(move => GetMoveType(move) != MoveType.MOVE_ILLEGAL).ToList();
         }
 
-        protected List<Move> GetAllNonBlockedMoves(BoardState currentState)
+        public virtual string GetMoveNotation(Move move)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(GetPieceSymbol(move.Piece));
+            sb.Append(move.To.File.ConvertToChessFile());
+            sb.Append(move.To.Rank + 1);
+            if (move.To.Piece != null)
+            {
+                sb.Append('x');
+            }
+            return sb.ToString();
+        }
+
+        protected virtual List<Move> GetAllNonBlockedMoves(BoardState currentState)
         {
             var moves = new List<Move>();
             foreach(var square in currentState.GetAllSquares())
@@ -150,7 +167,7 @@ namespace Chess.Game
             }
             return moves;
         }
-        protected List<Move> GetNonBlockedMoves(BoardSquare square, BoardState currentState)
+        protected virtual List<Move> GetNonBlockedMoves(BoardSquare square, BoardState currentState)
         {
             var moves = new List<Move>();
             if(square.Piece == null)
@@ -187,15 +204,11 @@ namespace Chess.Game
             return moves;
         }
 
-        protected MoveType GetMoveType(Move move)
+        protected virtual MoveType GetMoveType(Move move)
         {
             if(IsMoveBlocked(move) || IsPreventedByCheck(move))
             {
                 return MoveType.MOVE_ILLEGAL;
-            }
-            if(IsNormal(move))
-            {
-                return MoveType.MOVE_NORMAL;
             }
             if(IsCastle(move))
             {
@@ -205,14 +218,22 @@ namespace Chess.Game
             {
                 return MoveType.MOVE_PROMOTION;
             }
+            if(IsEnPassant(move))
+            {
+                return MoveType.MOVE_EN_PASSANT;
+            }
             if(IsCapture(move))
             {
                 return MoveType.MOVE_CAPTURE;
             }
+            if (IsNormal(move))
+            {
+                return MoveType.MOVE_NORMAL;
+            }
             return MoveType.MOVE_ILLEGAL;
         }
 
-        protected BoardState HandlePromotion(Move move)
+        protected virtual BoardState HandlePromotion(Move move)
         {
             IGamePiece piece;
             switch(move.SelectedOption.Id)
@@ -248,9 +269,21 @@ namespace Chess.Game
                 default:
                     throw new Exception("Unrecognized option");
             }
-            return move.BoardState.RemoveAt(move.To).AddPiece(move.To, piece).RemoveAt(move.From);
+            if(move.To.Piece != null)
+            {
+                if(move.To.Piece.Player == move.Piece.Player)
+                {
+                    return move.BoardState;
+                }
+                HandleCapture(move);
+                if(move.To.Piece == move.Piece)
+                {
+                    return move.BoardState.RemoveAt(move.To).AddPiece(move.To, piece);
+                }
+            }
+            return move.BoardState.AddPiece(move.To, piece).RemoveAt(move.From);
         }
-        protected BoardState HandleCastle(Move move)
+        protected virtual BoardState HandleCastle(Move move)
         {
             var rookSquare = GetCastleRookSquare(move);
 
@@ -268,23 +301,12 @@ namespace Chess.Game
             return move.BoardState.Move(move).Move(rookMove);
         }
 
-        protected BoardState HandleCapture(Move move)
+        protected virtual BoardState HandleCapture(Move move)
         {
-            BoardState newBoardState;
-
-            if(IsEnPassant(move))
-            {
-                newBoardState = move.BoardState.Move(move).RemovePiece(_enPassantPiece);
-            }
-            else
-            {
-                newBoardState = move.BoardState.RemoveAt(move.To).Move(move);
-            }
-
-            return newBoardState;
+            return move.BoardState.RemoveAt(move.To).Move(move);
         }
 
-        protected BoardState HandleNormal(Move move)
+        protected virtual BoardState HandleNormal(Move move)
         {
             BoardState newBoardState = move.BoardState.Move(move);
 
@@ -297,6 +319,11 @@ namespace Chess.Game
             }
 
             return newBoardState;
+        }
+        
+        protected virtual BoardState HandleEnPassant(Move move)
+        {
+            return move.BoardState.Move(move).RemovePiece(_enPassantPiece);
         }
         private bool IsCapture(Move move)
         {
@@ -485,6 +512,32 @@ namespace Chess.Game
         private bool IsPreventedByCheck(Move move)
         {
             return IsCheck(move.BoardState.Move(move));
+        }
+    
+        private char GetPieceSymbol(IGamePiece piece)
+        {
+            char symbol = ' ';
+            if (piece is Knight)
+            {
+                symbol = 'N';
+            }
+            else if (piece is Bishop)
+            {
+                symbol = 'B';
+            }
+            else if (piece is Rook)
+            {
+                symbol = 'R';
+            }
+            else if (piece is Queen)
+            {
+                symbol = 'Q';
+            }
+            else if (piece is King)
+            {
+                symbol = 'K';
+            }
+            return symbol;
         }
     }
 }

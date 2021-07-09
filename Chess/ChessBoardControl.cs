@@ -11,10 +11,22 @@ namespace Chess
 {
     class ChessBoardControl : Control
     {
+        public event EventHandler Moved
+        {
+            add
+            {
+                onMove += value;
+            }
+            remove
+            {
+                onMove -= value;
+            }
+        }
         public ChessGame Game;
         private ChessBoardTileControl _selectedTile;
         private List<Move> _selectedLegalMoves;
         private ChessBoardTileControl[,] _tileMap;
+        private event EventHandler onMove;
 
         public ChessBoardControl()
         {
@@ -26,6 +38,11 @@ namespace Chess
         {
             Game = game;
             _tileMap = new ChessBoardTileControl[8, 8];
+        }
+
+        protected virtual void OnMove(EventArgs e)
+        {
+            onMove?.Invoke(this, e);
         }
 
         private void Tile_Click(object sender, EventArgs e)
@@ -48,6 +65,7 @@ namespace Chess
                         }
                         Game.ProcessMove(move);
                         UpdateBoard();
+                        OnMove(new EventArgs());
                     }
                     UnselectAll();
                 }

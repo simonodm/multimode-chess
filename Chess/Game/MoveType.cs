@@ -12,7 +12,7 @@ namespace Chess.Game
         MOVE_CAPTURE,
         MOVE_CASTLE,
         MOVE_PROMOTION,
-        MOVE_SPECIAL,
+        MOVE_EN_PASSANT,
         MOVE_ILLEGAL
     }
 }

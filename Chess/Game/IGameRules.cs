@@ -16,5 +16,6 @@ namespace Chess.Game
         public BoardState GetDefaultBoard();
         public GameResult GetGameResult();
         public BoardScore GetBoardScore();
+        public string GetMoveNotation(Move move);
     }
 }

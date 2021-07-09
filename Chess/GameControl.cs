@@ -11,6 +11,8 @@ namespace Chess
 {
     class GameControl : Control
     {
+        private ChessBoardControl _boardControl;
+        private MoveHistoryControl _moveHistory;
         private ChessGame _game;
         
         public GameControl(ChessGame game)
@@ -22,13 +24,28 @@ namespace Chess
         {
             base.OnPaint(e);
 
-            ChessBoardControl boardControl = new ChessBoardControl(_game)
+            _boardControl = new ChessBoardControl(_game)
             {
                 Location = new Point(12, 12),
                 Size = new Size(Height - 24, Height - 24)
             };
 
-            Controls.Add(boardControl);
+            Controls.Add(_boardControl);
+
+            _moveHistory = new MoveHistoryControl(_game)
+            {
+                Location = new Point(Height, 12),
+                Size = new Size(Width - (Height - 24), Height - 24)
+            };
+
+            Controls.Add(_moveHistory);
+
+            _boardControl.Moved += OnMove;
+        }
+
+        private void OnMove(object sender, EventArgs e)
+        {
+            _moveHistory.Update();
         }
     }
 }

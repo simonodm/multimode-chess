@@ -11,25 +11,25 @@ namespace Chess.Game
     {
         public BoardState BoardState;
         public IGameRules Rules;
-        private List<Move> _moveHistory;
+        public List<Move> MoveHistory;
 
         public ChessGame(IGameRules rules)
         {
             Rules = rules;
-            _moveHistory = new List<Move>();
+            MoveHistory = new List<Move>();
             Reset();
         }
 
         public void Reset()
         {
             BoardState = Rules.GetDefaultBoard();
-            _moveHistory.Clear();
+            MoveHistory.Clear();
         }
 
         public void ProcessMove(Move move)
         {
             BoardState = Rules.Move(move);
-            _moveHistory.Add(move);
+            MoveHistory.Add(move);
         }
 
         public bool IsGameOver()
