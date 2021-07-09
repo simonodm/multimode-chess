@@ -12,7 +12,8 @@ namespace Chess.Game
         public IGamePiece Piece;
         public BoardSquare From;
         public BoardSquare To;
-        public BoardState BoardState;
+        public BoardState BoardBefore;
+        public BoardState BoardAfter;
         public bool IsUserInputRequired = false;
         public List<Option> Options { get; private set; }
         public Option SelectedOption;

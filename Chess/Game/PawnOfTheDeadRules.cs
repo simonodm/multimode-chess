@@ -19,7 +19,7 @@ namespace Chess.Game
             var piece = move.To.Piece;
             var newPiece = (IGamePiece)Activator.CreateInstance(piece.GetType());
             newPiece.Player = 1;
-            return move.BoardState
+            return move.BoardBefore
                 .RemoveAt(move.To)
                 .AddPiece(move.To, newPiece);
         }

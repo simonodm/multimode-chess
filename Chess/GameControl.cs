@@ -35,12 +35,20 @@ namespace Chess
             _moveHistory = new MoveHistoryControl(_game)
             {
                 Location = new Point(Height, 12),
-                Size = new Size(Width - (Height - 24), Height - 24)
+                Size = new Size(Width - Height - 12, Height - 24)
             };
+
+            _moveHistory.SelectedMoveChanged += OnSelectedMoveChange;
 
             Controls.Add(_moveHistory);
 
             _boardControl.Moved += OnMove;
+        }
+
+        private void OnSelectedMoveChange(object sender, MoveEventArgs e)
+        {
+            var move = e.Move;
+            _boardControl.UpdateBoard(move.BoardAfter);
         }
 
         private void OnMove(object sender, EventArgs e)

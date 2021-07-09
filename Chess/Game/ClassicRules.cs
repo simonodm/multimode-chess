@@ -47,11 +47,12 @@ namespace Chess.Game
                     break;
                 case MoveType.MOVE_ILLEGAL:
                 default:
-                    return move.BoardState;
+                    return move.BoardBefore;
             }
 
             CurrentPlayer = (CurrentPlayer + 1) % PLAYER_COUNT;
             move.Piece.MoveCount++;
+            move.BoardAfter = newBoardState;
             return newBoardState;
         }
 
@@ -192,7 +193,7 @@ namespace Chess.Game
                         From = square,
                         To = currentState.GetSquare(newFile, newRank),
                         Piece = square.Piece,
-                        BoardState = currentState
+                        BoardBefore = currentState
                     };
                     if (square.Piece is Pawn && (newRank == 0 || newRank == 7))
                     {
@@ -280,23 +281,23 @@ namespace Chess.Game
             {
                 if(move.To.Piece.Player == move.Piece.Player)
                 {
-                    return move.BoardState;
+                    return move.BoardBefore;
                 }
                 HandleCapture(move);
                 if(move.To.Piece == move.Piece)
                 {
-                    return move.BoardState.RemoveAt(move.To).AddPiece(move.To, piece);
+                    return move.BoardBefore.RemoveAt(move.To).AddPiece(move.To, piece);
                 }
             }
-            return move.BoardState.AddPiece(move.To, piece).RemoveAt(move.From);
+            return move.BoardBefore.AddPiece(move.To, piece).RemoveAt(move.From);
         }
         protected virtual BoardState HandleCastle(Move move)
         {
             var rookSquare = GetCastleRookSquare(move);
 
             var rookTargetSquare = move.To.File > move.From.File ?
-                move.BoardState.GetSquare(move.From.File + 1, move.From.Rank) :
-                move.BoardState.GetSquare(move.From.File - 1, move.From.Rank);
+                move.BoardBefore.GetSquare(move.From.File + 1, move.From.Rank) :
+                move.BoardBefore.GetSquare(move.From.File - 1, move.From.Rank);
 
             var rookMove = new Move
             {
@@ -305,17 +306,17 @@ namespace Chess.Game
                 Piece = rookSquare.Piece
             };
 
-            return move.BoardState.Move(move).Move(rookMove);
+            return move.BoardBefore.Move(move).Move(rookMove);
         }
 
         protected virtual BoardState HandleCapture(Move move)
         {
-            return move.BoardState.RemoveAt(move.To).Move(move);
+            return move.BoardBefore.RemoveAt(move.To).Move(move);
         }
 
         protected virtual BoardState HandleNormal(Move move)
         {
-            BoardState newBoardState = move.BoardState.Move(move);
+            BoardState newBoardState = move.BoardBefore.Move(move);
 
             if(move.Piece is Pawn && Math.Abs(move.To.Rank - move.From.Rank) == 2)
             {
@@ -330,7 +331,7 @@ namespace Chess.Game
         
         protected virtual BoardState HandleEnPassant(Move move)
         {
-            return move.BoardState.Move(move).RemovePiece(_enPassantPiece);
+            return move.BoardBefore.Move(move).RemovePiece(_enPassantPiece);
         }
         private bool IsCapture(Move move)
         {
@@ -376,7 +377,7 @@ namespace Chess.Game
             {
                 for(int i = Math.Min(move.From.File, move.To.File); i <= Math.Max(move.From.File, move.To.File); i++)
                 {
-                    if(IsSquareUnderThreat(move.BoardState.GetSquare(i, move.From.Rank), move.BoardState))
+                    if(IsSquareUnderThreat(move.BoardBefore.GetSquare(i, move.From.Rank), move.BoardBefore))
                     {
                         return false;
                     }
@@ -442,8 +443,8 @@ namespace Chess.Game
         private BoardSquare GetCastleRookSquare(Move move)
         {
             return move.To.File < move.From.File ?
-                    move.BoardState.GetSquare(0, move.From.Rank) :
-                    move.BoardState.GetSquare(7, move.From.Rank);
+                    move.BoardBefore.GetSquare(0, move.From.Rank) :
+                    move.BoardBefore.GetSquare(7, move.From.Rank);
         }
 
         private bool IsSquareUnderThreat(BoardSquare square, BoardState state)
@@ -494,7 +495,7 @@ namespace Chess.Game
 
             while(i != endFile || j != endRank)
             {
-                var piece = move.BoardState.GetSquare(i, j).Piece;
+                var piece = move.BoardBefore.GetSquare(i, j).Piece;
                 if(piece != null && piece != move.Piece)
                 {
                     pieceFound = true;
@@ -518,7 +519,7 @@ namespace Chess.Game
         }
         private bool IsPreventedByCheck(Move move)
         {
-            return IsCheck(move.BoardState.Move(move));
+            return IsCheck(move.BoardBefore.Move(move));
         }
     
         private char GetPieceSymbol(IGamePiece piece)

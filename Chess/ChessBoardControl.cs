@@ -27,6 +27,7 @@ namespace Chess
         private List<Move> _selectedLegalMoves;
         private ChessBoardTileControl[,] _tileMap;
         private event EventHandler onMove;
+        private bool _isBoardCurrent = true;
 
         public ChessBoardControl()
         {
@@ -40,6 +41,34 @@ namespace Chess
             _tileMap = new ChessBoardTileControl[8, 8];
         }
 
+        public void UpdateBoard(BoardState state)
+        {
+            if(_tileMap == null)
+            {
+                return;
+            }
+            for(int i = 0; i < _tileMap.GetLength(0); i++)
+            {
+                for(int j = 0; j < _tileMap.GetLength(1); j++)
+                {
+                    var currentSquare = _tileMap[i, j].Square;
+                    var newSquare = state.GetSquare(i, j);
+                    if(currentSquare.Piece != newSquare.Piece)
+                    {
+                        _tileMap[i, j].Square = newSquare;
+                    }
+                }
+            }
+            if (state == Game.BoardState)
+            {
+                _isBoardCurrent = true;
+            }
+            else
+            {
+                _isBoardCurrent = false;
+            }
+        }
+
         protected virtual void OnMove(EventArgs e)
         {
             onMove?.Invoke(this, e);
@@ -47,6 +76,10 @@ namespace Chess
 
         private void Tile_Click(object sender, EventArgs e)
         {
+            if(!_isBoardCurrent)
+            {
+                return;
+            }
             var tile = (ChessBoardTileControl)sender;
             if(_selectedTile == null)
             {
@@ -64,7 +97,7 @@ namespace Chess
                             move.SelectOption(0);
                         }
                         Game.ProcessMove(move);
-                        UpdateBoard();
+                        UpdateBoard(Game.BoardState);
                         OnMove(new EventArgs());
                     }
                     UnselectAll();
@@ -91,15 +124,6 @@ namespace Chess
                     _tileMap[move.To.File, move.To.Rank].Select();
                     _selectedLegalMoves.Add(move);
                 }
-            }
-        }
-
-        private void UpdateBoard()
-        {
-            foreach(var square in Game.BoardState.GetAllSquares())
-            {
-                var tile = _tileMap[square.File, square.Rank];
-                tile.Square = square;
             }
         }
 
@@ -131,17 +155,18 @@ namespace Chess
             {
                 return;
             }
+
             int sizeX = Size.Width / Game.BoardState.GetBoardWidth();
             int sizeY = Size.Height / Game.BoardState.GetBoardHeight();
-            for(int i = 0; i < Game.BoardState.GetBoardWidth(); i++)
+            for (int i = 0; i < Game.BoardState.GetBoardWidth(); i++)
             {
-                for(int j = 0; j < Game.BoardState.GetBoardHeight(); j++)
+                for (int j = 0; j < Game.BoardState.GetBoardHeight(); j++)
                 {
                     var square = Game.BoardState.GetSquare(i, j);
                     var tile = new ChessBoardTileControl(square)
                     {
                         Size = new Size(sizeX, sizeY),
-                        Location = new Point(i * sizeX, (Game.BoardState.GetBoardHeight()-j-1) * sizeY)
+                        Location = new Point(i * sizeX, (Game.BoardState.GetBoardHeight() - j - 1) * sizeY)
                     };
                     _tileMap[square.File, square.Rank] = tile;
                     tile.Click += Tile_Click;
