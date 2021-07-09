@@ -148,13 +148,20 @@ namespace Chess.Game
         public virtual string GetMoveNotation(Move move)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append(GetPieceSymbol(move.Piece));
-            sb.Append(move.To.File.ConvertToChessFile());
-            sb.Append(move.To.Rank + 1);
-            if (move.To.Piece != null)
+            if (IsCapture(move) && move.Piece is Pawn)
+            {
+                sb.Append(move.From.File.ConvertToChessFile());
+            }
+            else
+            {
+                sb.Append(GetPieceSymbol(move.Piece));
+            }
+            if (IsCapture(move))
             {
                 sb.Append('x');
             }
+            sb.Append(move.To.File.ConvertToChessFile());
+            sb.Append(move.To.Rank + 1);
             return sb.ToString();
         }
 
