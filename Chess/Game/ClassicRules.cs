@@ -19,6 +19,9 @@ namespace Chess.Game
         private bool _enPassantPossible = false;
         private IGamePiece _enPassantPiece;
 
+        private bool _gameOver = false;
+        private GameResult _gameResult = null;
+
         public virtual BoardState Move(Move move)
         {
             MoveType type = GetMoveType(move);
@@ -50,20 +53,27 @@ namespace Chess.Game
                     return move.BoardBefore;
             }
 
+            if (IsGameOver(newBoardState))
+            {
+                _gameOver = true;
+                _gameResult = new GameResult(CurrentPlayer);
+            }
+
             CurrentPlayer = (CurrentPlayer + 1) % PLAYER_COUNT;
             move.Piece.MoveCount++;
             move.BoardAfter = newBoardState;
+
             return newBoardState;
         }
 
         public virtual bool IsGameOver(BoardState state)
         {
-            return IsCheck(state) && GetAllLegalMoves(state).Count == 0;
+            return _gameOver || (IsCheck(state) && GetAllLegalMoves(state).Count == 0);
         }
 
         public virtual GameResult GetGameResult()
         {
-            return new GameResult();
+            return _gameResult;    
         }
 
         public virtual BoardScore GetBoardScore()
@@ -163,6 +173,14 @@ namespace Chess.Game
             }
             sb.Append(move.To.File.ConvertToChessFile());
             sb.Append(move.To.Rank + 1);
+            if(IsCheck(move.BoardAfter))
+            {
+                sb.Append("+");
+            }
+            if(IsGameOver(move.BoardAfter))
+            {
+                sb.Append("#");
+            }
             return sb.ToString();
         }
 

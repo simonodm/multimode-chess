@@ -29,12 +29,6 @@ namespace Chess
         private event EventHandler onMove;
         private bool _isBoardCurrent = true;
 
-        public ChessBoardControl()
-        {
-            Game = new ChessGame(new ClassicRules());
-            _tileMap = new ChessBoardTileControl[8, 8];
-        }
-
         public ChessBoardControl(ChessGame game)
         {
             Game = game;
