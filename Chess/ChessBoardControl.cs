@@ -11,22 +11,22 @@ namespace Chess
 {
     class ChessBoardControl : Control
     {
-        public event EventHandler Moved
+        public event EventHandler MovePlayed
         {
             add
             {
-                onMove += value;
+                onChessMove += value;
             }
             remove
             {
-                onMove -= value;
+                onChessMove -= value;
             }
         }
         public ChessGame Game;
         private ChessBoardTileControl _selectedTile;
         private List<Move> _selectedLegalMoves;
         private ChessBoardTileControl[,] _tileMap;
-        private event EventHandler onMove;
+        private event EventHandler onChessMove;
         private bool _isBoardCurrent = true;
 
         public ChessBoardControl(ChessGame game)
@@ -63,9 +63,9 @@ namespace Chess
             }
         }
 
-        protected virtual void OnMove(EventArgs e)
+        protected virtual void OnChessMove(EventArgs e)
         {
-            onMove?.Invoke(this, e);
+            onChessMove?.Invoke(this, e);
         }
 
         private void Tile_Click(object sender, EventArgs e)
@@ -92,7 +92,7 @@ namespace Chess
                         }
                         Game.ProcessMove(move);
                         UpdateBoard(Game.BoardState);
-                        OnMove(new EventArgs());
+                        OnChessMove(new EventArgs());
                     }
                     UnselectAll();
                 }
@@ -145,7 +145,7 @@ namespace Chess
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            if(Game.BoardState == null)
+            if(Game.BoardState == null || Controls.Count > 0)
             {
                 return;
             }

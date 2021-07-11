@@ -53,13 +53,14 @@ namespace Chess.Game
                     return move.BoardBefore;
             }
 
+            CurrentPlayer = (CurrentPlayer + 1) % PLAYER_COUNT;
+
             if (IsGameOver(newBoardState))
             {
                 _gameOver = true;
-                _gameResult = new GameResult(CurrentPlayer);
+                _gameResult = new GameResult((CurrentPlayer+1)%PLAYER_COUNT);
             }
 
-            CurrentPlayer = (CurrentPlayer + 1) % PLAYER_COUNT;
             move.Piece.MoveCount++;
             move.BoardAfter = newBoardState;
 
@@ -68,7 +69,17 @@ namespace Chess.Game
 
         public virtual bool IsGameOver(BoardState state)
         {
-            return _gameOver || (IsCheck(state) && GetAllLegalMoves(state).Count == 0);
+            if(_gameOver == false)
+            {
+                for (int i = 0; i < PLAYER_COUNT; i++)
+                {
+                    if (IsCheck(state, i) && GetAllLegalMoves(state, i).Count == 0)
+                    {
+                        _gameOver = true;
+                    }
+                }
+            }
+            return _gameOver;
         }
 
         public virtual GameResult GetGameResult()
@@ -138,12 +149,12 @@ namespace Chess.Game
             return state;
         }
 
-        public virtual List<Move> GetAllLegalMoves(BoardState currentState)
+        public virtual List<Move> GetAllLegalMoves(BoardState currentState, int player)
         {
             var moveList = new List<Move>();
             foreach (var square in currentState.GetAllSquares())
             {
-                if (square.Piece != null && square.Piece.Player == CurrentPlayer)
+                if (square.Piece != null && square.Piece.Player == player)
                 {
                     moveList.AddRange(GetLegalMoves(square, currentState));
                 }
@@ -173,7 +184,7 @@ namespace Chess.Game
             }
             sb.Append(move.To.File.ConvertToChessFile());
             sb.Append(move.To.Rank + 1);
-            if(IsCheck(move.BoardAfter))
+            if(IsCheck(move.BoardAfter, (move.Piece.Player + 1) % PLAYER_COUNT))
             {
                 sb.Append("+");
             }
@@ -482,13 +493,13 @@ namespace Chess.Game
             return false;
         }
 
-        private bool IsCheck(BoardState state)
+        private bool IsCheck(BoardState state, int player)
         {
             var kingSquares = state.FindPieces<King>();
 
             foreach(var square in kingSquares)
             {
-                if(square.Piece.Player == CurrentPlayer && IsSquareUnderThreat(square, state)) {
+                if(square.Piece.Player == player && IsSquareUnderThreat(square, state)) {
                     return true;
                 }
             }
@@ -537,7 +548,7 @@ namespace Chess.Game
         }
         private bool IsPreventedByCheck(Move move)
         {
-            return IsCheck(move.BoardBefore.Move(move));
+            return IsCheck(move.BoardBefore.Move(move), move.Piece.Player);
         }
     
         private char GetPieceSymbol(IGamePiece piece)

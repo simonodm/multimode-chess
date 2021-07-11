@@ -25,35 +25,42 @@ namespace Chess
         {
             base.OnPaint(e);
 
-            _boardControl = new ChessBoardControl(_game)
+            if(_boardControl == null)
             {
-                Location = new Point(12, 12),
-                Size = new Size(Height - 24, Height - 24)
-            };
-
-            Controls.Add(_boardControl);
-
-            _moveHistory = new MoveHistoryControl(_game)
+                _boardControl = new ChessBoardControl(_game)
+                {
+                    Location = new Point(12, 12),
+                    Size = new Size(Height - 24, Height - 24)
+                };
+                _boardControl.MovePlayed += OnMove;
+                Controls.Add(_boardControl);
+            }
+            
+            if(_moveHistory == null)
             {
-                Location = new Point(Height, 12),
-                Size = new Size(Width - Height - 12, (Height / 2) - 24)
-            };
+                _moveHistory = new MoveHistoryControl(_game)
+                {
+                    Location = new Point(Height, 12),
+                    Size = new Size(Width - Height - 12, (Height / 2) - 24)
+                };
+                _moveHistory.SelectedMoveChanged += OnSelectedMoveChange;
 
-            _moveHistory.SelectedMoveChanged += OnSelectedMoveChange;
+                Controls.Add(_moveHistory);
+            }
 
-            Controls.Add(_moveHistory);
-
-            _winnerLabel = new Label()
+            if(_winnerLabel == null)
             {
-                Size = new Size(Width - Height - 12, 24),
-                Location = new Point(Height, (Height / 2) - 12),
-                Text = "Winner: "
-            };
-            _winnerLabel.ForeColor = Color.White;
+                _winnerLabel = new Label()
+                {
+                    Size = new Size(Width - Height - 12, 24),
+                    Location = new Point(Height, (Height / 2) - 12),
+                    Text = "Winner: "
+                };
+                _winnerLabel.ForeColor = Color.White;
 
-            Controls.Add(_winnerLabel);
-
-            _boardControl.Moved += OnMove;
+                Controls.Add(_winnerLabel);
+            }
+            
         }
 
         private void OnSelectedMoveChange(object sender, MoveEventArgs e)
@@ -64,8 +71,8 @@ namespace Chess
 
         private void OnMove(object sender, EventArgs e)
         {
-            _moveHistory.Update();
-            if(_game.IsGameOver())
+            _moveHistory.UpdateHistory();
+            if (_game.IsGameOver())
             {
                 _winnerLabel.Text = $"Winner: {_game.Rules.GetGameResult().GetWinner()}";
             }

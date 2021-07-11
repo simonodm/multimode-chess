@@ -31,7 +31,7 @@ namespace Chess
             _game = game;
         }
 
-        public void Update()
+        public void UpdateHistory()
         {
             for(int i = _listBox.Items.Count; i < _game.MoveHistory.Count; i++)
             {
@@ -44,19 +44,23 @@ namespace Chess
         {
             base.OnPaint(e);
 
-            _listBox = new ListBox()
+            if(_listBox == null)
             {
-                Location = new System.Drawing.Point(0, 0),
-                Size = new System.Drawing.Size(Width, Height)
-            };
-            foreach(var move in _game.MoveHistory)
-            {
-                _listBox.Items.Add(_game.Rules.GetMoveNotation(move));
+                _listBox = new ListBox()
+                {
+                    Location = new System.Drawing.Point(0, 0),
+                    Size = new System.Drawing.Size(Width, Height)
+                };
+                foreach (var move in _game.MoveHistory)
+                {
+                    _listBox.Items.Add(_game.Rules.GetMoveNotation(move));
+                }
+
+                _listBox.SelectedIndexChanged += listBox_OnSelectedIndexChanged;
+
+                Controls.Add(_listBox);
             }
-
-            _listBox.SelectedIndexChanged += listBox_OnSelectedIndexChanged;
-
-            Controls.Add(_listBox);
+            
         }
 
         protected virtual void listBox_OnSelectedIndexChanged(object sender, EventArgs e)
