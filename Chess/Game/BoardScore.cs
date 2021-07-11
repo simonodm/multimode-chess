@@ -6,7 +6,18 @@ using System.Threading.Tasks;
 
 namespace Chess.Game
 {
-    class BoardScore
+    struct BoardScore
     {
+        private double _score;
+        public BoardScore(int score)
+        {
+            _score = score;
+        }
+
+        public string ToString()
+        {
+            return _score.ToString();
+        }
+    
     }
 }

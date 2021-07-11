@@ -87,9 +87,9 @@ namespace Chess.Game
             return _gameResult;    
         }
 
-        public virtual BoardScore GetBoardScore()
+        public virtual BoardScore GetBoardScore(BoardState state)
         {
-            return new BoardScore();
+            return new BoardScore(0);
         }
 
         public virtual BoardState GetDefaultBoard()

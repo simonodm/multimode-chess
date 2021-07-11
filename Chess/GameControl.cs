@@ -13,6 +13,7 @@ namespace Chess
     {
         private ChessBoardControl _boardControl;
         private MoveHistoryControl _moveHistory;
+        private BoardScoreControl _scoreControl;
         private Label _winnerLabel;
         private ChessGame _game;
         
@@ -61,6 +62,16 @@ namespace Chess
                 Controls.Add(_winnerLabel);
             }
             
+            if(_scoreControl == null)
+            {
+                _scoreControl = new BoardScoreControl()
+                {
+                    Size = new Size((Width - Height - 12) / 2, 24),
+                    Location = new Point(Height, Height / 2 + 12)
+                };
+                Controls.Add(_scoreControl);
+            }
+
         }
 
         private void OnSelectedMoveChange(object sender, MoveEventArgs e)
@@ -72,6 +83,7 @@ namespace Chess
         private void OnMove(object sender, EventArgs e)
         {
             _moveHistory.UpdateHistory();
+            _scoreControl.SetScore(_game.Rules.GetBoardScore(_game.BoardState).ToString());
             if (_game.IsGameOver())
             {
                 _winnerLabel.Text = $"Winner: {_game.Rules.GetGameResult().GetWinner()}";
