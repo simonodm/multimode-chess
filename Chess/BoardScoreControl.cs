@@ -25,7 +25,7 @@ namespace Chess
                     Location = new Point(0, 0),
                     Size = new Size(Width / 2, Height)
                 };
-                _toggleButton.Click += OnToggle;
+                _toggleButton.Click += toggleButton_OnClick;
                 Controls.Add(_toggleButton);
             }
 
@@ -47,7 +47,7 @@ namespace Chess
             _scoreLabel.Text = score.ToString();
         }
 
-        private void OnToggle(object sender, EventArgs e)
+        private void toggleButton_OnClick(object sender, EventArgs e)
         {
             if(_shown)
             {

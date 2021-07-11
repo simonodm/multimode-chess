@@ -8,6 +8,9 @@ namespace Chess.Game
 {
     interface IGameRules
     {
+        public int PlayerCount { get; }
+        public int FileCount { get; }
+        public int RankCount { get; }
         public int CurrentPlayer { get; }
         public BoardState Move(Move move);
         public bool IsGameOver(BoardState state);

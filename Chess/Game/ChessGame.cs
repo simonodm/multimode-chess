@@ -12,29 +12,49 @@ namespace Chess.Game
         public BoardState BoardState;
         public IGameRules Rules;
         public List<Move> MoveHistory;
+        public Clock Clock;
 
-        public ChessGame(IGameRules rules)
+        public ChessGame(IGameRules rules, int timeLimit = 600, int increment = 0)
         {
             Rules = rules;
             MoveHistory = new List<Move>();
+            Clock = new Clock(timeLimit, increment);
             Reset();
         }
 
         public void Reset()
         {
             BoardState = Rules.GetDefaultBoard();
+            Clock.Reset();
             MoveHistory.Clear();
+            Clock.Start();
         }
 
         public void ProcessMove(Move move)
         {
-            BoardState = Rules.Move(move);
-            MoveHistory.Add(move);
+            if(Clock.GetRemainingTime(move.Piece.Player) > 0)
+            {
+                BoardState = Rules.Move(move);
+                MoveHistory.Add(move);
+            }
         }
 
         public bool IsGameOver()
         {
-            return Rules.IsGameOver(BoardState);
+            return IsClockRanOut() || Rules.IsGameOver(BoardState);
+        }
+
+        private bool IsClockRanOut()
+        {
+            int playersWithTime = 0;
+            for(int i = 0; i < Rules.PlayerCount; i++)
+            {
+                if(Clock.GetRemainingTime(i) > 0)
+                {
+                    playersWithTime += 1;
+                }
+            }
+            return playersWithTime == 1;
         }
     }
 }

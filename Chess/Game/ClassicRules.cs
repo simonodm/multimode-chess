@@ -11,9 +11,9 @@ namespace Chess.Game
     {
         public int CurrentPlayer { get; private set; }
 
-        private const int PLAYER_COUNT = 2;
-        private const int FILE_COUNT = 8;
-        private const int RANK_COUNT = 8;
+        public int PlayerCount { get; } = 2;
+        public int FileCount { get; } = 8;
+        public int RankCount { get; } = 8;
 
         private BoardSquare _enPassantSquare;
         private bool _enPassantPossible = false;
@@ -53,12 +53,12 @@ namespace Chess.Game
                     return move.BoardBefore;
             }
 
-            CurrentPlayer = (CurrentPlayer + 1) % PLAYER_COUNT;
+            CurrentPlayer = (CurrentPlayer + 1) % PlayerCount;
 
             if (IsGameOver(newBoardState))
             {
                 _gameOver = true;
-                _gameResult = new GameResult((CurrentPlayer+1)%PLAYER_COUNT);
+                _gameResult = new GameResult((CurrentPlayer+1)%PlayerCount);
             }
 
             move.Piece.MoveCount++;
@@ -71,7 +71,7 @@ namespace Chess.Game
         {
             if(_gameOver == false)
             {
-                for (int i = 0; i < PLAYER_COUNT; i++)
+                for (int i = 0; i < PlayerCount; i++)
                 {
                     if (IsCheck(state, i) && GetAllLegalMoves(state, i).Count == 0)
                     {
@@ -95,11 +95,11 @@ namespace Chess.Game
         public virtual BoardState GetDefaultBoard()
         {
             var state = new BoardState();
-            for (int player = 0; player < PLAYER_COUNT; player++)
+            for (int player = 0; player < PlayerCount; player++)
             {
                 int firstRank = player == 0 ? 0 : 7;
                 int secondRank = player == 0 ? 1 : 6;
-                for (int file = 0; file < FILE_COUNT; file++)
+                for (int file = 0; file < FileCount; file++)
                 {
                     var squareFirstRank = state.GetSquare(file, firstRank);
                     var squareSecondRank = state.GetSquare(file, secondRank);
@@ -184,7 +184,7 @@ namespace Chess.Game
             }
             sb.Append(move.To.File.ConvertToChessFile());
             sb.Append(move.To.Rank + 1);
-            if(IsCheck(move.BoardAfter, (move.Piece.Player + 1) % PLAYER_COUNT))
+            if(IsCheck(move.BoardAfter, (move.Piece.Player + 1) % PlayerCount))
             {
                 sb.Append("+");
             }

@@ -14,6 +14,7 @@ namespace Chess
         private ChessBoardControl _boardControl;
         private MoveHistoryControl _moveHistory;
         private BoardScoreControl _scoreControl;
+        private ClockControl _clockControl;
         private Label _winnerLabel;
         private ChessGame _game;
         
@@ -41,20 +42,30 @@ namespace Chess
             {
                 _moveHistory = new MoveHistoryControl(_game)
                 {
-                    Location = new Point(Height, 12),
-                    Size = new Size(Width - Height - 12, (Height / 2) - 24)
+                    Location = new Point(Height + 96, 12),
+                    Size = new Size(Width - Height - 108, (Height / 2) - 24)
                 };
                 _moveHistory.SelectedMoveChanged += OnSelectedMoveChange;
 
                 Controls.Add(_moveHistory);
             }
 
+            if(_clockControl == null)
+            {
+                _clockControl = new ClockControl(_game.Clock)
+                {
+                    Location = new Point(Height, 12),
+                    Size = new Size(72, Height)
+                };
+                Controls.Add(_clockControl);
+            }
+
             if(_winnerLabel == null)
             {
                 _winnerLabel = new Label()
                 {
-                    Size = new Size(Width - Height - 12, 24),
-                    Location = new Point(Height, (Height / 2) - 12),
+                    Size = new Size(Width - Height - 108, 24),
+                    Location = new Point(Height + 96, (Height / 2) - 12),
                     Text = "Winner: "
                 };
                 _winnerLabel.ForeColor = Color.White;
@@ -66,8 +77,8 @@ namespace Chess
             {
                 _scoreControl = new BoardScoreControl()
                 {
-                    Size = new Size((Width - Height - 12) / 2, 24),
-                    Location = new Point(Height, Height / 2 + 12)
+                    Size = new Size((Width - Height - 108) / 2, 24),
+                    Location = new Point(Height + 96, Height / 2 + 12)
                 };
                 Controls.Add(_scoreControl);
             }
