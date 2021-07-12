@@ -37,6 +37,7 @@ namespace Chess.Game
         public void Switch()
         {
             _remainingTimes[_currentPlayer] = GetRemainingTime(_currentPlayer) + _increment;
+            _currentClockStart = DateTime.Now;
             _currentPlayer = (_currentPlayer + 1) % _remainingTimes.Length;
         }
 
@@ -53,11 +54,11 @@ namespace Chess.Game
             if(player == _currentPlayer)
             {
                 TimeSpan currentMoveTime = DateTime.Now - _currentClockStart;
-                return _remainingTimes[_currentPlayer] - currentMoveTime.Seconds;
+                return Math.Max(0, _remainingTimes[_currentPlayer] - currentMoveTime.Seconds);
             }
             else
             {
-                return _remainingTimes[_currentPlayer];
+                return Math.Max(0, _remainingTimes[player]);
             }
         }
 

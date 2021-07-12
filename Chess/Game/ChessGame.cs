@@ -18,7 +18,7 @@ namespace Chess.Game
         {
             Rules = rules;
             MoveHistory = new List<Move>();
-            Clock = new Clock(timeLimit, increment);
+            Clock = new Clock(Rules.PlayerCount, timeLimit, increment);
             Reset();
         }
 
@@ -36,6 +36,7 @@ namespace Chess.Game
             {
                 BoardState = Rules.Move(move);
                 MoveHistory.Add(move);
+                Clock.Switch();
             }
         }
 

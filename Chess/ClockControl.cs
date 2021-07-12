@@ -30,8 +30,9 @@ namespace Chess
             {
                 _remainingTimeWhite = new Label()
                 {
-                    Location = new Point(0, Height - 24),
-                    Size = new Size(128, 24)
+                    Location = new Point(0, Height - 48),
+                    Size = new Size(128, 24),
+                    ForeColor = Color.White
                 };
                 Controls.Add(_remainingTimeWhite);
             }
@@ -41,7 +42,8 @@ namespace Chess
                 _remainingTimeBlack = new Label()
                 {
                     Location = new Point(0, 0),
-                    Size = new Size(128, 24)
+                    Size = new Size(128, 24),
+                    ForeColor = Color.White
                 };
                 Controls.Add(_remainingTimeBlack);
             }
@@ -55,8 +57,8 @@ namespace Chess
         {
             TimeSpan whiteTime = new TimeSpan(0, 0, _clock.GetRemainingTime(0));
             TimeSpan blackTime = new TimeSpan(0, 0, _clock.GetRemainingTime(1));
-            _remainingTimeWhite.Text = whiteTime.ToString();
-            _remainingTimeBlack.Text = blackTime.ToString();
+            _remainingTimeWhite.Text = whiteTime.ToString(@"mm\:ss");
+            _remainingTimeBlack.Text = blackTime.ToString(@"mm\:ss");
         }
 
     }

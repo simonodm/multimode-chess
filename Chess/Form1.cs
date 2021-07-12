@@ -22,7 +22,7 @@ namespace Chess
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            _game = new ChessGame(new ClassicRules());
+            _game = new ChessGame(new ClassicRules(), 10, 2);
             var gameControl = new GameControl(_game)
             {
                 Size = new Size(ClientRectangle.Width, ClientRectangle.Height),
