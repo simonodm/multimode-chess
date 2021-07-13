@@ -40,6 +40,11 @@ namespace Chess
             _listBox.SelectedIndex = _listBox.Items.Count - 1;
         }
 
+        public void AddMove(Move move)
+        {
+            _listBox.Items.Add(_game.Rules.GetMoveNotation(move));
+            _listBox.SelectedIndex = _listBox.Items.Count - 1;
+        }
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);

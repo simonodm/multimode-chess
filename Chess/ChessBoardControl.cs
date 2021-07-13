@@ -11,7 +11,8 @@ namespace Chess
 {
     class ChessBoardControl : Control
     {
-        public event EventHandler MovePlayed
+        public delegate void MoveEventHandler(object sender, MoveEventArgs e);
+        public event MoveEventHandler MovePlayed
         {
             add
             {
@@ -22,11 +23,24 @@ namespace Chess
                 onChessMove -= value;
             }
         }
+        public event MoveEventHandler MoveInputRequired
+        {
+            add
+            {
+                _onMoveInputRequired += value;
+            }
+            remove
+            {
+                _onMoveInputRequired -= value;
+            }
+        }
+
         public ChessGame Game;
         private ChessBoardTileControl _selectedTile;
         private List<Move> _selectedLegalMoves;
         private ChessBoardTileControl[,] _tileMap;
-        private event EventHandler onChessMove;
+        private event MoveEventHandler onChessMove;
+        private event MoveEventHandler _onMoveInputRequired;
         private bool _isBoardCurrent = true;
 
         public ChessBoardControl(ChessGame game)
@@ -63,9 +77,14 @@ namespace Chess
             }
         }
 
-        protected virtual void OnChessMove(EventArgs e)
+        protected virtual void OnChessMove(MoveEventArgs e)
         {
             onChessMove?.Invoke(this, e);
+        }
+
+        protected virtual void OnMoveInputRequired(MoveEventArgs e)
+        {
+            _onMoveInputRequired?.Invoke(this, e);
         }
 
         private void Tile_Click(object sender, EventArgs e)
@@ -82,17 +101,18 @@ namespace Chess
             else
             {
                 var move = _selectedLegalMoves.FirstOrDefault(move => move.To == tile.Square);
-                if(tile != _selectedTile && move != default(Move))
+                if(tile != _selectedTile)
                 {
                     if(move != default(Move))
                     {
+                        var moveArgs = new MoveEventArgs { Move = move };
                         if(move.IsUserInputRequired)
                         {
-                            move.SelectOption(0);
+                            OnMoveInputRequired(moveArgs);
                         }
                         Game.ProcessMove(move);
+                        OnChessMove(moveArgs);
                         UpdateBoard(Game.BoardState);
-                        OnChessMove(new EventArgs());
                     }
                     UnselectAll();
                 }

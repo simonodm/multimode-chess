@@ -28,7 +28,20 @@ namespace Chess
                 Size = new Size(ClientRectangle.Width, ClientRectangle.Height),
                 Location = new Point(0, 0)
             };
+            gameControl.OptionPickRequired += OnMultipleOptionInput;
             Controls.Add(gameControl);
+        }
+
+        private void OnMultipleOptionInput(object sender, MultipleOptionEventArgs e)
+        {
+            using (var optionForm = new OptionPickerModalForm(e.Options))
+            {
+                optionForm.ShowDialog();
+                if(optionForm.DialogResult == DialogResult.OK)
+                {
+                    e.PickedOption = optionForm.PickedOption;
+                }
+            }
         }
     }
 }

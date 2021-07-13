@@ -11,13 +11,26 @@ namespace Chess
 {
     class GameControl : Control
     {
+        public delegate void MultipleOptionEventHandler(object sender, MultipleOptionEventArgs e);
+        public event MultipleOptionEventHandler OptionPickRequired
+        {
+            add
+            {
+                _onOptionPickRequired += value;
+            }
+            remove
+            {
+                _onOptionPickRequired -= value;
+            }
+        }
         private ChessBoardControl _boardControl;
         private MoveHistoryControl _moveHistory;
         private BoardScoreControl _scoreControl;
         private ClockControl _clockControl;
         private Label _winnerLabel;
         private ChessGame _game;
-        
+        private event MultipleOptionEventHandler _onOptionPickRequired;
+
         public GameControl(ChessGame game)
         {
             _game = game;
@@ -35,6 +48,7 @@ namespace Chess
                     Size = new Size(Height - 24, Height - 24)
                 };
                 _boardControl.MovePlayed += OnMove;
+                _boardControl.MoveInputRequired += board_OnMoveInputRequired;
                 Controls.Add(_boardControl);
             }
             
@@ -94,14 +108,27 @@ namespace Chess
             _boardControl.UpdateBoard(move.BoardAfter);
         }
 
-        private void OnMove(object sender, EventArgs e)
+        private void OnMove(object sender, MoveEventArgs e)
         {
-            _moveHistory.UpdateHistory();
+            _moveHistory.AddMove(e.Move);
             _scoreControl.SetScore(_game.Rules.GetBoardScore(_game.BoardState).ToString());
             if (_game.IsGameOver())
             {
                 OnGameFinish(this, e);
             }
+        }
+
+        private void board_OnMoveInputRequired(object sender, MoveEventArgs e)
+        {
+            var args = new MultipleOptionEventArgs { Options = e.Move.Options };
+            OnOptionPickRequired(this, args);
+            e.Move.SelectOption(args.PickedOption.Id);
+        }
+
+        private void OnOptionPickRequired(object sender, MultipleOptionEventArgs e)
+        {
+            _onOptionPickRequired?.Invoke(this, e);
+
         }
 
         private void OnGameFinish(object sender, EventArgs e)

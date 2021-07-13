@@ -57,7 +57,7 @@ namespace Chess.Game
         {
             if(_board[file, rank].Piece != null)
             {
-                throw new Exception($"A piece is already present on square {rank}{file}.");
+                throw new Exception($"A piece is already present on square {file.ConvertToChessFile()}{rank+1}.");
             }
             var newBoard = CopyBoard();
             newBoard[file, rank].Piece = piece;
