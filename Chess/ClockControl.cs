@@ -11,10 +11,23 @@ namespace Chess
 {
     class ClockControl : Control
     {
+        public event EventHandler RunOut
+        {
+            add
+            {
+                _onRunOut += value;
+            }
+            remove
+            {
+                _onRunOut -= value;
+            }
+        }
         private Label _remainingTimeWhite;
         private Label _remainingTimeBlack;
         private Clock _clock;
         private Timer _timer;
+        private event EventHandler _onRunOut;
+
 
         public ClockControl(Clock clock)
         {
@@ -55,11 +68,22 @@ namespace Chess
 
         private void timer_Tick(object sender, EventArgs e)
         {
-            TimeSpan whiteTime = new TimeSpan(0, 0, _clock.GetRemainingTime(0));
-            TimeSpan blackTime = new TimeSpan(0, 0, _clock.GetRemainingTime(1));
+            int whiteRemainingTime = _clock.GetRemainingTime(0);
+            int blackRemainingTime = _clock.GetRemainingTime(1);
+            TimeSpan whiteTime = new TimeSpan(0, 0, whiteRemainingTime);
+            TimeSpan blackTime = new TimeSpan(0, 0, blackRemainingTime);
             _remainingTimeWhite.Text = whiteTime.ToString(@"mm\:ss");
             _remainingTimeBlack.Text = blackTime.ToString(@"mm\:ss");
+            if(whiteRemainingTime <= 0 || blackRemainingTime <= 0)
+            {
+                OnRunOut(new EventArgs());
+            }
+
         }
 
+        private void OnRunOut(EventArgs e)
+        {
+            _onRunOut?.Invoke(this, e);
+        }
     }
 }

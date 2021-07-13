@@ -42,20 +42,39 @@ namespace Chess.Game
 
         public bool IsGameOver()
         {
-            return IsClockRanOut() || Rules.IsGameOver(BoardState);
+            return DidClockRunOut() || Rules.IsGameOver(BoardState);
         }
 
-        private bool IsClockRanOut()
+        public GameResult GetGameResult()
         {
-            int playersWithTime = 0;
-            for(int i = 0; i < Rules.PlayerCount; i++)
+            if(!IsGameOver())
             {
-                if(Clock.GetRemainingTime(i) > 0)
+                throw new Exception("No game result available yet.");
+            }
+            var playersWithRemainingTime = GetAllPlayersWithRemainingTime();
+            if(playersWithRemainingTime.Count == 1)
+            {
+                return new GameResult(playersWithRemainingTime[0]);
+            }
+            return Rules.GetGameResult();
+        }
+
+        private List<int> GetAllPlayersWithRemainingTime()
+        {
+            List<int> players = new List<int>();
+            for (int i = 0; i < Rules.PlayerCount; i++)
+            {
+                if (Clock.GetRemainingTime(i) > 0)
                 {
-                    playersWithTime += 1;
+                    players.Add(i);
                 }
             }
-            return playersWithTime == 1;
+            return players;
+        }
+
+        private bool DidClockRunOut()
+        {
+            return GetAllPlayersWithRemainingTime().Count == 1;
         }
     }
 }

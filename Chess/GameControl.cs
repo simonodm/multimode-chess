@@ -57,6 +57,9 @@ namespace Chess
                     Location = new Point(Height, 12),
                     Size = new Size(72, Height)
                 };
+
+                _clockControl.RunOut += OnGameFinish;
+
                 Controls.Add(_clockControl);
             }
 
@@ -97,8 +100,13 @@ namespace Chess
             _scoreControl.SetScore(_game.Rules.GetBoardScore(_game.BoardState).ToString());
             if (_game.IsGameOver())
             {
-                _winnerLabel.Text = $"Winner: {_game.Rules.GetGameResult().GetWinner()}";
+                OnGameFinish(this, e);
             }
+        }
+
+        private void OnGameFinish(object sender, EventArgs e)
+        {
+            _winnerLabel.Text = $"Winner: {_game.GetGameResult().GetWinner()}"; 
         }
     }
 }
