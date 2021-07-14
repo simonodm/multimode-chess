@@ -14,6 +14,8 @@ namespace Chess
     public partial class Form1 : Form
     {
         private ChessGame _game;
+        private GameSetupControl _gameSetupView;
+        private GameControl _gameView;
 
         public Form1()
         {
@@ -22,14 +24,28 @@ namespace Chess
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            _game = new ChessGame(new ClassicRules(), 10, 2);
-            var gameControl = new GameControl(_game)
+            _gameSetupView = new GameSetupControl
             {
                 Size = new Size(ClientRectangle.Width, ClientRectangle.Height),
                 Location = new Point(0, 0)
             };
-            gameControl.OptionPickRequired += OnMultipleOptionInput;
-            Controls.Add(gameControl);
+            _gameSetupView.GameStart += OnGameStart;
+            //var game = new ChessGame(new ClassicRules(), 10, 2);
+            //_gameView = new GameControl(game)
+            //{
+            //    Size = new Size(ClientRectangle.Width, ClientRectangle.Height),
+            //    Location = new Point(0, 0)
+            //};
+            //_gameView.OptionPickRequired += OnMultipleOptionInput;
+            Controls.Add(_gameSetupView);
+            //Controls.Add(_gameView);
+        }
+
+        private void OnGameStart(object sender, GameStartEventArgs e)
+        {
+            Controls.Clear();
+            _gameView = GenerateGameControl(e.Game);
+            Controls.Add(_gameView);           
         }
 
         private void OnMultipleOptionInput(object sender, MultipleOptionEventArgs e)
@@ -42,6 +58,17 @@ namespace Chess
                     e.PickedOption = optionForm.PickedOption;
                 }
             }
+        }
+
+        private GameControl GenerateGameControl(ChessGame game)
+        {
+            var gameControl = new GameControl(game)
+            {
+                Size = new Size(ClientRectangle.Width, ClientRectangle.Height),
+                Location = new Point(0, 0)
+            };
+            gameControl.OptionPickRequired += OnMultipleOptionInput;
+            return gameControl;
         }
     }
 }

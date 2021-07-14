@@ -9,12 +9,12 @@ namespace Chess.Game
     class Option
     {
         public int Id { get; }
-        public string Name { get; }
+        public string Text { get; }
 
-        public Option(int id, string name)
+        public Option(int id, string text)
         {
             Id = id;
-            Name = name;
+            Text = text;
         }
     }
 }

@@ -312,10 +312,14 @@ namespace Chess.Game
                 {
                     return move.BoardBefore;
                 }
-                HandleCapture(move);
-                if(move.To.Piece == move.Piece)
+                var boardAfterCapture = HandleCapture(move);
+                if(boardAfterCapture.GetSquare(move.To.File, move.To.Rank).Piece == move.Piece)
                 {
-                    return move.BoardBefore.RemoveAt(move.To).AddPiece(move.To, piece);
+                    return boardAfterCapture.RemoveAt(move.To).AddPiece(move.To, piece);
+                }
+                else
+                {
+                    return boardAfterCapture;
                 }
             }
             return move.BoardBefore.AddPiece(move.To, piece).RemoveAt(move.From);

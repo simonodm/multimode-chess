@@ -27,7 +27,7 @@ namespace Chess
                 {
                     Size = new Size(96, 24),
                     Location = new Point((Width - 96) / 2, heightOffset),
-                    Text = option.Name
+                    Text = option.Text
                 };
                 _buttonToOptionMap[button] = option;
                 heightOffset += 48;

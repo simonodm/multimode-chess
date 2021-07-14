@@ -14,7 +14,24 @@ namespace Chess.Game
         public List<Move> MoveHistory;
         public Clock Clock;
 
-        public ChessGame(IGameRules rules, int timeLimit = 600, int increment = 0)
+        public static ChessGame CreateGame<TRules>(int timeLimit = 600, int increment = 0) where TRules : IGameRules, new()
+        {
+            return new ChessGame(new TRules(), timeLimit, increment);
+        }
+
+        public static ChessGame CreateFromModeId(int modeId, int timeLimit = 600, int increment = 0)
+        {
+            switch(modeId)
+            {
+                case 1:
+                    return CreateGame<PawnOfTheDeadRules>(timeLimit, increment);
+                case 0:
+                default:
+                    return CreateGame<ClassicRules>(timeLimit, increment);
+            }
+        }
+
+        protected ChessGame(IGameRules rules, int timeLimit = 600, int increment = 0)
         {
             Rules = rules;
             MoveHistory = new List<Move>();
