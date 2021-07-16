@@ -14,9 +14,44 @@ namespace Chess.Game
             _score = score;
         }
 
+        public double GetScore()
+        {
+            return _score;
+        }
+
         public string ToString()
         {
             return _score.ToString();
+        }
+        
+        public static bool operator >(BoardScore first, BoardScore second)
+        {
+            return first.GetScore() > second.GetScore();
+        }
+
+        public static bool operator <(BoardScore first, BoardScore second)
+        {
+            return first.GetScore() < second.GetScore();
+        }
+
+        public static bool operator >=(BoardScore first, BoardScore second)
+        {
+            return first.GetScore() >= second.GetScore();
+        }
+
+        public static bool operator <=(BoardScore first, BoardScore second)
+        {
+            return first.GetScore() <= second.GetScore();
+        }
+
+        public static bool operator ==(BoardScore first, BoardScore second)
+        {
+            return first.GetScore() == second.GetScore();
+        }
+
+        public static bool operator !=(BoardScore first, BoardScore second)
+        {
+            return first.GetScore() != second.GetScore();
         }
     
     }

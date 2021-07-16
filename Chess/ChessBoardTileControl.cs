@@ -109,7 +109,7 @@ namespace Chess
             {
                 if (_square.Rank % 2 == 0)
                 {
-                    return Color.DarkGreen;
+                    return Color.FromArgb(255, 192, 203);
                 }
                 else
                 {
@@ -124,7 +124,7 @@ namespace Chess
                 }
                 else
                 {
-                    return Color.DarkGreen;
+                    return Color.FromArgb(255, 192, 203);
                 }
             }
         }

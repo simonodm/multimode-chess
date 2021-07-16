@@ -16,7 +16,7 @@ namespace Chess.Game
             _rules = rules;
         }
 
-        public BoardScore GetBoardScore(BoardState state)
+        public double GetBoardScore(BoardState state)
         {
             double score = 0;
             foreach(var square in state.GetAllSquares())
@@ -24,7 +24,7 @@ namespace Chess.Game
                 score += CalculatePieceValue(state, square);
                 score += CalculatePieceCoverage(state, square);
             }
-            return new BoardScore(score);
+            return score;
         }
 
         private int CalculatePieceValue(BoardState state, BoardSquare square)
@@ -46,9 +46,9 @@ namespace Chess.Game
         private double CalculatePieceCoverage(BoardState state, BoardSquare square)
         {
             const double COVERAGE_MULTIPLIER = 0.1;
-            double result = 0;
             if(square.Piece != null)
             {
+                double result = 0;
                 var moves = _rules.GetLegalMoves(square, state);
                 foreach(var move in moves)
                 {
@@ -58,7 +58,7 @@ namespace Chess.Game
                     }
                     else if(move.To.Piece.Player != square.Piece.Player)
                     {
-                        result += 3 * COVERAGE_MULTIPLIER;
+                        result += move.To.Piece.Value * COVERAGE_MULTIPLIER;
                     }
                 }
                 if (square.Piece.Player == 0)

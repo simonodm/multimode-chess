@@ -9,6 +9,6 @@ namespace Chess.Game
 {
     interface IBoardEvaluator
     {
-        public BoardScore GetBoardScore(BoardState state);
+        public double GetBoardScore(BoardState state);
     }
 }

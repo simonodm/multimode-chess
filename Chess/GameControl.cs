@@ -106,12 +106,13 @@ namespace Chess
         {
             var move = e.Move;
             _boardControl.UpdateBoard(move.BoardAfter);
+            //_scoreControl.SetScore(_game.GetEvaluator().GetBoardScore(move.BoardAfter).ToString());
+            _scoreControl.SetScore(_game.Evaluate(move.BoardAfter).ToString());
         }
 
         private void OnMove(object sender, MoveEventArgs e)
         {
             _moveHistory.AddMove(e.Move);
-            _scoreControl.SetScore(_game.Rules.GetEvaluator().GetBoardScore(e.Move.BoardAfter).ToString());
             if (_game.IsGameOver())
             {
                 OnGameFinish(this, e);

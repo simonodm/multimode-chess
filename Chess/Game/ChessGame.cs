@@ -84,6 +84,16 @@ namespace Chess.Game
             return Rules.GetGameResult();
         }
 
+        public double Evaluate(BoardState state)
+        {
+            return Minimax.GetBoardScore(Rules, state);
+        }
+
+        public IBoardEvaluator GetEvaluator()
+        {
+            return Rules.GetEvaluator();
+        }
+
         private List<int> GetAllPlayersWithRemainingTime()
         {
             List<int> players = new List<int>();
