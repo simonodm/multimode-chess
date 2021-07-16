@@ -9,6 +9,8 @@ namespace Chess.Game
 {
     class BoardState
     {
+        public int CurrentPlayer;
+        public Move LastMove;
         private BoardSquare[,] _board = new BoardSquare[8, 8];
         
         public BoardState()
@@ -49,20 +51,26 @@ namespace Chess.Game
             newBoard[move.To.File, move.To.Rank].Piece = move.Piece;
             move.Piece.Square = newBoard[move.To.File, move.To.Rank];
             newBoard[move.From.File, move.From.Rank].Piece = null;
-            var newBoardState = new BoardState(newBoard);
+            var newBoardState = new BoardState(newBoard)
+            {
+                LastMove = move
+            };
             return newBoardState;
         }
 
         public BoardState AddPiece(int file, int rank, IGamePiece piece)
         {
-            if(_board[file, rank].Piece != null)
+            if (_board[file, rank].Piece != null)
             {
-                throw new Exception($"A piece is already present on square {file.ConvertToChessFile()}{rank+1}.");
+                throw new Exception($"A piece is already present on square {file.ConvertToChessFile()}{rank + 1}.");
             }
             var newBoard = CopyBoard();
             newBoard[file, rank].Piece = piece;
             piece.Square = newBoard[file, rank];
-            var newBoardState = new BoardState(newBoard);
+            var newBoardState = new BoardState(newBoard)
+            {
+                LastMove = LastMove
+            };
             return newBoardState;
         }
 
@@ -86,7 +94,10 @@ namespace Chess.Game
             newBoard[file, rank].Piece.Square = null;
             newBoard[file, rank].Piece = null;
             
-            var newBoardState = new BoardState(newBoard);
+            var newBoardState = new BoardState(newBoard)
+            {
+                LastMove = LastMove
+            };
             return newBoardState;
         }
 

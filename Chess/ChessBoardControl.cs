@@ -127,7 +127,7 @@ namespace Chess
         private void SelectTile(ChessBoardTileControl tile)
         {
             var square = tile.Square;
-            if(square.Piece != null && square.Piece.Player == Game.Rules.CurrentPlayer)
+            if(square.Piece != null && square.Piece.Player == Game.CurrentPlayer)
             {
                 tile.Select();
                 _selectedTile = tile;

@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chess
+namespace Chess.Game.Modes
 {
-    class PlayableChessBoardControl : ChessBoardControl
+    interface IMoveFactory
     {
+        public Move GetMove(BoardState state, BoardSquare from, BoardSquare to);
     }
 }

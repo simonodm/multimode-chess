@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chess.Game
+namespace Chess.Game.Modes
 {
     class ClassicRules : IGameRules
     {
@@ -15,12 +15,14 @@ namespace Chess.Game
         public int FileCount { get; } = 8;
         public int RankCount { get; } = 8;
 
-        private BoardSquare _enPassantSquare;
-        private bool _enPassantPossible = false;
-        private IGamePiece _enPassantPiece;
-
         private bool _gameOver = false;
         private GameResult _gameResult = null;
+        private StandardBoardEvaluator _evaluator;
+
+        public ClassicRules()
+        {
+            _evaluator = new StandardBoardEvaluator(this);
+        }
 
         public virtual BoardState Move(Move move)
         {
@@ -29,36 +31,29 @@ namespace Chess.Game
             switch(type)
             {
                 case MoveType.MOVE_NORMAL:
-                    _enPassantPossible = false;
                     newBoardState = HandleNormal(move);
                     break;
                 case MoveType.MOVE_CAPTURE:
                     newBoardState = HandleCapture(move);
-                    _enPassantPossible = false;
                     break;
                 case MoveType.MOVE_CASTLE:
                     newBoardState = HandleCastle(move);
-                    _enPassantPossible = false;
                     break;
                 case MoveType.MOVE_PROMOTION:
                     newBoardState = HandlePromotion(move);
-                    _enPassantPossible = false;
                     break;
                 case MoveType.MOVE_EN_PASSANT:
                     newBoardState = HandleEnPassant(move);
-                    _enPassantPossible = false;
                     break;
                 case MoveType.MOVE_ILLEGAL:
                 default:
                     return move.BoardBefore;
             }
 
-            CurrentPlayer = (CurrentPlayer + 1) % PlayerCount;
-
             if (IsGameOver(newBoardState))
             {
                 _gameOver = true;
-                _gameResult = new GameResult((CurrentPlayer+1)%PlayerCount);
+                _gameResult = new GameResult(newBoardState.LastMove.Piece.Player);
             }
 
             move.Piece.MoveCount++;
@@ -89,6 +84,7 @@ namespace Chess.Game
 
         public virtual BoardScore GetBoardScore(BoardState state)
         {
+
             return new BoardScore(0);
         }
 
@@ -193,6 +189,11 @@ namespace Chess.Game
                 sb.Append("#");
             }
             return sb.ToString();
+        }
+
+        public virtual IBoardEvaluator GetEvaluator()
+        {
+            return _evaluator;
         }
 
         protected virtual List<Move> GetAllNonBlockedMoves(BoardState currentState)
@@ -351,20 +352,12 @@ namespace Chess.Game
         {
             BoardState newBoardState = move.BoardBefore.Move(move);
 
-            if(move.Piece is Pawn && Math.Abs(move.To.Rank - move.From.Rank) == 2)
-            {
-                int enPassantSquareRank = move.From.Rank + (move.To.Rank - move.From.Rank) / 2;
-                _enPassantSquare = newBoardState.GetSquare(move.To.File, enPassantSquareRank);
-                _enPassantPossible = true;
-                _enPassantPiece = move.Piece;
-            }
-
             return newBoardState;
         }
-        
+
         protected virtual BoardState HandleEnPassant(Move move)
         {
-            return move.BoardBefore.Move(move).RemovePiece(_enPassantPiece);
+            return move.BoardBefore.Move(move).RemoveAt(move.BoardBefore.LastMove.To);
         }
         private bool IsCapture(Move move)
         {
@@ -393,10 +386,24 @@ namespace Chess.Game
 
         private bool IsEnPassant(Move move)
         {
+            var previousMove = move.BoardBefore.LastMove;
+            if(previousMove == null)
+            {
+                return false;
+            }
             return move.Piece is Pawn &&
-                _enPassantPossible &&
-                _enPassantPiece.Player != move.Piece.Player &&
-                move.To == _enPassantSquare;
+                previousMove.Piece is Pawn &&
+                Math.Abs(previousMove.To.Rank - previousMove.From.Rank) == 2 &&
+                move.To == GetEnPassantSquare(move);
+        }
+
+        private BoardSquare GetEnPassantSquare(Move move)
+        {
+            var previousMove = move.BoardBefore.LastMove;
+            var enPassantFile = previousMove.From.File;
+            var enPassantRank = previousMove.From.Rank + (previousMove.To.Rank - previousMove.From.Rank) / 2;
+            var square = move.BoardBefore.GetSquare(enPassantFile, enPassantRank);
+            return square;
         }
 
         private bool IsPromotion(Move move)
@@ -410,7 +417,7 @@ namespace Chess.Game
             {
                 for(int i = Math.Min(move.From.File, move.To.File); i <= Math.Max(move.From.File, move.To.File); i++)
                 {
-                    if(IsSquareUnderThreat(move.BoardBefore.GetSquare(i, move.From.Rank), move.BoardBefore))
+                    if(IsSquareUnderThreat(move.BoardBefore.GetSquare(i, move.From.Rank), move.BoardBefore, GetNextPlayer(move.Piece.Player)))
                     {
                         return false;
                     }
@@ -480,15 +487,14 @@ namespace Chess.Game
                     move.BoardBefore.GetSquare(7, move.From.Rank);
         }
 
-        private bool IsSquareUnderThreat(BoardSquare square, BoardState state)
+        private bool IsSquareUnderThreat(BoardSquare square, BoardState state, int byPlayer)
         {
             var moves = GetAllNonBlockedMoves(state);
 
             foreach(var move in moves)
             {
                 if(move.To == square &&
-                   ((square.Piece != null && move.Piece.Player != square.Piece.Player) ||
-                   (square.Piece == null && move.Piece.Player != CurrentPlayer)))
+                   move.Piece.Player == byPlayer)
                 {
                     return true;
                 }
@@ -503,7 +509,7 @@ namespace Chess.Game
 
             foreach(var square in kingSquares)
             {
-                if(square.Piece.Player == player && IsSquareUnderThreat(square, state)) {
+                if(square.Piece.Player == player && IsSquareUnderThreat(square, state, GetNextPlayer(square.Piece.Player))) {
                     return true;
                 }
             }
@@ -579,6 +585,10 @@ namespace Chess.Game
                 symbol = 'K';
             }
             return symbol;
+        }
+        private int GetNextPlayer(int player)
+        {
+            return (player + 1) % PlayerCount;
         }
     }
 }

@@ -111,7 +111,7 @@ namespace Chess
         private void OnMove(object sender, MoveEventArgs e)
         {
             _moveHistory.AddMove(e.Move);
-            _scoreControl.SetScore(_game.Rules.GetBoardScore(_game.BoardState).ToString());
+            _scoreControl.SetScore(_game.Rules.GetEvaluator().GetBoardScore(e.Move.BoardAfter).ToString());
             if (_game.IsGameOver())
             {
                 OnGameFinish(this, e);

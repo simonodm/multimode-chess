@@ -9,7 +9,7 @@ namespace Chess.Game
     struct BoardScore
     {
         private double _score;
-        public BoardScore(int score)
+        public BoardScore(double score)
         {
             _score = score;
         }

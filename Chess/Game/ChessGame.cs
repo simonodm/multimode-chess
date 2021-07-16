@@ -1,4 +1,5 @@
 ﻿using Chess.Game.Pieces;
+using Chess.Game.Modes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,10 +14,14 @@ namespace Chess.Game
         public IGameRules Rules;
         public List<Move> MoveHistory;
         public Clock Clock;
+        public IBoardEvaluator Evaluator;
+        public int CurrentPlayer;
 
-        public static ChessGame CreateGame<TRules>(int timeLimit = 600, int increment = 0) where TRules : IGameRules, new()
+        public static ChessGame CreateGame<TRules>(int timeLimit = 600, int increment = 0)
+            where TRules : IGameRules, new()
         {
-            return new ChessGame(new TRules(), timeLimit, increment);
+            var rules = new TRules();
+            return new ChessGame(rules, timeLimit, increment);
         }
 
         public static ChessGame CreateFromModeId(int modeId, int timeLimit = 600, int increment = 0)
@@ -42,6 +47,7 @@ namespace Chess.Game
         public void Reset()
         {
             BoardState = Rules.GetDefaultBoard();
+            CurrentPlayer = 0;
             Clock.Reset();
             MoveHistory.Clear();
             Clock.Start();
@@ -51,9 +57,11 @@ namespace Chess.Game
         {
             if(Clock.GetRemainingTime(move.Piece.Player) > 0)
             {
+                if (MoveHistory.Count > 0) move.Previous = MoveHistory[MoveHistory.Count - 1];
                 BoardState = Rules.Move(move);
                 MoveHistory.Add(move);
                 Clock.Switch();
+                CurrentPlayer = (CurrentPlayer + 1) % Rules.PlayerCount;
             }
         }
 

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chess.Game
+namespace Chess.Game.Modes
 {
     interface IGameRules
     {
@@ -19,6 +19,7 @@ namespace Chess.Game
         public BoardState GetDefaultBoard();
         public GameResult GetGameResult();
         public BoardScore GetBoardScore(BoardState state);
+        public IBoardEvaluator GetEvaluator();
         public string GetMoveNotation(Move move);
     }
 }

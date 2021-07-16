@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Chess.Game.Pieces;
 
-namespace Chess.Game
+namespace Chess.Game.Modes
 {
     class PawnOfTheDeadRules : ClassicRules
     {
