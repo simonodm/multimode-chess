@@ -14,33 +14,36 @@ namespace Chess.Game
         public IGameRules Rules;
         public List<Move> MoveHistory;
         public Clock Clock;
-        public IBoardEvaluator Evaluator;
         public int CurrentPlayer;
+        private MinimaxResult _currentBoardMinimax;
+        private bool _vsAi;
+        private int _AIplayer = 1;
 
-        public static ChessGame CreateGame<TRules>(int timeLimit = 600, int increment = 0)
+        public static ChessGame CreateGame<TRules>(int timeLimit = 600, int increment = 0, bool vsAi = false)
             where TRules : IGameRules, new()
         {
             var rules = new TRules();
-            return new ChessGame(rules, timeLimit, increment);
+            return new ChessGame(rules, timeLimit, increment, vsAi);
         }
 
-        public static ChessGame CreateFromModeId(int modeId, int timeLimit = 600, int increment = 0)
+        public static ChessGame CreateFromModeId(int modeId, int timeLimit = 600, int increment = 0, bool vsAi = false)
         {
             switch(modeId)
             {
                 case 1:
-                    return CreateGame<PawnOfTheDeadRules>(timeLimit, increment);
+                    return CreateGame<PawnOfTheDeadRules>(timeLimit, increment, vsAi);
                 case 0:
                 default:
-                    return CreateGame<ClassicRules>(timeLimit, increment);
+                    return CreateGame<ClassicRules>(timeLimit, increment, vsAi);
             }
         }
 
-        protected ChessGame(IGameRules rules, int timeLimit = 600, int increment = 0)
+        protected ChessGame(IGameRules rules, int timeLimit = 600, int increment = 0, bool ai = false)
         {
             Rules = rules;
             MoveHistory = new List<Move>();
             Clock = new Clock(Rules.PlayerCount, timeLimit, increment);
+            _vsAi = ai;
             Reset();
         }
 
@@ -62,6 +65,12 @@ namespace Chess.Game
                 MoveHistory.Add(move);
                 Clock.Switch();
                 CurrentPlayer = (CurrentPlayer + 1) % Rules.PlayerCount;
+                _currentBoardMinimax = null;
+                if(_vsAi && CurrentPlayer == _AIplayer)
+                {
+                    _currentBoardMinimax = Minimax.GetBoardScore(Rules, BoardState, 2);
+                    ProcessMove(_currentBoardMinimax.BestMove);
+                }
             }
         }
 
@@ -86,7 +95,11 @@ namespace Chess.Game
 
         public double Evaluate(BoardState state)
         {
-            return Minimax.GetBoardScore(Rules, state);
+            if(_currentBoardMinimax == null)
+            {
+                _currentBoardMinimax = Minimax.GetBoardScore(Rules, state);
+            }
+            return _currentBoardMinimax.Score;
         }
 
         public IBoardEvaluator GetEvaluator()

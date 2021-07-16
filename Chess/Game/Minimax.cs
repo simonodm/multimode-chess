@@ -9,7 +9,7 @@ namespace Chess.Game
 {
     class Minimax
     {
-        public static double GetBoardScore(IGameRules rules, BoardState state, int depth = 3)
+        public static MinimaxResult GetBoardScore(IGameRules rules, BoardState state, int depth = 2)
         {
             int player = 0;
             if(state.LastMove != null && state.LastMove.Piece.Player == 0)
@@ -20,7 +20,7 @@ namespace Chess.Game
             return ProcessBoard(rules, state, depth, player);
         }
 
-        private static double ProcessBoard(
+        private static MinimaxResult ProcessBoard(
             IGameRules rules,
             BoardState state,
             int depth,
@@ -30,10 +30,12 @@ namespace Chess.Game
         {
             if (depth == 0)
             {
-                return rules.GetEvaluator().GetBoardScore(state);
+                double score = rules.GetEvaluator().GetBoardScore(state);
+                return new MinimaxResult(state, score);
             }
 
             double bestScore = player == 0 ? double.MinValue : double.MaxValue;
+            Move bestMove = null;
 
             double newAlpha = alpha;
             double newBeta = beta;
@@ -44,7 +46,11 @@ namespace Chess.Game
                 var score = ProcessBoard(rules, rules.Move(move), depth - 1, (player + 1) % 2, newAlpha, newBeta);
                 if(player == 0)
                 {
-                    bestScore = Math.Max(score, bestScore);
+                    if(score.Score > bestScore)
+                    {
+                        bestScore = score.Score;
+                        bestMove = move;
+                    }
                     newAlpha = Math.Max(bestScore, newAlpha);
                     if(newAlpha >= newBeta)
                     {
@@ -53,7 +59,11 @@ namespace Chess.Game
                 }
                 else
                 {
-                    bestScore = Math.Min(score, bestScore);
+                    if(score.Score < bestScore)
+                    {
+                        bestScore = score.Score;
+                        bestMove = move;
+                    }
                     newBeta = Math.Min(bestScore, newBeta);
                     if(newAlpha >= newBeta)
                     {
@@ -62,7 +72,7 @@ namespace Chess.Game
                 }
             }
 
-            return bestScore;
+            return new MinimaxResult(state, bestScore, bestMove);
         }
     }
 }

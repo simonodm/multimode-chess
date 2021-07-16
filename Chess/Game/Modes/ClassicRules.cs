@@ -248,10 +248,6 @@ namespace Chess.Game.Modes
             {
                 return MoveType.MOVE_ILLEGAL;
             }
-            if(IsCastle(move))
-            {
-                return MoveType.MOVE_CASTLE;
-            }
             if(IsPromotion(move))
             {
                 return MoveType.MOVE_PROMOTION;
@@ -267,6 +263,10 @@ namespace Chess.Game.Modes
             if (IsNormal(move))
             {
                 return MoveType.MOVE_NORMAL;
+            }
+            if (IsCastle(move))
+            {
+                return MoveType.MOVE_CASTLE;
             }
             return MoveType.MOVE_ILLEGAL;
         }

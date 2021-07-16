@@ -24,7 +24,7 @@ namespace Chess
             }
         }
         private ComboBox _comboBoxModes;
-        private ComboBox _comboBoxOpponent;
+        private CheckBox _checkBoxOpponent;
         private NumericUpDown _timeLimit;
         private NumericUpDown _increment;
         private Button _startButton;
@@ -36,15 +36,12 @@ namespace Chess
             _timeLimit = GenerateTimeLimitControl();
             _increment = GenerateIncrementControl();
             _startButton = GenerateStartButton();
-            _comboBoxOpponent = new ComboBox
-            {
-                Location = new Point(12, 48)
-            };
+            _checkBoxOpponent = GenerateOpponentCheckbox();
             Controls.Add(_comboBoxModes);
             Controls.Add(_timeLimit);
             Controls.Add(_increment);
             Controls.Add(_startButton);
-            Controls.Add(_comboBoxOpponent);
+            Controls.Add(_checkBoxOpponent);
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -67,6 +64,14 @@ namespace Chess
             return comboBoxModes;
         }
 
+        private CheckBox GenerateOpponentCheckbox()
+        {
+            var opponentCheckbox = new CheckBox
+            {
+                Location = new Point(12, 48)
+            };
+            return opponentCheckbox;
+        }
         private NumericUpDown GenerateTimeLimitControl()
         {
             var timeLimit = new NumericUpDown
@@ -108,7 +113,7 @@ namespace Chess
         {
             var args = new GameStartEventArgs
             {
-                Game = ChessGame.CreateFromModeId((int)_comboBoxModes.SelectedValue, (int)_timeLimit.Value, (int)_increment.Value)
+                Game = ChessGame.CreateFromModeId((int)_comboBoxModes.SelectedValue, (int)_timeLimit.Value, (int)_increment.Value, _checkBoxOpponent.Checked)
             };
             OnGameStart(args);
         }
