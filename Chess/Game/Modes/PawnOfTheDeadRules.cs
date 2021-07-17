@@ -11,17 +11,7 @@ namespace Chess.Game.Modes
     {
         protected override BoardState HandleCapture(Move move)
         {
-            if(move.From.Piece.Player == 0)
-            {
-                return base.HandleCapture(move);
-            }
-            
-            var piece = move.To.Piece;
-            var newPiece = (IGamePiece)Activator.CreateInstance(piece.GetType());
-            newPiece.Player = 1;
-            return move.BoardBefore
-                .RemoveAt(move.To)
-                .AddPiece(move.To, newPiece);
+            return base.HandleCapture(move);
         }
     }
 }

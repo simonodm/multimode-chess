@@ -68,7 +68,7 @@ namespace Chess.Game.Modes
 
         public virtual GameResult GetGameResult(BoardState state)
         {
-            return new GameResult(state.LastMove.Piece.Player);    
+            return new GameResult(state.GetLastMove().Piece.Player);    
         }
 
         public virtual BoardScore GetBoardScore(BoardState state)
@@ -77,17 +77,17 @@ namespace Chess.Game.Modes
             return new BoardScore(0);
         }
 
-        public virtual BoardState GetDefaultBoard()
+        public virtual Board GetDefaultBoard()
         {
-            var state = new BoardState();
+            var board = new Board(8, 8);
             for (int player = 0; player < PlayerCount; player++)
             {
                 int firstRank = player == 0 ? 0 : 7;
                 int secondRank = player == 0 ? 1 : 6;
                 for (int file = 0; file < FileCount; file++)
                 {
-                    var squareFirstRank = state.GetSquare(file, firstRank);
-                    var squareSecondRank = state.GetSquare(file, secondRank);
+                    var squareFirstRank = board.GetSquare(file, firstRank);
+                    var squareSecondRank = board.GetSquare(file, secondRank);
                     IGamePiece piece = null;
                     if (file == 0 || file == 7)
                     {
@@ -124,20 +124,20 @@ namespace Chess.Game.Modes
                             Player = player
                         };
                     }
-                    state = state.AddPiece(squareFirstRank, piece);
-                    state = state.AddPiece(squareSecondRank, new Pawn
+                    board = board.AddPiece(squareFirstRank, piece);
+                    board = board.AddPiece(squareSecondRank, new Pawn
                     {
                         Player = player
                     });
                 }
             }
-            return state;
+            return board;
         }
 
         public virtual List<Move> GetAllLegalMoves(BoardState currentState, int player)
         {
             var moveList = new List<Move>();
-            foreach (var square in currentState.GetAllSquares())
+            foreach (var square in currentState.GetBoard().GetAllSquares())
             {
                 if (square.Piece != null && square.Piece.Player == player)
                 {
@@ -188,7 +188,7 @@ namespace Chess.Game.Modes
         protected virtual List<Move> GetAllNonBlockedMoves(BoardState currentState)
         {
             var moves = new List<Move>();
-            foreach(var square in currentState.GetAllSquares())
+            foreach(var square in currentState.GetBoard().GetAllSquares())
             {
                 moves.AddRange(GetNonBlockedMoves(square, currentState));
             }
@@ -210,7 +210,7 @@ namespace Chess.Game.Modes
                     var move = new Move(this)
                     {
                         From = square,
-                        To = currentState.GetSquare(newFile, newRank),
+                        To = currentState.GetBoard().GetSquare(newFile, newRank),
                         Piece = square.Piece,
                         BoardBefore = currentState
                     };
@@ -263,7 +263,7 @@ namespace Chess.Game.Modes
         protected virtual BoardState HandlePromotion(Move move)
         {
             IGamePiece piece;
-            switch(move.SelectedOption.Id)
+            switch(move.SelectedOption.Id) // TODO: Move to piece factory
             {
                 case 0:
                     piece = new Queen
@@ -302,25 +302,27 @@ namespace Chess.Game.Modes
                 {
                     return move.BoardBefore;
                 }
-                var boardAfterCapture = HandleCapture(move);
+                var boardStateAfterCapture = HandleCapture(move);
+                var boardAfterCapture = boardStateAfterCapture.GetBoard();
                 if(boardAfterCapture.GetSquare(move.To.File, move.To.Rank).Piece == move.Piece)
                 {
-                    return boardAfterCapture.RemoveAt(move.To).AddPiece(move.To, piece);
+                    return new BoardState(boardAfterCapture.RemovePiece(move.To).AddPiece(move.To, piece), move);
                 }
                 else
                 {
-                    return boardAfterCapture;
+                    return boardStateAfterCapture;
                 }
             }
-            return move.BoardBefore.AddPiece(move.To, piece).RemoveAt(move.From);
+            var newBoard = move.BoardBefore.GetBoard().AddPiece(move.To, piece).RemovePiece(move.From);
+            return new BoardState(newBoard, move);
         }
         protected virtual BoardState HandleCastle(Move move)
         {
             var rookSquare = GetCastleRookSquare(move);
 
             var rookTargetSquare = move.To.File > move.From.File ?
-                move.BoardBefore.GetSquare(move.From.File + 1, move.From.Rank) :
-                move.BoardBefore.GetSquare(move.From.File - 1, move.From.Rank);
+                move.BoardBefore.GetBoard().GetSquare(move.From.File + 1, move.From.Rank) :
+                move.BoardBefore.GetBoard().GetSquare(move.From.File - 1, move.From.Rank);
 
             var rookMove = new Move(this)
             {
@@ -334,20 +336,21 @@ namespace Chess.Game.Modes
 
         protected virtual BoardState HandleCapture(Move move)
         {
-            return move.BoardBefore.RemoveAt(move.To).Move(move);
+            return move.BoardBefore.Move(move);
         }
 
         protected virtual BoardState HandleNormal(Move move)
         {
-            BoardState newBoardState = move.BoardBefore.Move(move);
-
-            return newBoardState;
+            return move.BoardBefore.Move(move);
         }
 
         protected virtual BoardState HandleEnPassant(Move move)
         {
-            return move.BoardBefore.Move(move).RemoveAt(move.BoardBefore.LastMove.To);
+            var enPassantSquare = move.BoardBefore.GetLastMove().To;
+            var boardAfterRemovedEnPassant = move.BoardBefore.GetBoard().RemovePiece(enPassantSquare);
+            return new BoardState(boardAfterRemovedEnPassant).Move(move);
         }
+
         private bool IsCapture(Move move)
         {
             if (IsEnPassant(move))
@@ -375,7 +378,7 @@ namespace Chess.Game.Modes
 
         private bool IsEnPassant(Move move)
         {
-            var previousMove = move.BoardBefore.LastMove;
+            var previousMove = move.BoardBefore.GetLastMove();
             if(previousMove == null)
             {
                 return false;
@@ -388,10 +391,10 @@ namespace Chess.Game.Modes
 
         private BoardSquare GetEnPassantSquare(Move move)
         {
-            var previousMove = move.BoardBefore.LastMove;
+            var previousMove = move.BoardBefore.GetLastMove();
             var enPassantFile = previousMove.From.File;
             var enPassantRank = previousMove.From.Rank + (previousMove.To.Rank - previousMove.From.Rank) / 2;
-            var square = move.BoardBefore.GetSquare(enPassantFile, enPassantRank);
+            var square = move.BoardBefore.GetBoard().GetSquare(enPassantFile, enPassantRank);
             return square;
         }
 
@@ -406,7 +409,7 @@ namespace Chess.Game.Modes
             {
                 for(int i = Math.Min(move.From.File, move.To.File); i <= Math.Max(move.From.File, move.To.File); i++)
                 {
-                    if(IsSquareUnderThreat(move.BoardBefore.GetSquare(i, move.From.Rank), move.BoardBefore, GetNextPlayer(move.Piece.Player)))
+                    if(IsSquareUnderThreat(move.BoardBefore.GetBoard().GetSquare(i, move.From.Rank), move.BoardBefore, GetNextPlayer(move.Piece.Player)))
                     {
                         return false;
                     }
@@ -472,8 +475,8 @@ namespace Chess.Game.Modes
         private BoardSquare GetCastleRookSquare(Move move)
         {
             return move.To.File < move.From.File ?
-                    move.BoardBefore.GetSquare(0, move.From.Rank) :
-                    move.BoardBefore.GetSquare(7, move.From.Rank);
+                    move.BoardBefore.GetBoard().GetSquare(0, move.From.Rank) :
+                    move.BoardBefore.GetBoard().GetSquare(7, move.From.Rank);
         }
 
         private bool IsSquareUnderThreat(BoardSquare square, BoardState state, int byPlayer)
@@ -523,7 +526,7 @@ namespace Chess.Game.Modes
 
             while(i != endFile || j != endRank)
             {
-                var piece = move.BoardBefore.GetSquare(i, j).Piece;
+                var piece = move.BoardBefore.GetBoard().GetSquare(i, j).Piece;
                 if(piece != null && piece != move.Piece)
                 {
                     pieceFound = true;

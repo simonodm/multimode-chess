@@ -48,7 +48,7 @@ namespace Chess.Game
 
         public void Reset()
         {
-            BoardState = Rules.GetDefaultBoard();
+            BoardState = new BoardState(Rules.GetDefaultBoard());
             CurrentPlayer = 0;
             Clock.Reset();
             MoveHistory.Clear();
@@ -66,8 +66,8 @@ namespace Chess.Game
                 CurrentPlayer = (CurrentPlayer + 1) % Rules.PlayerCount;
                 if(_vsAi && CurrentPlayer == _AIplayer)
                 {
-                    BoardState.Score = Minimax.GetBoardScore(Rules, BoardState);
-                    ProcessMove(BoardState.Score.BestMove);
+                    BoardState.SetScore(Minimax.GetBoardScore(Rules, BoardState));
+                    ProcessMove(BoardState.GetScore().BestMove);
                 }
             }
         }
@@ -93,12 +93,12 @@ namespace Chess.Game
 
         public double Evaluate(BoardState state)
         {
-            if(state.Score != null)
+            if(state.GetScore() != null)
             {
-                return state.Score.Score;
+                return state.GetScore().Score;
             }
             var score = Minimax.GetBoardScore(Rules, state);
-            state.Score = score;
+            state.SetScore(score);
             return score.Score;
         }
 

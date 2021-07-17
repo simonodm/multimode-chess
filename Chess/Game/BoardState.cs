@@ -9,118 +9,56 @@ namespace Chess.Game
 {
     class BoardState
     {
-        public int CurrentPlayer;
-        public Move LastMove;
-        public MinimaxResult Score;
-        private BoardSquare[,] _board = new BoardSquare[8, 8];
+        private Move _lastMove;
+        private MinimaxResult _score;
+        private Board _board;
         
-        public BoardState()
+        public BoardState(int width, int height, Move lastMove = null)
         {
-            for(int i = 0; i < _board.GetLength(0); i++)
-            {
-                for(int j = 0; j < _board.GetLength(1); j++)
-                {
-                    _board[i, j] = new BoardSquare(i, j, null);
-                }
-            }
+            _board = new Board(width, height);
+            _lastMove = lastMove;
         }
 
-        private BoardState(BoardSquare[,] board)
+        public BoardState(Board board, Move lastMove = null)
         {
             _board = board;
+            _lastMove = lastMove;
         }
 
-        public IEnumerable<BoardSquare> GetAllSquares()
+        public Board GetBoard()
         {
-            for(int i = 0; i < _board.GetLength(0); i++)
-            {
-                for(int j = 0; j < _board.GetLength(1); j++)
-                {
-                    yield return _board[i, j];
-                }
-            }
+            return _board;
         }
 
-        public BoardSquare GetSquare(int file, int rank)
+        public Move GetLastMove()
         {
-            return _board[file, rank];
+            return _lastMove;
+        }
+
+        public MinimaxResult GetScore()
+        {
+            return _score;
+        }
+
+        public void SetScore(MinimaxResult score)
+        {
+            _score = score;
         }
 
         public BoardState Move(Move move)
         {
-            var newBoard = CopyBoard();
-            newBoard[move.To.File, move.To.Rank].Piece = move.Piece;
-            move.Piece.Square = newBoard[move.To.File, move.To.Rank];
-            newBoard[move.From.File, move.From.Rank].Piece = null;
-            var newBoardState = new BoardState(newBoard)
+            var newBoard = _board;
+            if(move.To.Piece != null)
             {
-                LastMove = move
-            };
-            return newBoardState;
-        }
-
-        public BoardState AddPiece(int file, int rank, IGamePiece piece)
-        {
-            if (_board[file, rank].Piece != null)
-            {
-                throw new Exception($"A piece is already present on square {file.ConvertToChessFile()}{rank + 1}.");
+                newBoard = _board.RemovePiece(move.To);
             }
-            var newBoard = CopyBoard();
-            newBoard[file, rank].Piece = piece;
-            piece.Square = newBoard[file, rank];
-            var newBoardState = new BoardState(newBoard)
-            {
-                LastMove = LastMove
-            };
-            return newBoardState;
+            newBoard = newBoard.AddPiece(move.To, move.Piece).RemovePiece(move.From);
+            return new BoardState(newBoard, move);
         }
-
-        public BoardState AddPiece(BoardSquare square, IGamePiece piece)
-        {
-            return AddPiece(square.File, square.Rank, piece);
-        }
-
-        public BoardState RemovePiece(IGamePiece piece)
-        {
-            if(piece.Square == null)
-            {
-                return this;
-            }
-            return RemoveAt((BoardSquare)piece.Square);
-        }
-
-        public BoardState RemoveAt(int file, int rank)
-        {
-            var newBoard = CopyBoard();
-            newBoard[file, rank].Piece.Square = null;
-            newBoard[file, rank].Piece = null;
-            
-            var newBoardState = new BoardState(newBoard)
-            {
-                LastMove = LastMove
-            };
-            return newBoardState;
-        }
-
-        public BoardState RemoveAt(BoardSquare square)
-        {
-            return RemoveAt(square.File, square.Rank);
-        }
-
-        public int GetBoardWidth()
-        {
-            return _board.GetLength(0);
-        }
-
-        public int GetBoardHeight()
-        {
-            return _board.GetLength(1);
-        }
-
         public List<BoardSquare> FindPieces<TPiece>() where TPiece : IGamePiece
         {
             var squares = new List<BoardSquare>();
-            foreach(var square in _board)
+            foreach(var square in _board.GetAllSquares())
             {
                 if(square.Piece is TPiece)
                 {
@@ -128,19 +66,6 @@ namespace Chess.Game
                 }
             }
             return squares;
-        }
-        
-        private BoardSquare[,] CopyBoard()
-        {
-            var newBoard = new BoardSquare[8, 8];
-            for(int i = 0; i < _board.GetLength(0); i++)
-            {
-                for(int j = 0; j < _board.GetLength(1); j++)
-                {
-                    newBoard[i, j] = _board[i, j];
-                }
-            }
-            return newBoard;
         }
 
     }

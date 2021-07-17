@@ -16,9 +16,8 @@ namespace Chess.Game.Modes
         public bool IsGameOver(BoardState state);
         public List<Move> GetAllLegalMoves(BoardState state, int player);
         public List<Move> GetLegalMoves(BoardSquare square, BoardState state);
-        public BoardState GetDefaultBoard();
+        public Board GetDefaultBoard();
         public GameResult GetGameResult(BoardState state);
-        public BoardScore GetBoardScore(BoardState state);
         public IBoardEvaluator GetEvaluator();
         public string GetMoveNotation(Move move);
     }

@@ -60,7 +60,7 @@ namespace Chess
                 for(int j = 0; j < _tileMap.GetLength(1); j++)
                 {
                     var currentSquare = _tileMap[i, j].Square;
-                    var newSquare = state.GetSquare(i, j);
+                    var newSquare = state.GetBoard().GetSquare(i, j);
                     if(currentSquare.Piece != newSquare.Piece)
                     {
                         _tileMap[i, j].Square = newSquare;
@@ -170,17 +170,22 @@ namespace Chess
                 return;
             }
 
-            int sizeX = Size.Width / Game.BoardState.GetBoardWidth();
-            int sizeY = Size.Height / Game.BoardState.GetBoardHeight();
-            for (int i = 0; i < Game.BoardState.GetBoardWidth(); i++)
+            var board = Game.BoardState.GetBoard();
+
+            int boardWidth = board.GetWidth();
+            int boardHeight = board.GetHeight();
+
+            int sizeX = Size.Width / boardWidth;
+            int sizeY = Size.Height / boardHeight;
+            for (int i = 0; i < boardWidth; i++)
             {
-                for (int j = 0; j < Game.BoardState.GetBoardHeight(); j++)
+                for (int j = 0; j < boardHeight; j++)
                 {
-                    var square = Game.BoardState.GetSquare(i, j);
+                    var square = board.GetSquare(i, j);
                     var tile = new ChessBoardTileControl(square)
                     {
                         Size = new Size(sizeX, sizeY),
-                        Location = new Point(i * sizeX, (Game.BoardState.GetBoardHeight() - j - 1) * sizeY)
+                        Location = new Point(i * sizeX, (boardHeight - j - 1) * sizeY)
                     };
                     _tileMap[square.File, square.Rank] = tile;
                     tile.Click += Tile_Click;

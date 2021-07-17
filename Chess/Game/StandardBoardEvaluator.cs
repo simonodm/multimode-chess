@@ -31,7 +31,7 @@ namespace Chess.Game
                     return double.MinValue;
                 }
             }
-            foreach(var square in state.GetAllSquares())
+            foreach(var square in state.GetBoard().GetAllSquares())
             {
                 score += CalculatePieceValue(state, square);
                 score += CalculatePieceCoverage(state, square);
