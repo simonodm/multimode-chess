@@ -41,15 +41,15 @@ namespace Chess.Game
 
         private int CalculatePieceValue(BoardState state, BoardSquare square)
         {
-            if(square.Piece != null)
+            if(square.GetPiece() != null)
             {
-                if(square.Piece.GetPlayer() == 0)
+                if(square.GetPiece().GetPlayer() == 0)
                 {
-                    return square.Piece.GetValue();
+                    return square.GetPiece().GetValue();
                 }
                 else
                 {
-                    return -square.Piece.GetValue();
+                    return -square.GetPiece().GetValue();
                 }
             }
             return 0;
@@ -58,22 +58,22 @@ namespace Chess.Game
         private double CalculatePieceCoverage(BoardState state, BoardSquare square)
         {
             const double COVERAGE_MULTIPLIER = 0.1;
-            if(square.Piece != null)
+            if(square.GetPiece() != null)
             {
                 double result = 0;
                 var moves = _rules.GetLegalMoves(square, state);
                 foreach(var move in moves)
                 {
-                    if(move.To.Piece == null)
+                    if(move.To.GetPiece() == null)
                     {
                         result += COVERAGE_MULTIPLIER;
                     }
-                    else if(move.To.Piece.GetPlayer() != square.Piece.GetPlayer())
+                    else if(move.To.GetPiece().GetPlayer() != square.GetPiece().GetPlayer())
                     {
-                        result += COVERAGE_MULTIPLIER * move.To.Piece.GetValue();
+                        result += COVERAGE_MULTIPLIER * move.To.GetPiece().GetValue();
                     }
                 }
-                if (square.Piece.GetPlayer() == 0)
+                if (square.GetPiece().GetPlayer() == 0)
                 {
                     return result;
                 }

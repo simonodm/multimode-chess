@@ -61,7 +61,7 @@ namespace Chess
                 {
                     var currentSquare = _tileMap[i, j].Square;
                     var newSquare = state.GetBoard().GetSquare(i, j);
-                    if(currentSquare.Piece != newSquare.Piece)
+                    if(currentSquare.GetPiece() != newSquare.GetPiece())
                     {
                         _tileMap[i, j].Square = newSquare;
                     }
@@ -127,7 +127,7 @@ namespace Chess
         private void SelectTile(ChessBoardTileControl tile)
         {
             var square = tile.Square;
-            if(square.Piece != null && square.Piece.GetPlayer() == Game.CurrentPlayer)
+            if(square.GetPiece() != null && square.GetPiece().GetPlayer() == Game.CurrentPlayer)
             {
                 tile.Select();
                 _selectedTile = tile;
@@ -135,7 +135,7 @@ namespace Chess
                 var legalMoves = Game.Rules.GetLegalMoves(tile.Square, Game.BoardState);
                 foreach (var move in legalMoves)
                 {
-                    _tileMap[move.To.File, move.To.Rank].Select();
+                    _tileMap[move.To.GetFile(), move.To.GetRank()].Select();
                     _selectedLegalMoves.Add(move);
                 }
             }
@@ -187,7 +187,7 @@ namespace Chess
                         Size = new Size(sizeX, sizeY),
                         Location = new Point(i * sizeX, (boardHeight - j - 1) * sizeY)
                     };
-                    _tileMap[square.File, square.Rank] = tile;
+                    _tileMap[square.GetFile(), square.GetRank()] = tile;
                     tile.Click += Tile_Click;
                     Controls.Add(tile);
                 }

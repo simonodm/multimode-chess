@@ -67,7 +67,7 @@ namespace Chess
 
             PictureBox piecePictureBox = null;
             
-            if (_square.Piece != null)
+            if (_square.GetPiece() != null)
             {
                 piecePictureBox = new PictureBox();
                 piecePictureBox.Image = GetPieceBitmap();
@@ -105,9 +105,9 @@ namespace Chess
 
         private Color GetColor()
         {
-            if (_square.File % 2 == 0)
+            if (_square.GetFile() % 2 == 0)
             {
-                if (_square.Rank % 2 == 0)
+                if (_square.GetRank() % 2 == 0)
                 {
                     return Color.FromArgb(255, 192, 203);
                 }
@@ -118,7 +118,7 @@ namespace Chess
             }
             else
             {
-                if (_square.Rank % 2 == 0)
+                if (_square.GetRank() % 2 == 0)
                 {
                     return Color.White;
                 }
@@ -131,7 +131,7 @@ namespace Chess
 
         private Bitmap GetPieceBitmap()
         {
-            var piece = _square.Piece;
+            var piece = _square.GetPiece();
             string imageResource = "";
             if (piece is Pawn)
             {

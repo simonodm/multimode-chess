@@ -68,16 +68,16 @@
 
 //        private bool IsBlocked()
 //        {
-//            if(_from.Piece is Knight)
+//            if(_from.GetPiece() is Knight)
 //            {
 //                return false;
 //            }
 
 //            bool pieceFound = false;
-//            int startFile = _from.File;
-//            int endFile = _to.File;
-//            int startRank = _from.Rank;
-//            int endRank = _to.Rank;
+//            int startFile = _from.GetFile();
+//            int endFile = _to.GetFile();
+//            int startRank = _from.GetRank();
+//            int endRank = _to.GetRank();
 //            int i = startFile;
 //            int j = startRank;
 
@@ -98,7 +98,7 @@
 //                if (startRank > endRank && j > endRank) j--;
 //            }
 
-//            if (_to.Piece != null && _to.Piece.Player == _from.Piece.Player)
+//            if (_to.GetPiece() != null && _to.GetPiece().Player == _from.GetPiece().Player)
 //            {
 //                return true;
 //            }
@@ -112,7 +112,7 @@
 
 //            foreach (var square in kingSquares)
 //            {
-//                if (square.Piece.Player == player && IsSquareUnderThreat(square, player))
+//                if (square.GetPiece().Player == player && IsSquareUnderThreat(square, player))
 //                {
 //                    return true;
 //                }
@@ -123,7 +123,7 @@
 
 //        private bool IsPreventedByCheck()
 //        {
-//            return IsCheck(_state.RemoveAt(_from), _from.Piece.Player);
+//            return IsCheck(_state.RemoveAt(_from), _from.GetPiece().Player);
 //        }
 
 //        private bool IsCapture()
@@ -133,17 +133,17 @@
 //                return true;
 //            }
 
-//            if (_from.Piece is Pawn)
+//            if (_from.GetPiece() is Pawn)
 //            {
-//                if (_from.File == _to.File ||
-//                   (_from.Piece.Player == 0 && _to.Rank < _from.Rank) ||
-//                   (_from.Piece.Player == 1 && _to.Rank > _from.Rank))
+//                if (_from.GetFile() == _to.GetFile() ||
+//                   (_from.GetPiece().Player == 0 && _to.GetRank() < _from.GetRank()) ||
+//                   (_from.GetPiece().Player == 1 && _to.GetRank() > _from.GetRank()))
 //                {
 //                    return false;
 //                }
 //            }
 
-//            if (_to.Piece != null && _to.Piece.Player != _from.Piece.Player)
+//            if (_to.GetPiece() != null && _to.GetPiece().Player != _from.GetPiece().Player)
 //            {
 //                return true;
 //            }
@@ -153,7 +153,7 @@
 
 //        private bool IsEnPassant()
 //        {
-//            if(_previousMove != null && _previousMove.Piece is Pawn && Math.Abs(_previousMove.To.Rank - _previousMove.From.Rank) == 2 && GetEnPassantSquare(_previousMove) == _to)
+//            if(_previousMove != null && _previousmove.Piece is Pawn && Math.Abs(_previousMove.To.GetRank() - _previousMove.From.GetRank()) == 2 && GetEnPassantSquare(_previousMove) == _to)
 //            {
 //                return true;
 //            }
@@ -162,29 +162,29 @@
 
 //        private BoardSquare GetEnPassantSquare(Move move)
 //        {
-//            var file = move.From.File;
-//            var rank = move.From.Rank + (move.To.Rank - move.From.Rank) / 2;
+//            var file = move.From.GetFile();
+//            var rank = move.From.GetRank() + (move.To.GetRank() - move.From.GetRank()) / 2;
 //            return move.BoardBefore.GetSquare(file, rank);
 //        }
 
 //        private bool IsPromotion()
 //        {
-//            return _from.Piece is Pawn && (_to.Rank == 0 || _to.Rank == 7);
+//            return _from.GetPiece() is Pawn && (_to.GetRank() == 0 || _to.GetRank() == 7);
 //        }
 
 //        private bool IsCastle()
 //        {
 //            if (CheckBaseCastleConditions())
 //            {
-//                for (int i = Math.Min(_from.File, _to.File); i <= Math.Max(_from.File, _to.File); i++)
+//                for (int i = Math.Min(_from.GetFile(), _to.GetFile()); i <= Math.Max(_from.GetFile(), _to.GetFile()); i++)
 //                {
-//                    if (IsSquareUnderThreat(_state.GetSquare(i, _from.Rank), _from.Piece.Player))
+//                    if (IsSquareUnderThreat(_state.GetSquare(i, _from.GetRank()), _from.GetPiece().Player))
 //                    {
 //                        return false;
 //                    }
 //                }
 //                var expectedRook = GetRookSquare().Piece;
-//                if (expectedRook is Rook && expectedRook.Player == _from.Piece.Player && expectedRook.MoveCount == 0)
+//                if (expectedRook is Rook && expectedRook.Player == _from.GetPiece().Player && expectedRook.MoveCount == 0)
 //                {
 //                    return true;
 //                }
@@ -194,11 +194,11 @@
 
 //        private bool CheckBaseCastleConditions()
 //        {
-//            return _from.Piece is King &&
-//                Math.Abs(_to.File - _from.File) == 2 &&
-//                _from.File == 4 &&
-//                _from.Piece.MoveCount == 0 &&
-//                (_from.Rank == 0 || _from.Rank == 7);
+//            return _from.GetPiece() is King &&
+//                Math.Abs(_to.GetFile() - _from.GetFile()) == 2 &&
+//                _from.GetFile() == 4 &&
+//                _from.GetPiece().MoveCount == 0 &&
+//                (_from.GetRank() == 0 || _from.GetRank() == 7);
 //        }
 
 //        private bool IsSquareUnderThreat(BoardSquare square, int forPlayer)
@@ -219,45 +219,45 @@
 
 //        private BoardSquare GetRookSquare()
 //        {
-//            if (_to.File < _from.File)
+//            if (_to.GetFile() < _from.GetFile())
 //            {
-//                return _state.GetSquare(0, _from.Rank);
+//                return _state.GetSquare(0, _from.GetRank());
 //            }
 //            else
 //            {
-//                return _state.GetSquare(7, _from.Rank);
+//                return _state.GetSquare(7, _from.GetRank());
 //            }
 //        }
 
 //        private bool IsNormal()
 //        {
-//            if (_to.Piece == null)
+//            if (_to.GetPiece() == null)
 //            {
-//                if (_from.Piece is King)
+//                if (_from.GetPiece() is King)
 //                {
-//                    return Math.Abs(_from.Rank - _to.Rank) <= 1 && Math.Abs(_from.File - _to.File) <= 1;
+//                    return Math.Abs(_from.GetRank() - _to.GetRank()) <= 1 && Math.Abs(_from.GetFile() - _to.GetFile()) <= 1;
 //                }
-//                if (_from.Piece is Pawn)
+//                if (_from.GetPiece() is Pawn)
 //                {
-//                    if (_to.File != _from.File)
+//                    if (_to.GetFile() != _from.GetFile())
 //                    {
 //                        return false;
 //                    }
-//                    if (_from.Piece.Player == 0 && _to.Rank - _from.Rank < 0)
+//                    if (_from.GetPiece().Player == 0 && _to.GetRank() - _from.GetRank() < 0)
 //                    {
 //                        return false;
 //                    }
-//                    if (_from.Piece.Player == 1 && _from.Rank - _to.Rank < 0)
+//                    if (_from.GetPiece().Player == 1 && _from.GetRank() - _to.GetRank() < 0)
 //                    {
 //                        return false;
 //                    }
-//                    if (_to.Rank - _from.Rank == 2)
+//                    if (_to.GetRank() - _from.GetRank() == 2)
 //                    {
-//                        return _from.Rank == 1;
+//                        return _from.GetRank() == 1;
 //                    }
-//                    if (_from.Rank - _to.Rank == 2)
+//                    if (_from.GetRank() - _to.GetRank() == 2)
 //                    {
-//                        return _from.Rank == 6;
+//                        return _from.GetRank() == 6;
 //                    }
 //                    return true;
 //                }

@@ -50,7 +50,7 @@ namespace Chess.Game
             var squares = new List<BoardSquare>();
             foreach(var square in _board.GetAllSquares())
             {
-                if(square.Piece is TPiece)
+                if(square.GetPiece() is TPiece)
                 {
                     squares.Add(square);
                 }

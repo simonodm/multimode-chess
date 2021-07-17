@@ -9,15 +9,35 @@ namespace Chess.Game
 {
     struct BoardSquare
     {
-        public int File;
-        public int Rank;
-        public GamePiece Piece;
+        private int _file;
+        private int _rank;
+        private GamePiece _piece;
 
-        public BoardSquare(int posX, int posY, GamePiece piece)
+        public BoardSquare(int file, int rank, GamePiece piece)
         {
-            File = posX;
-            Rank = posY;
-            Piece = piece;
+            _file = file;
+            _rank = rank;
+            _piece = piece;
+        }
+
+        public int GetFile()
+        {
+            return _file;
+        }
+
+        public int GetRank()
+        {
+            return _rank;
+        }
+
+        public GamePiece GetPiece()
+        {
+            return _piece;
+        }
+
+        public void SetPiece(GamePiece piece)
+        {
+            _piece = piece;
         }
 
         public static bool operator ==(BoardSquare squareA, BoardSquare squareB)

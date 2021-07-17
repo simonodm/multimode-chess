@@ -54,7 +54,7 @@ namespace Chess.Game
         public Board Move(Move move)
         {
             Board newBoard = this;
-            if(move.To.Piece != null)
+            if(move.To.GetPiece() != null)
             {
                 newBoard = RemovePiece(move.To);
             }
@@ -64,30 +64,30 @@ namespace Chess.Game
 
         public Board AddPiece(int file, int rank, GamePiece piece)
         {
-            if (_board[file, rank].Piece != null)
+            if (_board[file, rank].GetPiece() != null)
             {
                 throw new Exception($"A piece is already present on square {file.ConvertToChessFile()}{rank + 1}.");
             }
             var newBoard = CopyBoard();
-            newBoard[file, rank].Piece = piece;
+            newBoard[file, rank].SetPiece(piece);
             return new Board(newBoard);
         }
 
         public Board AddPiece(BoardSquare square, GamePiece piece)
         {
-            return AddPiece(square.File, square.Rank, piece);
+            return AddPiece(square.GetFile(), square.GetRank(), piece);
         }
 
         public Board RemovePiece(int file, int rank)
         {
             var newBoard = CopyBoard();
-            newBoard[file, rank].Piece = null;
+            newBoard[file, rank].SetPiece(null);
             return new Board(newBoard);
         }
 
         public Board RemovePiece(BoardSquare square)
         {
-            return RemovePiece(square.File, square.Rank);
+            return RemovePiece(square.GetFile(), square.GetRank());
         }
 
         public int GetWidth()
