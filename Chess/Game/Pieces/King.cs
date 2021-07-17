@@ -8,7 +8,7 @@ namespace Chess.Game.Pieces
 {
     class King : IGamePiece
     {
-        public int Value { get; } = int.MaxValue;
+        public int Value { get; } = 10;
         public (int, int)[] PossibleMoveOffsets { get; private set; } =
         {
             (-2, 0),

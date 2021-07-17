@@ -68,7 +68,7 @@ namespace Chess.Game
                 _currentBoardMinimax = null;
                 if(_vsAi && CurrentPlayer == _AIplayer)
                 {
-                    _currentBoardMinimax = Minimax.GetBoardScore(Rules, BoardState, 2);
+                    _currentBoardMinimax = Minimax.GetBoardScore(Rules, BoardState, 1);
                     ProcessMove(_currentBoardMinimax.BestMove);
                 }
             }
@@ -90,12 +90,13 @@ namespace Chess.Game
             {
                 return new GameResult(playersWithRemainingTime[0]);
             }
-            return Rules.GetGameResult();
+            return Rules.GetGameResult(BoardState);
         }
 
         public double Evaluate(BoardState state)
         {
-            if(_currentBoardMinimax == null)
+            // Cache the last evaluation
+            if(_currentBoardMinimax == null || _currentBoardMinimax.State != state)
             {
                 _currentBoardMinimax = Minimax.GetBoardScore(Rules, state);
             }

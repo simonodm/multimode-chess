@@ -15,8 +15,6 @@ namespace Chess.Game.Modes
         public int FileCount { get; } = 8;
         public int RankCount { get; } = 8;
 
-        private bool _gameOver = false;
-        private GameResult _gameResult = null;
         private StandardBoardEvaluator _evaluator;
 
         public ClassicRules()
@@ -50,12 +48,6 @@ namespace Chess.Game.Modes
                     return move.BoardBefore;
             }
 
-            if (IsGameOver(newBoardState))
-            {
-                _gameOver = true;
-                _gameResult = new GameResult(newBoardState.LastMove.Piece.Player);
-            }
-
             move.Piece.MoveCount++;
             move.BoardAfter = newBoardState;
 
@@ -64,22 +56,19 @@ namespace Chess.Game.Modes
 
         public virtual bool IsGameOver(BoardState state)
         {
-            if(_gameOver == false)
+            for(int i = 0; i < PlayerCount; i++)
             {
-                for (int i = 0; i < PlayerCount; i++)
+                if(IsCheck(state, i) && GetAllLegalMoves(state, i).Count == 0)
                 {
-                    if (IsCheck(state, i) && GetAllLegalMoves(state, i).Count == 0)
-                    {
-                        _gameOver = true;
-                    }
+                    return true;
                 }
             }
-            return _gameOver;
+            return false;
         }
 
-        public virtual GameResult GetGameResult()
+        public virtual GameResult GetGameResult(BoardState state)
         {
-            return _gameResult;    
+            return new GameResult(state.LastMove.Piece.Player);    
         }
 
         public virtual BoardScore GetBoardScore(BoardState state)
@@ -218,7 +207,7 @@ namespace Chess.Game.Modes
                 int newRank = square.Rank + possibleMove.Item2;
                 if (!(newFile < 0 || newRank < 0 || newFile > 7 || newRank > 7))
                 {
-                    var move = new Move()
+                    var move = new Move(this)
                     {
                         From = square,
                         To = currentState.GetSquare(newFile, newRank),
@@ -333,7 +322,7 @@ namespace Chess.Game.Modes
                 move.BoardBefore.GetSquare(move.From.File + 1, move.From.Rank) :
                 move.BoardBefore.GetSquare(move.From.File - 1, move.From.Rank);
 
-            var rookMove = new Move
+            var rookMove = new Move(this)
             {
                 From = rookSquare,
                 To = rookTargetSquare,

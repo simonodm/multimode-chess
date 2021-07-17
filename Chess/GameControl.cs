@@ -106,13 +106,12 @@ namespace Chess
         {
             var move = e.Move;
             _boardControl.UpdateBoard(move.BoardAfter);
-            //_scoreControl.SetScore(_game.GetEvaluator().GetBoardScore(move.BoardAfter).ToString());
             _scoreControl.SetScore(_game.Evaluate(move.BoardAfter).ToString());
         }
 
         private void OnMove(object sender, MoveEventArgs e)
         {
-            _moveHistory.AddMove(e.Move);
+            _moveHistory.UpdateHistory();
             if (_game.IsGameOver())
             {
                 OnGameFinish(this, e);
@@ -134,7 +133,7 @@ namespace Chess
 
         private void OnGameFinish(object sender, EventArgs e)
         {
-            _winnerLabel.Text = $"Winner: {_game.GetGameResult().GetWinner()}"; 
+            _winnerLabel.Text = $"Winner: {_game.GetGameResult().GetWinnerString()}"; 
         }
     }
 }

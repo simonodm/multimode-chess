@@ -25,18 +25,18 @@ namespace Chess
         private ChessGame _game;
         private ListBox _listBox;
         private event MoveEventHandler onSelectedMoveChanged;
+        private BindingSource _moveSource;
 
         public MoveHistoryControl(ChessGame game)
         {
             _game = game;
+            _moveSource = new BindingSource();
+            _moveSource.DataSource = _game.MoveHistory;
         }
 
         public void UpdateHistory()
         {
-            for(int i = _listBox.Items.Count; i < _game.MoveHistory.Count; i++)
-            {
-                _listBox.Items.Add(_game.Rules.GetMoveNotation(_game.MoveHistory[i]));
-            }
+            _moveSource.ResetBindings(false);
             _listBox.SelectedIndex = _listBox.Items.Count - 1;
         }
 
@@ -56,12 +56,11 @@ namespace Chess
                     Location = new System.Drawing.Point(0, 0),
                     Size = new System.Drawing.Size(Width, Height)
                 };
-                foreach (var move in _game.MoveHistory)
-                {
-                    _listBox.Items.Add(_game.Rules.GetMoveNotation(move));
-                }
-
+                _listBox.DataSource = _moveSource;
+                _listBox.DisplayMember = "Notation";
+                
                 _listBox.SelectedIndexChanged += listBox_OnSelectedIndexChanged;
+                //_listBox.DisplayMember += listBox_OnDataSourceChange;
 
                 Controls.Add(_listBox);
             }

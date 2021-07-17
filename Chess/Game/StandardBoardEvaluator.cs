@@ -19,6 +19,18 @@ namespace Chess.Game
         public double GetBoardScore(BoardState state)
         {
             double score = 0;
+            if(_rules.IsGameOver(state))
+            {
+                var result = _rules.GetGameResult(state);
+                if(result.GetWinner() == 0)
+                {
+                    return double.MaxValue;
+                }
+                else
+                {
+                    return double.MinValue;
+                }
+            }
             foreach(var square in state.GetAllSquares())
             {
                 score += CalculatePieceValue(state, square);
@@ -58,7 +70,7 @@ namespace Chess.Game
                     }
                     else if(move.To.Piece.Player != square.Piece.Player)
                     {
-                        result += move.To.Piece.Value * COVERAGE_MULTIPLIER;
+                        result += COVERAGE_MULTIPLIER * move.To.Piece.Value;
                     }
                 }
                 if (square.Piece.Player == 0)

@@ -14,7 +14,11 @@ namespace Chess.Game
             _winner = winner;
         }
 
-        public string GetWinner()
+        public int GetWinner()
+        {
+            return _winner;
+        }
+        public string GetWinnerString()
         {
             switch (_winner)
             {

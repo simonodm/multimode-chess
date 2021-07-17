@@ -9,7 +9,7 @@ namespace Chess.Game
 {
     class Minimax
     {
-        public static MinimaxResult GetBoardScore(IGameRules rules, BoardState state, int depth = 2)
+        public static MinimaxResult GetBoardScore(IGameRules rules, BoardState state, int depth = 1)
         {
             int player = 0;
             if(state.LastMove != null && state.LastMove.Piece.Player == 0)

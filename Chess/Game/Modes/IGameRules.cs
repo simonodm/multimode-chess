@@ -17,7 +17,7 @@ namespace Chess.Game.Modes
         public List<Move> GetAllLegalMoves(BoardState state, int player);
         public List<Move> GetLegalMoves(BoardSquare square, BoardState state);
         public BoardState GetDefaultBoard();
-        public GameResult GetGameResult();
+        public GameResult GetGameResult(BoardState state);
         public BoardScore GetBoardScore(BoardState state);
         public IBoardEvaluator GetEvaluator();
         public string GetMoveNotation(Move move);

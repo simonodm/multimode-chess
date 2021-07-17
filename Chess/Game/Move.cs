@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Chess.Game.Modes;
 using Chess.Game.Pieces;
 
 namespace Chess.Game
@@ -18,8 +19,20 @@ namespace Chess.Game
         public bool IsUserInputRequired = false;
         public List<Option> Options { get; private set; }
         public Option SelectedOption;
+        public string Notation
+        {
+            get
+            {
+                return _rules.GetMoveNotation(this);
+            }
+        }
 
-        public Move(){}
+        private IGameRules _rules;
+
+        public Move(IGameRules rules)
+        {
+            _rules = rules;
+        }
 
         public void AddOption(string optionName)
         {
