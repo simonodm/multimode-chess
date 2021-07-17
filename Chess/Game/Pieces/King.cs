@@ -25,5 +25,6 @@ namespace Chess.Game.Pieces
         public BoardSquare? Square { get; set; }
         public int Player { get; set; }
         public int MoveCount { get; set; } = 0;
+        public string Symbol { get; } = "K";
     }
 }

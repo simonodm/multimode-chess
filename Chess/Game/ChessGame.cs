@@ -15,7 +15,6 @@ namespace Chess.Game
         public List<Move> MoveHistory;
         public Clock Clock;
         public int CurrentPlayer;
-        private MinimaxResult _currentBoardMinimax;
         private bool _vsAi;
         private int _AIplayer = 1;
 
@@ -65,11 +64,10 @@ namespace Chess.Game
                 MoveHistory.Add(move);
                 Clock.Switch();
                 CurrentPlayer = (CurrentPlayer + 1) % Rules.PlayerCount;
-                _currentBoardMinimax = null;
                 if(_vsAi && CurrentPlayer == _AIplayer)
                 {
-                    _currentBoardMinimax = Minimax.GetBoardScore(Rules, BoardState, 1);
-                    ProcessMove(_currentBoardMinimax.BestMove);
+                    BoardState.Score = Minimax.GetBoardScore(Rules, BoardState);
+                    ProcessMove(BoardState.Score.BestMove);
                 }
             }
         }
@@ -95,12 +93,13 @@ namespace Chess.Game
 
         public double Evaluate(BoardState state)
         {
-            // Cache the last evaluation
-            if(_currentBoardMinimax == null || _currentBoardMinimax.State != state)
+            if(state.Score != null)
             {
-                _currentBoardMinimax = Minimax.GetBoardScore(Rules, state);
+                return state.Score.Score;
             }
-            return _currentBoardMinimax.Score;
+            var score = Minimax.GetBoardScore(Rules, state);
+            state.Score = score;
+            return score.Score;
         }
 
         public IBoardEvaluator GetEvaluator()

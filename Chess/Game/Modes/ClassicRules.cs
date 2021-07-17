@@ -161,7 +161,7 @@ namespace Chess.Game.Modes
             }
             else
             {
-                sb.Append(GetPieceSymbol(move.Piece));
+                sb.Append(move.Piece.Symbol);
             }
             if (IsCapture(move))
             {
@@ -550,31 +550,6 @@ namespace Chess.Game.Modes
             return IsCheck(move.BoardBefore.Move(move), move.Piece.Player);
         }
     
-        private char GetPieceSymbol(IGamePiece piece)
-        {
-            char symbol = ' ';
-            if (piece is Knight)
-            {
-                symbol = 'N';
-            }
-            else if (piece is Bishop)
-            {
-                symbol = 'B';
-            }
-            else if (piece is Rook)
-            {
-                symbol = 'R';
-            }
-            else if (piece is Queen)
-            {
-                symbol = 'Q';
-            }
-            else if (piece is King)
-            {
-                symbol = 'K';
-            }
-            return symbol;
-        }
         private int GetNextPlayer(int player)
         {
             return (player + 1) % PlayerCount;

@@ -11,6 +11,7 @@ namespace Chess.Game
     {
         public int CurrentPlayer;
         public Move LastMove;
+        public MinimaxResult Score;
         private BoardSquare[,] _board = new BoardSquare[8, 8];
         
         public BoardState()
