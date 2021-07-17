@@ -135,27 +135,27 @@ namespace Chess
             string imageResource = "";
             if (piece is Pawn)
             {
-                imageResource = piece.Player == 0 ? "pawn_light" : "pawn_dark";
+                imageResource = piece.GetPlayer() == 0 ? "pawn_light" : "pawn_dark";
             }
             if (piece is King)
             {
-                imageResource = piece.Player == 0 ? "king_light" : "king_dark";
+                imageResource = piece.GetPlayer() == 0 ? "king_light" : "king_dark";
             }
             if (piece is Knight)
             {
-                imageResource = piece.Player == 0 ? "knight_light" : "knight_dark";
+                imageResource = piece.GetPlayer() == 0 ? "knight_light" : "knight_dark";
             }
             if (piece is Queen)
             {
-                imageResource = piece.Player == 0 ? "queen_light" : "queen_dark";
+                imageResource = piece.GetPlayer() == 0 ? "queen_light" : "queen_dark";
             }
             if (piece is Bishop)
             {
-                imageResource = piece.Player == 0 ? "bishop_light" : "bishop_dark";
+                imageResource = piece.GetPlayer() == 0 ? "bishop_light" : "bishop_dark";
             }
             if (piece is Rook)
             {
-                imageResource = piece.Player == 0 ? "rook_light" : "rook_dark";
+                imageResource = piece.GetPlayer() == 0 ? "rook_light" : "rook_dark";
             }
 
             Bitmap bmp = (Bitmap)Properties.Resources.ResourceManager.GetObject(imageResource);

@@ -10,7 +10,7 @@ namespace Chess.Game
 {
     class Move
     {
-        public IGamePiece Piece;
+        public GamePiece Piece;
         public BoardSquare From;
         public BoardSquare To;
         public BoardState BoardBefore;

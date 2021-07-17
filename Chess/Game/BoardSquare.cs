@@ -11,9 +11,9 @@ namespace Chess.Game
     {
         public int File;
         public int Rank;
-        public IGamePiece Piece;
+        public GamePiece Piece;
 
-        public BoardSquare(int posX, int posY, IGamePiece piece)
+        public BoardSquare(int posX, int posY, GamePiece piece)
         {
             File = posX;
             Rank = posY;

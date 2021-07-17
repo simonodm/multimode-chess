@@ -6,27 +6,28 @@ using System.Threading.Tasks;
 
 namespace Chess.Game.Pieces
 {
-    class Bishop : IGamePiece
+    class Bishop : GamePiece
     {
-        public int Value { get; } = 3;
-        public (int, int)[] PossibleMoveOffsets { get; }
-        public BoardSquare? Square { get; set; }
-        public int Player { get; set; }
-        public int MoveCount { get; set; } = 0;
-        public string Symbol { get; } = "B";
+        private (int, int)[] _possibleMoves;
 
-        public Bishop()
+        public Bishop(int player) : base(player)
         {
-            PossibleMoveOffsets = new (int, int)[28];
+            _value = 3;
+            _symbol = "B";
+            _possibleMoves = new (int, int)[28];
             int current = 0;
             for (int i = -7; i < 8; i++)
             {
                 if (i != 0)
                 {
-                    PossibleMoveOffsets[current++] = (i, i);
-                    PossibleMoveOffsets[current++] = (i, -i);
+                    _possibleMoves[current++] = (i, i);
+                    _possibleMoves[current++] = (i, -i);
                 }
             }
+        }
+        public override (int, int)[] GetPossibleMoveOffsets()
+        {
+            return _possibleMoves;
         }
     }
 }

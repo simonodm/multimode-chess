@@ -6,26 +6,28 @@ using System.Threading.Tasks;
 
 namespace Chess.Game.Pieces
 {
-    class Rook : IGamePiece
+    class Rook : GamePiece
     {
-        public int Value { get; } = 5;
-        public (int, int)[] PossibleMoveOffsets { get; }
-        public BoardSquare? Square { get; set; }
-        public int Player { get; set; }
-        public int MoveCount { get; set; } = 0;
-        public string Symbol { get; } = "R";
-        public Rook()
+        private (int, int)[] _possibleMoveOffsets;
+        public Rook(int player) : base(player)
         {
-            PossibleMoveOffsets = new (int, int)[28];
+            _value = 5;
+            _symbol = "R";
+            _possibleMoveOffsets = new (int, int)[28];
             int current = 0;
             for (int i = -7; i < 8; i++)
             {
                 if (i != 0)
                 {
-                    PossibleMoveOffsets[current++] = (0, i);
-                    PossibleMoveOffsets[current++] = (i, 0);
+                    _possibleMoveOffsets[current++] = (0, i);
+                    _possibleMoveOffsets[current++] = (i, 0);
                 }
             }
+        }
+
+        public override (int, int)[] GetPossibleMoveOffsets()
+        {
+            return _possibleMoveOffsets;
         }
     }
 }

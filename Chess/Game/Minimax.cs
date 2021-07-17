@@ -12,7 +12,7 @@ namespace Chess.Game
         public static MinimaxResult GetBoardScore(IGameRules rules, BoardState state, int depth = 2)
         {
             int player = 0;
-            if(state.GetLastMove() != null && state.GetLastMove().Piece.Player == 0)
+            if(state.GetLastMove() != null && state.GetLastMove().Piece.GetPlayer() == 0)
             {
                 player = 1;
             }

@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace Chess.Game.Pieces
 {
-    class Knight : IGamePiece
+    class Knight : GamePiece
     {
-        public int Value { get; } = 3;
-        public (int, int)[] PossibleMoveOffsets { get; } =
+        private (int, int)[] _possibleMoves =
         {
             (-2, -1),
             (-2, +1),
@@ -20,9 +19,16 @@ namespace Chess.Game.Pieces
             (+1, -2),
             (+1, +2)
         };
-        public BoardSquare? Square { get; set; }
-        public int Player { get; set; }
-        public int MoveCount { get; set; } = 0;
-        public string Symbol { get; } = "N";
+
+        public Knight(int player) : base(player)
+        {
+            _value = 3;
+            _symbol = "N";
+        }
+
+        public override (int, int)[] GetPossibleMoveOffsets()
+        {
+            return _possibleMoves;
+        }
     }
 }

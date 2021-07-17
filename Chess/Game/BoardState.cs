@@ -45,7 +45,7 @@ namespace Chess.Game
             _score = score;
         }
 
-        public List<BoardSquare> FindPieces<TPiece>() where TPiece : IGamePiece
+        public List<BoardSquare> FindPieces<TPiece>() where TPiece : GamePiece
         {
             var squares = new List<BoardSquare>();
             foreach(var square in _board.GetAllSquares())

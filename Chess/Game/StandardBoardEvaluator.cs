@@ -43,13 +43,13 @@ namespace Chess.Game
         {
             if(square.Piece != null)
             {
-                if(square.Piece.Player == 0)
+                if(square.Piece.GetPlayer() == 0)
                 {
-                    return square.Piece.Value;
+                    return square.Piece.GetValue();
                 }
                 else
                 {
-                    return -square.Piece.Value;
+                    return -square.Piece.GetValue();
                 }
             }
             return 0;
@@ -68,12 +68,12 @@ namespace Chess.Game
                     {
                         result += COVERAGE_MULTIPLIER;
                     }
-                    else if(move.To.Piece.Player != square.Piece.Player)
+                    else if(move.To.Piece.GetPlayer() != square.Piece.GetPlayer())
                     {
-                        result += COVERAGE_MULTIPLIER * move.To.Piece.Value;
+                        result += COVERAGE_MULTIPLIER * move.To.Piece.GetValue();
                     }
                 }
-                if (square.Piece.Player == 0)
+                if (square.Piece.GetPlayer() == 0)
                 {
                     return result;
                 }

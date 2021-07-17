@@ -48,7 +48,7 @@ namespace Chess.Game.Modes
                     return move.BoardBefore;
             }
 
-            move.Piece.MoveCount++;
+            move.Piece.SetMoveCount(move.Piece.GetMoveCount() + 1);
             move.BoardAfter = newBoardState;
 
             return newBoardState;
@@ -68,7 +68,7 @@ namespace Chess.Game.Modes
 
         public virtual GameResult GetGameResult(BoardState state)
         {
-            return new GameResult(state.GetLastMove().Piece.Player);    
+            return new GameResult(state.GetLastMove().Piece.GetPlayer());    
         }
 
         public virtual BoardScore GetBoardScore(BoardState state)
@@ -88,47 +88,29 @@ namespace Chess.Game.Modes
                 {
                     var squareFirstRank = board.GetSquare(file, firstRank);
                     var squareSecondRank = board.GetSquare(file, secondRank);
-                    IGamePiece piece = null;
+                    GamePiece piece = null;
                     if (file == 0 || file == 7)
                     {
-                        piece = new Rook
-                        {
-                            Player = player
-                        };
+                        piece = new Rook(player);
                     }
                     if (file == 1 || file == 6)
                     {
-                        piece = new Knight
-                        {
-                            Player = player
-                        };
+                        piece = new Knight(player);
                     }
                     if (file == 2 || file == 5)
                     {
-                        piece = new Bishop
-                        {
-                            Player = player
-                        };
+                        piece = new Bishop(player);
                     }
                     if (file == 3)
                     {
-                        piece = new Queen
-                        {
-                            Player = player
-                        };
+                        piece = new Queen(player);
                     }
                     if (file == 4)
                     {
-                        piece = new King
-                        {
-                            Player = player
-                        };
+                        piece = new King(player);
                     }
                     board = board.AddPiece(squareFirstRank, piece);
-                    board = board.AddPiece(squareSecondRank, new Pawn
-                    {
-                        Player = player
-                    });
+                    board = board.AddPiece(squareSecondRank, new Pawn(player));
                 }
             }
             return board;
@@ -139,7 +121,7 @@ namespace Chess.Game.Modes
             var moveList = new List<Move>();
             foreach (var square in currentState.GetBoard().GetAllSquares())
             {
-                if (square.Piece != null && square.Piece.Player == player)
+                if (square.Piece != null && square.Piece.GetPlayer() == player)
                 {
                     moveList.AddRange(GetLegalMoves(square, currentState));
                 }
@@ -161,7 +143,7 @@ namespace Chess.Game.Modes
             }
             else
             {
-                sb.Append(move.Piece.Symbol);
+                sb.Append(move.Piece.GetSymbol());
             }
             if (IsCapture(move))
             {
@@ -169,7 +151,7 @@ namespace Chess.Game.Modes
             }
             sb.Append(move.To.File.ConvertToChessFile());
             sb.Append(move.To.Rank + 1);
-            if(IsCheck(move.BoardAfter, (move.Piece.Player + 1) % PlayerCount))
+            if(IsCheck(move.BoardAfter, (move.Piece.GetPlayer() + 1) % PlayerCount))
             {
                 sb.Append("+");
             }
@@ -201,7 +183,7 @@ namespace Chess.Game.Modes
             {
                 return moves;
             }
-            foreach((int, int) possibleMove in square.Piece.PossibleMoveOffsets)
+            foreach((int, int) possibleMove in square.Piece.GetPossibleMoveOffsets())
             {
                 int newFile = square.File + possibleMove.Item1;
                 int newRank = square.Rank + possibleMove.Item2;
@@ -262,43 +244,27 @@ namespace Chess.Game.Modes
 
         protected virtual BoardState HandlePromotion(Move move)
         {
-            IGamePiece piece;
+            GamePiece piece;
             switch(move.SelectedOption.Id) // TODO: Move to piece factory
             {
                 case 0:
-                    piece = new Queen
-                    {
-                        Square = move.To,
-                        Player = move.Piece.Player
-                    };
+                    piece = new Queen(move.Piece.GetPlayer());
                     break;
                 case 1:
-                    piece = new Rook
-                    {
-                        Square = move.To,
-                        Player = move.Piece.Player
-                    };
+                    piece = new Rook(move.Piece.GetPlayer());
                     break;
                 case 2:
-                    piece = new Knight
-                    {
-                        Square = move.To,
-                        Player = move.Piece.Player
-                    };
+                    piece = new Knight(move.Piece.GetPlayer());
                     break;
                 case 3:
-                    piece = new Bishop
-                    {
-                        Square = move.To,
-                        Player = move.Piece.Player
-                    };
+                    piece = new Bishop(move.Piece.GetPlayer());
                     break;
                 default:
                     throw new Exception("Unrecognized option");
             }
             if(move.To.Piece != null)
             {
-                if(move.To.Piece.Player == move.Piece.Player)
+                if(move.To.Piece.GetPlayer() == move.Piece.GetPlayer())
                 {
                     return move.BoardBefore;
                 }
@@ -369,14 +335,14 @@ namespace Chess.Game.Modes
             if (move.Piece is Pawn)
             {
                 if(move.From.File == move.To.File ||
-                   (move.Piece.Player == 0 && move.To.Rank < move.From.Rank) ||
-                   (move.Piece.Player == 1 && move.To.Rank > move.From.Rank))
+                   (move.Piece.GetPlayer() == 0 && move.To.Rank < move.From.Rank) ||
+                   (move.Piece.GetPlayer() == 1 && move.To.Rank > move.From.Rank))
                 {
                     return false;
                 }
             }
 
-            if(move.To.Piece != null && move.To.Piece.Player != move.From.Piece.Player)
+            if(move.To.Piece != null && move.To.Piece.GetPlayer() != move.From.Piece.GetPlayer())
             {
                 return true;
             }
@@ -417,13 +383,13 @@ namespace Chess.Game.Modes
             {
                 for(int i = Math.Min(move.From.File, move.To.File); i <= Math.Max(move.From.File, move.To.File); i++)
                 {
-                    if(IsSquareUnderThreat(move.BoardBefore.GetBoard().GetSquare(i, move.From.Rank), move.BoardBefore, GetNextPlayer(move.Piece.Player)))
+                    if(IsSquareUnderThreat(move.BoardBefore.GetBoard().GetSquare(i, move.From.Rank), move.BoardBefore, GetNextPlayer(move.Piece.GetPlayer())))
                     {
                         return false;
                     }
                 }
                 var expectedRook = GetCastleRookSquare(move).Piece;
-                if(expectedRook is Rook && expectedRook.Player == move.Piece.Player && expectedRook.MoveCount == 0)
+                if(expectedRook is Rook && expectedRook.GetPlayer() == move.Piece.GetPlayer() && expectedRook.GetMoveCount() == 0)
                 {
                     return true;
                 }
@@ -445,11 +411,11 @@ namespace Chess.Game.Modes
                     {
                         return false;
                     }
-                    if(move.Piece.Player == 0 && move.To.Rank - move.From.Rank < 0)
+                    if(move.Piece.GetPlayer() == 0 && move.To.Rank - move.From.Rank < 0)
                     {
                         return false;
                     }
-                    if(move.Piece.Player == 1 && move.From.Rank - move.To.Rank < 0)
+                    if(move.Piece.GetPlayer() == 1 && move.From.Rank - move.To.Rank < 0)
                     {
                         return false;
                     }
@@ -476,7 +442,7 @@ namespace Chess.Game.Modes
             return move.Piece is King &&
                Math.Abs(move.To.File - move.From.File) == 2 &&
                move.From.File == 4 &&
-               move.Piece.MoveCount == 0 &&
+               move.Piece.GetMoveCount() == 0 &&
                (move.From.Rank == 0 || move.From.Rank == 7);
         }
 
@@ -494,7 +460,7 @@ namespace Chess.Game.Modes
             foreach(var move in moves)
             {
                 if(move.To == square &&
-                   move.Piece.Player == byPlayer)
+                   move.Piece.GetPlayer() == byPlayer)
                 {
                     return true;
                 }
@@ -509,7 +475,7 @@ namespace Chess.Game.Modes
 
             foreach(var square in kingSquares)
             {
-                if(square.Piece.Player == player && IsSquareUnderThreat(square, state, GetNextPlayer(square.Piece.Player))) {
+                if(square.Piece.GetPlayer() == player && IsSquareUnderThreat(square, state, GetNextPlayer(square.Piece.GetPlayer()))) {
                     return true;
                 }
             }
@@ -549,7 +515,7 @@ namespace Chess.Game.Modes
                 if (startRank > endRank && j > endRank) j--;
             }
 
-            if(move.To.Piece != null && move.To.Piece.Player == move.From.Piece.Player)
+            if(move.To.Piece != null && move.To.Piece.GetPlayer() == move.From.Piece.GetPlayer())
             {
                 return true;
             }
@@ -560,7 +526,7 @@ namespace Chess.Game.Modes
         {
             var newBoard = move.BoardBefore.GetBoard().Move(move);
             var newState = new BoardState(newBoard);
-            return IsCheck(newState, move.Piece.Player);
+            return IsCheck(newState, move.Piece.GetPlayer());
         }
     
         private int GetNextPlayer(int player)

@@ -57,7 +57,7 @@ namespace Chess.Game
 
         public void ProcessMove(Move move)
         {
-            if(Clock.GetRemainingTime(move.Piece.Player) > 0)
+            if(Clock.GetRemainingTime(move.Piece.GetPlayer()) > 0)
             {
                 if (MoveHistory.Count > 0) move.Previous = MoveHistory[MoveHistory.Count - 1];
                 BoardState = Rules.Move(move);
@@ -81,7 +81,7 @@ namespace Chess.Game
         {
             if(!IsGameOver())
             {
-                throw new Exception("No game result available yet.");
+                throw new Exception("The game is not finished yet.");
             }
             var playersWithRemainingTime = GetAllPlayersWithRemainingTime();
             if(playersWithRemainingTime.Count == 1)

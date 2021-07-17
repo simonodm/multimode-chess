@@ -53,16 +53,16 @@ namespace Chess
 
         public Board Move(Move move)
         {
-            Board newBoard;
+            Board newBoard = this;
             if(move.To.Piece != null)
             {
                 newBoard = RemovePiece(move.To);
             }
-            newBoard = AddPiece(move.To, move.Piece).RemovePiece(move.From);
+            newBoard = newBoard.AddPiece(move.To, move.Piece).RemovePiece(move.From);
             return newBoard;
         }
 
-        public Board AddPiece(int file, int rank, IGamePiece piece)
+        public Board AddPiece(int file, int rank, GamePiece piece)
         {
             if (_board[file, rank].Piece != null)
             {
@@ -73,7 +73,7 @@ namespace Chess
             return new Board(newBoard);
         }
 
-        public Board AddPiece(BoardSquare square, IGamePiece piece)
+        public Board AddPiece(BoardSquare square, GamePiece piece)
         {
             return AddPiece(square.File, square.Rank, piece);
         }
@@ -81,7 +81,6 @@ namespace Chess
         public Board RemovePiece(int file, int rank)
         {
             var newBoard = CopyBoard();
-            newBoard[file, rank].Piece.Square = null;
             newBoard[file, rank].Piece = null;
             return new Board(newBoard);
         }
