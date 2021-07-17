@@ -51,6 +51,17 @@ namespace Chess
             return _board[file, rank];
         }
 
+        public Board Move(Move move)
+        {
+            Board newBoard;
+            if(move.To.Piece != null)
+            {
+                newBoard = RemovePiece(move.To);
+            }
+            newBoard = AddPiece(move.To, move.Piece).RemovePiece(move.From);
+            return newBoard;
+        }
+
         public Board AddPiece(int file, int rank, IGamePiece piece)
         {
             if (_board[file, rank].Piece != null)

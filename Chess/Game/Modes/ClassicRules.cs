@@ -331,24 +331,32 @@ namespace Chess.Game.Modes
                 Piece = rookSquare.Piece
             };
 
-            return move.BoardBefore.Move(move).Move(rookMove);
+            var newBoard = move.BoardBefore.GetBoard()
+                .Move(move)
+                .Move(rookMove);
+
+            return new BoardState(newBoard, move);
         }
 
         protected virtual BoardState HandleCapture(Move move)
         {
-            return move.BoardBefore.Move(move);
+            var newBoard = move.BoardBefore.GetBoard().Move(move);
+            return new BoardState(newBoard, move);
         }
 
         protected virtual BoardState HandleNormal(Move move)
         {
-            return move.BoardBefore.Move(move);
+            var newBoard = move.BoardBefore.GetBoard().Move(move);
+            return new BoardState(newBoard, move);
         }
 
         protected virtual BoardState HandleEnPassant(Move move)
         {
             var enPassantSquare = move.BoardBefore.GetLastMove().To;
-            var boardAfterRemovedEnPassant = move.BoardBefore.GetBoard().RemovePiece(enPassantSquare);
-            return new BoardState(boardAfterRemovedEnPassant).Move(move);
+            var newBoard = move.BoardBefore.GetBoard()
+                .RemovePiece(enPassantSquare)
+                .Move(move);
+            return new BoardState(newBoard);
         }
 
         private bool IsCapture(Move move)
@@ -550,7 +558,9 @@ namespace Chess.Game.Modes
         }
         private bool IsPreventedByCheck(Move move)
         {
-            return IsCheck(move.BoardBefore.Move(move), move.Piece.Player);
+            var newBoard = move.BoardBefore.GetBoard().Move(move);
+            var newState = new BoardState(newBoard);
+            return IsCheck(newState, move.Piece.Player);
         }
     
         private int GetNextPlayer(int player)

@@ -45,16 +45,6 @@ namespace Chess.Game
             _score = score;
         }
 
-        public BoardState Move(Move move)
-        {
-            var newBoard = _board;
-            if(move.To.Piece != null)
-            {
-                newBoard = _board.RemovePiece(move.To);
-            }
-            newBoard = newBoard.AddPiece(move.To, move.Piece).RemovePiece(move.From);
-            return new BoardState(newBoard, move);
-        }
         public List<BoardSquare> FindPieces<TPiece>() where TPiece : IGamePiece
         {
             var squares = new List<BoardSquare>();
