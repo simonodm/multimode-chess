@@ -50,6 +50,7 @@ namespace Chess.Game.Modes
 
             move.Piece.SetMoveCount(move.Piece.GetMoveCount() + 1);
             move.BoardAfter = newBoardState;
+            move.Notation = GetMoveNotation(move);
 
             return newBoardState;
         }
@@ -210,31 +211,36 @@ namespace Chess.Game.Modes
 
         protected virtual MoveType GetMoveType(Move move)
         {
-            if(IsMoveBlocked(move) || IsPreventedByCheck(move))
-            {
-                return MoveType.MOVE_ILLEGAL;
-            }
+            var moveType = MoveType.MOVE_ILLEGAL;
             if(IsPromotion(move))
             {
-                return MoveType.MOVE_PROMOTION;
+                moveType = MoveType.MOVE_PROMOTION;
             }
-            if(IsEnPassant(move))
+            else if(IsEnPassant(move))
             {
-                return MoveType.MOVE_EN_PASSANT;
+                moveType = MoveType.MOVE_EN_PASSANT;
             }
-            if(IsCapture(move))
+            else if(IsCapture(move))
             {
-                return MoveType.MOVE_CAPTURE;
+                moveType = MoveType.MOVE_CAPTURE;
             }
-            if (IsNormal(move))
+            else if (IsNormal(move))
             {
-                return MoveType.MOVE_NORMAL;
+                moveType = MoveType.MOVE_NORMAL;
             }
-            if (IsCastle(move))
+            else if (IsCastle(move))
             {
-                return MoveType.MOVE_CASTLE;
+                moveType = MoveType.MOVE_CASTLE;
             }
-            return MoveType.MOVE_ILLEGAL;
+
+            if(moveType != MoveType.MOVE_ILLEGAL)
+            {
+                if(IsMoveBlocked(move) || IsPreventedByCheck(move))
+                {
+                    return MoveType.MOVE_ILLEGAL;
+                }
+            }
+            return moveType;
         }
 
         protected virtual BoardState HandlePromotion(Move move)

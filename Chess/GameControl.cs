@@ -66,7 +66,7 @@ namespace Chess
 
             if(_clockControl == null)
             {
-                _clockControl = new ClockControl(_game.Clock)
+                _clockControl = new ClockControl(_game.GetClock())
                 {
                     Location = new Point(Height, 12),
                     Size = new Size(72, Height)

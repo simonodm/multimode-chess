@@ -10,85 +10,66 @@ namespace Chess.Game
 {
     class ChessGame
     {
-        public BoardState BoardState;
-        public IGameRules Rules;
-        public List<Move> MoveHistory;
-        public Clock Clock;
-        public int CurrentPlayer;
+        private BoardState _boardState;
+        private IGameRules _rules;
+        private List<Move> _moveHistory;
+        private Clock _clock;
+        private int _currentPlayer;
         private bool _vsAi;
         private int _AIplayer = 1;
 
-        public static ChessGame CreateGame<TRules>(int timeLimit = 600, int increment = 0, bool vsAi = false)
-            where TRules : IGameRules, new()
+        internal ChessGame(IGameRules rules, int timeLimit = 600, int increment = 0, bool ai = false)
         {
-            var rules = new TRules();
-            return new ChessGame(rules, timeLimit, increment, vsAi);
-        }
-
-        public static ChessGame CreateFromModeId(int modeId, int timeLimit = 600, int increment = 0, bool vsAi = false)
-        {
-            switch(modeId)
-            {
-                case 1:
-                    return CreateGame<PawnOfTheDeadRules>(timeLimit, increment, vsAi);
-                case 0:
-                default:
-                    return CreateGame<ClassicRules>(timeLimit, increment, vsAi);
-            }
-        }
-
-        protected ChessGame(IGameRules rules, int timeLimit = 600, int increment = 0, bool ai = false)
-        {
-            Rules = rules;
-            MoveHistory = new List<Move>();
-            Clock = new Clock(Rules.PlayerCount, timeLimit, increment);
+            _rules = rules;
+            _moveHistory = new List<Move>();
+            _clock = new Clock(_rules.PlayerCount, timeLimit, increment);
             _vsAi = ai;
             Reset();
         }
 
         public void Reset()
         {
-            BoardState = new BoardState(Rules.GetDefaultBoard());
-            CurrentPlayer = 0;
-            Clock.Reset();
-            MoveHistory.Clear();
-            Clock.Start();
+            _boardState = new BoardState(_rules.GetDefaultBoard());
+            _currentPlayer = 0;
+            _clock.Reset();
+            _moveHistory.Clear();
+            _clock.Start();
         }
 
         public void ProcessMove(Move move)
         {
-            if(Clock.GetRemainingTime(move.Piece.GetPlayer()) > 0)
+            if(_clock.GetRemainingTime(move.Piece.GetPlayer()) > 0)
             {
-                if (MoveHistory.Count > 0) move.Previous = MoveHistory[MoveHistory.Count - 1];
-                BoardState = Rules.Move(move);
-                MoveHistory.Add(move);
-                Clock.Switch();
-                CurrentPlayer = (CurrentPlayer + 1) % Rules.PlayerCount;
-                if(_vsAi && CurrentPlayer == _AIplayer)
+                if (_moveHistory.Count > 0) move.Previous = _moveHistory[_moveHistory.Count - 1];
+                _boardState = _rules.Move(move);
+                _moveHistory.Add(move);
+                _clock.Switch();
+                _currentPlayer = (_currentPlayer + 1) % _rules.PlayerCount;
+                if(_vsAi && _currentPlayer == _AIplayer)
                 {
-                    BoardState.SetScore(Minimax.GetBoardScore(Rules, BoardState));
-                    ProcessMove(BoardState.GetScore().BestMove);
+                    _boardState.SetScore(Minimax.GetBoardScore(_rules, _boardState));
+                    ProcessMove(_boardState.GetScore().BestMove);
                 }
             }
         }
 
         public bool IsGameOver()
         {
-            return DidClockRunOut() || Rules.IsGameOver(BoardState);
+            return DidClockRunOut() || _rules.IsGameOver(_boardState);
         }
 
         public GameResult GetGameResult()
         {
             if(!IsGameOver())
             {
-                throw new Exception("The game is not finished yet.");
+                throw new Exception("The game is not over yet.");
             }
             var playersWithRemainingTime = GetAllPlayersWithRemainingTime();
             if(playersWithRemainingTime.Count == 1)
             {
                 return new GameResult(playersWithRemainingTime[0]);
             }
-            return Rules.GetGameResult(BoardState);
+            return _rules.GetGameResult(_boardState);
         }
 
         public double Evaluate(BoardState state)
@@ -97,22 +78,42 @@ namespace Chess.Game
             {
                 return state.GetScore().Score;
             }
-            var score = Minimax.GetBoardScore(Rules, state);
+            var score = Minimax.GetBoardScore(_rules, state);
             state.SetScore(score);
             return score.Score;
         }
 
-        public IBoardEvaluator GetEvaluator()
+        public List<Move> GetLegalMoves(BoardSquare square, BoardState state)
         {
-            return Rules.GetEvaluator();
+            return _rules.GetLegalMoves(square, state);
+        }
+
+        public Clock GetClock()
+        {
+            return _clock;
+        }
+
+        public int GetCurrentPlayer()
+        {
+            return _currentPlayer;
+        }
+
+        public List<Move> GetMoveHistory()
+        {
+            return _moveHistory;
+        }
+
+        public BoardState GetBoardState()
+        {
+            return _boardState;
         }
 
         private List<int> GetAllPlayersWithRemainingTime()
         {
             List<int> players = new List<int>();
-            for (int i = 0; i < Rules.PlayerCount; i++)
+            for (int i = 0; i < _rules.PlayerCount; i++)
             {
-                if (Clock.GetRemainingTime(i) > 0)
+                if (_clock.GetRemainingTime(i) > 0)
                 {
                     players.Add(i);
                 }

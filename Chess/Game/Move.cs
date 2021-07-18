@@ -19,13 +19,7 @@ namespace Chess.Game
         public bool IsUserInputRequired = false;
         public List<Option> Options { get; private set; }
         public Option SelectedOption;
-        public string Notation
-        {
-            get
-            {
-                return _rules.GetMoveNotation(this);
-            }
-        }
+        public string Notation { get; set; }
 
         private IGameRules _rules;
 

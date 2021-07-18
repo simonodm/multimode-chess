@@ -26,12 +26,14 @@ namespace Chess
         private ListBox _listBox;
         private event MoveEventHandler onSelectedMoveChanged;
         private BindingSource _moveSource;
+        private List<Move> _moveHistory;
 
         public MoveHistoryControl(ChessGame game)
         {
             _game = game;
             _moveSource = new BindingSource();
-            _moveSource.DataSource = _game.MoveHistory;
+            _moveHistory = game.GetMoveHistory();
+            _moveSource.DataSource = _moveHistory;
         }
 
         public void UpdateHistory()
@@ -40,11 +42,6 @@ namespace Chess
             _listBox.SelectedIndex = _listBox.Items.Count - 1;
         }
 
-        public void AddMove(Move move)
-        {
-            _listBox.Items.Add(_game.Rules.GetMoveNotation(move));
-            _listBox.SelectedIndex = _listBox.Items.Count - 1;
-        }
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -71,7 +68,7 @@ namespace Chess
         {
             var args = new MoveEventArgs()
             {
-                Move = _game.MoveHistory[_listBox.SelectedIndex]
+                Move = _moveHistory[_listBox.SelectedIndex]
             };
             OnSelectedMoveChanged(args);
         }

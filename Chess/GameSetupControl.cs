@@ -113,7 +113,7 @@ namespace Chess
         {
             var args = new GameStartEventArgs
             {
-                Game = ChessGame.CreateFromModeId((int)_comboBoxModes.SelectedValue, (int)_timeLimit.Value, (int)_increment.Value, _checkBoxOpponent.Checked)
+                Game = GameCreator.CreateFromModeId((int)_comboBoxModes.SelectedValue, (int)_timeLimit.Value, (int)_increment.Value, _checkBoxOpponent.Checked)
             };
             OnGameStart(args);
         }

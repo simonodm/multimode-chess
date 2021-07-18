@@ -67,7 +67,7 @@ namespace Chess
                     }
                 }
             }
-            if (state == Game.BoardState)
+            if (state == Game.GetBoardState())
             {
                 _isBoardCurrent = true;
             }
@@ -112,7 +112,7 @@ namespace Chess
                         }
                         Game.ProcessMove(move);
                         OnChessMove(moveArgs);
-                        UpdateBoard(Game.BoardState);
+                        UpdateBoard(Game.GetBoardState());
                     }
                     UnselectAll();
                 }
@@ -127,12 +127,12 @@ namespace Chess
         private void SelectTile(ChessBoardTileControl tile)
         {
             var square = tile.Square;
-            if(square.GetPiece() != null && square.GetPiece().GetPlayer() == Game.CurrentPlayer)
+            if(square.GetPiece() != null && square.GetPiece().GetPlayer() == Game.GetCurrentPlayer())
             {
                 tile.Select();
                 _selectedTile = tile;
                 _selectedLegalMoves = new List<Move>();
-                var legalMoves = Game.Rules.GetLegalMoves(tile.Square, Game.BoardState);
+                var legalMoves = Game.GetLegalMoves(tile.Square, Game.GetBoardState());
                 foreach (var move in legalMoves)
                 {
                     _tileMap[move.To.GetFile(), move.To.GetRank()].Select();
@@ -165,12 +165,12 @@ namespace Chess
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            if(Game.BoardState == null || Controls.Count > 0)
+            if(Game.GetBoardState() == null || Controls.Count > 0)
             {
                 return;
             }
 
-            var board = Game.BoardState.GetBoard();
+            var board = Game.GetBoardState().GetBoard();
 
             int boardWidth = board.GetWidth();
             int boardHeight = board.GetHeight();
