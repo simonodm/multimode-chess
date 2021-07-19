@@ -29,7 +29,7 @@ namespace Chess.Game
 
         public void Reset()
         {
-            _boardState = new BoardState(_rules.GetDefaultBoard());
+            _boardState = _rules.GetDefaultBoardState();
             _currentPlayer = 0;
             _clock.Reset();
             _moveHistory.Clear();
@@ -83,7 +83,7 @@ namespace Chess.Game
             return score.Score;
         }
 
-        public List<Move> GetLegalMoves(BoardSquare square, BoardState state)
+        public IEnumerable<Move> GetLegalMoves(BoardSquare square, BoardState state)
         {
             return _rules.GetLegalMoves(square, state);
         }

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Chess.Game.Modes;
 
-namespace Chess.Game
+namespace Chess.Game.Modes.Standard
 {
     class StandardBoardEvaluator : IBoardEvaluator
     {
@@ -34,7 +34,7 @@ namespace Chess.Game
             foreach(var square in state.GetBoard().GetAllSquares())
             {
                 score += CalculatePieceValue(state, square);
-                score += CalculatePieceCoverage(state, square);
+                //score += CalculatePieceCoverage(state, square);
             }
             return score;
         }

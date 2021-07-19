@@ -4,14 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Chess.Game.Pieces;
+using Chess.Game.Modes.Standard;
 
 namespace Chess.Game.Modes
 {
     class PawnOfTheDeadRules : ClassicRules
     {
-        protected override BoardState HandleCapture(Move move)
-        {
-            return base.HandleCapture(move);
-        }
     }
 }

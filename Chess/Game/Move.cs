@@ -21,7 +21,7 @@ namespace Chess.Game
         public Option SelectedOption;
         public string Notation { get; set; }
 
-        private IGameRules _rules;
+        protected IGameRules _rules;
 
         public Move(IGameRules rules)
         {

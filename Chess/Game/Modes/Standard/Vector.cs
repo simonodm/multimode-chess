@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chess.Game.Modes
+namespace Chess.Game.Modes.Standard
 {
-    interface IMoveFactory
+    struct Vector
     {
-        public Move GetMove(BoardState state, BoardSquare from, BoardSquare to);
+        public int X;
+        public int Y;
     }
 }

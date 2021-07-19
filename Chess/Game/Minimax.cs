@@ -9,7 +9,7 @@ namespace Chess.Game
 {
     class Minimax
     {
-        public static MinimaxResult GetBoardScore(IGameRules rules, BoardState state, int depth = 2)
+        public static MinimaxResult GetBoardScore(IGameRules rules, BoardState state, int depth = 5)
         {
             int player = 0;
             if(state.GetLastMove() != null && state.GetLastMove().Piece.GetPlayer() == 0)
@@ -43,6 +43,10 @@ namespace Chess.Game
             var legalMoves = rules.GetAllLegalMoves(state, player);
             foreach(var move in legalMoves)
             {
+                if(move.IsUserInputRequired)
+                {
+                    move.SelectOption(0); // TODO: process for each option
+                }
                 var score = ProcessBoard(rules, rules.Move(move), depth - 1, (player + 1) % 2, newAlpha, newBeta);
                 if(player == 0)
                 {

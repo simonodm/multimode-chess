@@ -1,4 +1,5 @@
 ﻿using Chess.Game.Modes;
+using Chess.Game.Modes.Standard;
 using System;
 using System.Collections.Generic;
 using System.Linq;
