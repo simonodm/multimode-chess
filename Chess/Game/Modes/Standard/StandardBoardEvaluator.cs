@@ -33,13 +33,13 @@ namespace Chess.Game.Modes.Standard
             }
             foreach(var square in state.GetBoard().GetAllSquares())
             {
-                score += CalculatePieceValue(state, square);
+                score += CalculatePieceValue(square);
                 //score += CalculatePieceCoverage(state, square);
             }
             return score;
         }
 
-        private int CalculatePieceValue(BoardState state, BoardSquare square)
+        private int CalculatePieceValue(BoardSquare square)
         {
             if(square.GetPiece() != null)
             {

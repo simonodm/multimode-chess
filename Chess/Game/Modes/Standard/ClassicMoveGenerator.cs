@@ -36,9 +36,11 @@ namespace Chess.Game.Modes.Standard
             }
 
             var rules = GameModePool.Get<ClassicRules>();
+            ClassicMove move = null;
+            
             if(IsNormal(from, to))
             {
-                return new MoveNormal(rules)
+                move = new MoveNormal(rules)
                 {
                     BoardBefore = state,
                     From = from,
@@ -46,9 +48,9 @@ namespace Chess.Game.Modes.Standard
                     Piece = from.GetPiece()
                 };
             }
-            if(IsCapture(from, to))
+            else if(IsCapture(from, to))
             {
-                return new MoveCapture(rules)
+                move = new MoveCapture(rules)
                 {
                     BoardBefore = state,
                     From = from,
@@ -56,9 +58,9 @@ namespace Chess.Game.Modes.Standard
                     Piece = from.GetPiece()
                 };
             }
-            if(IsEnPassant(state, from, to))
+            else if(IsEnPassant(state, from, to))
             {
-                return new MoveEnPassant(rules)
+                move = new MoveEnPassant(rules)
                 {
                     BoardBefore = state,
                     From = from,
@@ -66,9 +68,9 @@ namespace Chess.Game.Modes.Standard
                     Piece = from.GetPiece()
                 };
             }
-            if(IsPromotion(state, from, to))
+            else if(IsPromotion(state, from, to))
             {
-                return new MovePromotion(rules)
+                move = new MovePromotion(rules)
                 {
                     BoardBefore = state,
                     From = from,
@@ -76,9 +78,9 @@ namespace Chess.Game.Modes.Standard
                     Piece = from.GetPiece()
                 };
             }
-            if(IsCastle(state, from, to))
+            else if(IsCastle(state, from, to))
             {
-                return new MoveCastle(rules)
+                move = new MoveCastle(rules)
                 {
                     BoardBefore = state,
                     From = from,
@@ -86,7 +88,13 @@ namespace Chess.Game.Modes.Standard
                     Piece = from.GetPiece()
                 };
             }
-            return null;
+
+            if(move != null && IsMovePreventedByCheck(state, move))
+            {
+                move = null;
+            }
+
+            return move;
         }
 
         public static ClassicMove GetMove(StandardBoardState state, Move move)
@@ -217,6 +225,12 @@ namespace Chess.Game.Modes.Standard
         {
 
             return from.GetPiece() is Pawn && (to.GetRank() == 0 || to.GetRank() == state.GetBoard().GetHeight() - 1);
+        }
+
+        private static bool IsMovePreventedByCheck(StandardBoardState state, ClassicMove move)
+        {
+            var newState = move.Process();
+            return newState.IsInCheck(move.Piece.GetPlayer());
         }
 
         private static bool CheckBasePawnConditions(StandardBoardState state, BoardSquare from, BoardSquare to)

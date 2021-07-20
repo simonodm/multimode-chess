@@ -8,9 +8,6 @@ namespace Chess.Game.Modes.Standard
 {
     abstract class ClassicMove : Move
     {
-        public new StandardBoardState BoardBefore;
-        public new StandardBoardState BoardAfter;
-
         public ClassicMove(IGameRules rules) : base(rules) { }
 
         public abstract StandardBoardState Process();

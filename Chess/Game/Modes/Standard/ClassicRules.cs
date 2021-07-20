@@ -29,6 +29,7 @@ namespace Chess.Game.Modes.Standard
             {
                 newBoardState = (move as ClassicMove).Process();
                 move.BoardAfter = newBoardState;
+                move.Notation = GetMoveNotation(move);
                 return newBoardState;
             }
             newBoardState = ClassicMoveGenerator.GetMove(ConvertToStandardBoardState(move.BoardBefore), move).Process();
@@ -130,7 +131,7 @@ namespace Chess.Game.Modes.Standard
             }
             sb.Append(file.ConvertToChessFile());
             sb.Append(move.To.GetRank() + 1);
-            if(classicMove.BoardAfter.IsInCheck((move.Piece.GetPlayer() + 1) % PlayerCount))
+            if(ConvertToStandardBoardState(classicMove.BoardAfter).IsInCheck((move.Piece.GetPlayer() + 1) % PlayerCount))
             {
                 sb.Append("+");
             }

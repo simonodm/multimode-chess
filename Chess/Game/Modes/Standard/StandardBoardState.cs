@@ -11,6 +11,7 @@ namespace Chess.Game.Modes.Standard
     {
         private BoardSquare _whiteKing;
         private BoardSquare _blackKing;
+        private ThreatMap _threatMap;
 
         public StandardBoardState(int width, int height, Move lastMove = null) : base(width, height, lastMove)
         {
@@ -21,19 +22,37 @@ namespace Chess.Game.Modes.Standard
             InitKings();
         }
 
+        public ThreatMap GetThreatMap()
+        {
+            if(_threatMap == null)
+            {
+                _threatMap = new ThreatMap(GetBoard().GetWidth(), GetBoard().GetHeight());
+
+                for (int player = 0; player < 2; player++)
+                {
+                    foreach (var square in GetBoard().GetAllSquares())
+                    {
+                        if (IsSquareUnderThreat(square, player))
+                        {
+                            _threatMap.ToggleThreat(square.GetFile(), square.GetRank(), player);
+                        }
+                     }
+                }
+            }
+            return _threatMap;
+            
+        }
+
         public bool IsSquareUnderThreat(BoardSquare square, int byPlayer)
         {
             // TODO: holy shit just refactor this
-
-            return IsSquareUnderThreatFrom(square, new Pawn((byPlayer + 1) % 2)) &&
-                IsSquareUnderThreatFrom(square, new Knight((byPlayer + 1) % 2)) &&
-                IsSquareUnderThreatFrom(square, new Bishop((byPlayer + 1) % 2)) &&
-                IsSquareUnderThreatFrom(square, new Rook((byPlayer + 1) % 2)) &&
-                IsSquareUnderThreatFrom(square, new Queen((byPlayer + 1) % 2)) &&
+            return IsSquareUnderThreatFrom(square, new Pawn((byPlayer + 1) % 2)) ||
+                IsSquareUnderThreatFrom(square, new Knight((byPlayer + 1) % 2)) ||
+                IsSquareUnderThreatFrom(square, new Bishop((byPlayer + 1) % 2)) ||
+                IsSquareUnderThreatFrom(square, new Rook((byPlayer + 1) % 2)) ||
+                IsSquareUnderThreatFrom(square, new Queen((byPlayer + 1) % 2)) ||
                 IsSquareUnderThreatFrom(square, new King((byPlayer + 1) % 2));
-
         }
-
         public BoardSquare GetPlayerKing(int player)
         {
             if(player == 0)
@@ -46,16 +65,6 @@ namespace Chess.Game.Modes.Standard
             }
         }
 
-        public BoardSquare GetWhiteKingSquare()
-        {
-            return _whiteKing;
-        }
-
-        public BoardSquare GetBlackKingSquare()
-        {
-            return _blackKing;
-        }
-
         public List<Move> GetNonBlockedMoves(BoardSquare square)
         {
             var moveList = new List<Move>();
@@ -63,8 +72,6 @@ namespace Chess.Game.Modes.Standard
             {
                 return moveList;
             }
-
-            var blockedDirections = new Dictionary<Vector, (int, int)>();
 
             foreach (var moveOffset in square.GetPiece().GetPossibleMoveOffsets())
             {
@@ -74,24 +81,16 @@ namespace Chess.Game.Modes.Standard
                 if (newFile >= 0 && newFile < board.GetWidth() && newRank >= 0 && newRank < board.GetHeight())
                 {
                     var squareTo = board.GetSquare(newFile, newRank);
-                    var direction = GetDirection(square, squareTo);
-                    if (!blockedDirections.ContainsKey(direction) || newFile < blockedDirections[direction].Item1 || newRank < blockedDirections[direction].Item2)
+                    if(!IsLineBlocked(square.GetPiece(), square, squareTo))
                     {
-                        if (!IsLineBlocked(square.GetPiece(), square, squareTo))
+                        var move = new Move(GameModePool.Get<ClassicRules>())
                         {
-                            var move = new Move(GameModePool.Get<ClassicRules>())
-                            {
-                                From = square,
-                                To = squareTo,
-                                BoardBefore = this,
-                                Piece = square.GetPiece()
-                            };
-                            moveList.Add(move);
-                        }
-                        else
-                        {
-                            blockedDirections[direction] = (newFile, newRank);
-                        }
+                            From = square,
+                            To = squareTo,
+                            BoardBefore = this,
+                            Piece = square.GetPiece()
+                        };
+                        moveList.Add(move);
                     }
                 }
             }
@@ -111,7 +110,7 @@ namespace Chess.Game.Modes.Standard
             foreach (var move in moves)
             {
                 // TODO: pawn and king special moves
-                if (move.To.GetPiece() != null && move.To.GetPiece().GetPlayer() != piece.GetPlayer())
+                if (move.To.GetPiece() != null && move.To.GetPiece().GetType() == piece.GetType() && move.To.GetPiece().GetPlayer() != piece.GetPlayer())
                 {
                     return true;
                 }
@@ -158,17 +157,7 @@ namespace Chess.Game.Modes.Standard
 
             return false;
         }
-
-        private Vector GetDirection(BoardSquare from, BoardSquare to)
-        {
-            int x = from.GetFile() < to.GetFile() ? 1 : 0;
-            int y = from.GetRank() < to.GetRank() ? 1 : 0;
-            return new Vector
-            {
-                X = x,
-                Y = y
-            };
-        }
+                
         private void InitKings()
         {
             var kings = FindPieces<King>();
