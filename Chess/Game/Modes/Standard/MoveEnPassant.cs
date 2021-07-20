@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chess.Game.Pieces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,15 +14,28 @@ namespace Chess.Game.Modes.Standard
         {
             var board = BoardBefore.GetBoard()
                 .Move(this)
-                .RemovePiece(GetEnPassantSquare());
+                .RemovePiece(GetEnPassantSquare(BoardBefore));
             return new StandardBoardState(board, this);
         }
 
-        private BoardSquare GetEnPassantSquare()
+        public static bool IsLegal(StandardBoardState state, BoardSquare from, BoardSquare to)
         {
-            var enPassantFile = BoardBefore.GetLastMove().From.GetFile();
-            var enPassantRank = BoardBefore.GetLastMove().From.GetRank() + (BoardBefore.GetLastMove().To.GetRank() - BoardBefore.GetLastMove().From.GetRank());
-            var square = BoardBefore.GetBoard().GetSquare(enPassantFile, enPassantRank);
+            var previousMove = state.GetLastMove();
+            if (previousMove == null)
+            {
+                return false;
+            }
+            return from.GetPiece() is Pawn &&
+                previousMove.Piece is Pawn &&
+                Math.Abs(previousMove.To.GetRank() - previousMove.From.GetRank()) == 2 &&
+                to == GetEnPassantSquare(state);
+        }
+
+        private static BoardSquare GetEnPassantSquare(BoardState state)
+        {
+            var enPassantFile = state.GetLastMove().From.GetFile();
+            var enPassantRank = state.GetLastMove().From.GetRank() + (state.GetLastMove().To.GetRank() - state.GetLastMove().From.GetRank());
+            var square = state.GetBoard().GetSquare(enPassantFile, enPassantRank);
             return square;
         }
     }

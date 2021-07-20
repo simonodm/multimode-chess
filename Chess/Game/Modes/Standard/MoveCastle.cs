@@ -13,7 +13,7 @@ namespace Chess.Game.Modes.Standard
 
         public override StandardBoardState Process()
         {
-            var rookSquare = GetRookSquare();
+            var rookSquare = GetRookSquare(BoardBefore, From, To);
 
             var rookTargetSquare = To.GetFile() > From.GetFile() ?
                 BoardBefore.GetBoard().GetSquare(From.GetFile() + 1, From.GetRank()) :
@@ -32,16 +32,42 @@ namespace Chess.Game.Modes.Standard
             return new StandardBoardState(board, this);
         }
 
-        private BoardSquare GetRookSquare()
+        public static bool IsLegal(StandardBoardState state, BoardSquare from, BoardSquare to)
         {
-            if (To.GetFile() < From.GetFile())
+            if (CheckBaseCastleConditions(from, to))
             {
-                return BoardBefore.GetBoard().GetSquare(0, From.GetRank());
+                for (int i = Math.Min(from.GetFile(), to.GetFile()); i <= Math.Max(from.GetFile(), to.GetFile()); i++)
+                {
+                    var square = state.GetBoard().GetSquare(i, from.GetRank());
+                    if (state.IsSquareUnderThreat(square, (from.GetPiece().GetPlayer() + 1) % 2))
+                    {
+                        return false;
+                    }
+                }
+                var expectedRook = GetRookSquare(state, from, to).GetPiece();
+                if (expectedRook is Rook && expectedRook.GetPlayer() == from.GetPiece().GetPlayer() && expectedRook.GetMoveCount() == 0)
+                {
+                    return true;
+                }
             }
-            else
-            {
-                return BoardBefore.GetBoard().GetSquare(7, From.GetRank());
-            }
+            return false;
+        }
+
+        private static bool CheckBaseCastleConditions(BoardSquare from, BoardSquare to)
+        {
+            var movePiece = from.GetPiece();
+            return movePiece is King &&
+               Math.Abs(to.GetFile() - from.GetFile()) == 2 &&
+               from.GetFile() == 4 &&
+               movePiece.GetMoveCount() == 0 &&
+               (from.GetRank() == 0 || from.GetRank() == 7);
+        }
+
+        private static BoardSquare GetRookSquare(BoardState state, BoardSquare from, BoardSquare to)
+        {
+            return to.GetFile() < from.GetFile() ?
+            state.GetBoard().GetSquare(0, from.GetRank()) :
+            state.GetBoard().GetSquare(7, from.GetRank());
         }
     }
 }

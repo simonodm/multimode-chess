@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chess.Game.Pieces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,27 @@ namespace Chess.Game.Modes.Standard
             var board = BoardBefore.GetBoard()
                 .Move(this);
             return new StandardBoardState(board, this);
+        }
+
+        public static bool IsLegal(BoardSquare from, BoardSquare to)
+        {
+            var movePiece = from.GetPiece();
+            if (movePiece is Pawn)
+            {
+                if (from.GetFile() == to.GetFile() ||
+                   (movePiece.GetPlayer() == 0 && to.GetRank() < from.GetRank()) ||
+                   (movePiece.GetPlayer() == 1 && to.GetRank() > from.GetRank()))
+                {
+                    return false;
+                }
+            }
+
+            if (to.GetPiece() != null && to.GetPiece().GetPlayer() != from.GetPiece().GetPlayer())
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
