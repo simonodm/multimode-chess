@@ -38,8 +38,17 @@ namespace Chess.Game.Modes.Standard
             var rules = GameModePool.Get<ClassicRules>();
             ClassicMove move = null;
 
-
-            if (MovePromotion.IsLegal(state, from, to))
+            if (MoveCastle.IsLegal(state, from, to))
+            {
+                move = new MoveCastle(rules)
+                {
+                    BoardBefore = state,
+                    From = from,
+                    To = to,
+                    Piece = from.GetPiece()
+                };
+            }
+            else if (MovePromotion.IsLegal(state, from, to))
             {
                 move = new MovePromotion(rules)
                 {
@@ -49,9 +58,9 @@ namespace Chess.Game.Modes.Standard
                     Piece = from.GetPiece()
                 };
             }
-            else if (MoveNormal.IsLegal(from, to))
+            else if (MoveEnPassant.IsLegal(state, from, to))
             {
-                move = new MoveNormal(rules)
+                move = new MoveEnPassant(rules)
                 {
                     BoardBefore = state,
                     From = from,
@@ -69,19 +78,9 @@ namespace Chess.Game.Modes.Standard
                     Piece = from.GetPiece()
                 };
             }
-            else if(MoveEnPassant.IsLegal(state, from, to))
+            else if (MoveNormal.IsLegal(from, to))
             {
-                move = new MoveEnPassant(rules)
-                {
-                    BoardBefore = state,
-                    From = from,
-                    To = to,
-                    Piece = from.GetPiece()
-                };
-            }
-            else if(MoveCastle.IsLegal(state, from, to))
-            {
-                move = new MoveCastle(rules)
+                move = new MoveNormal(rules)
                 {
                     BoardBefore = state,
                     From = from,
@@ -90,7 +89,8 @@ namespace Chess.Game.Modes.Standard
                 };
             }
 
-            if(move != null && IsMovePreventedByCheck(state, move))
+
+            if (move != null && IsMovePreventedByCheck(state, move))
             {
                 move = null;
             }
@@ -130,10 +130,6 @@ namespace Chess.Game.Modes.Standard
                 {
                     return false;
                 }
-            }
-            if (to.GetFile() != from.GetFile())
-            {
-                return to.GetPiece() != null && to.GetPiece().GetPlayer() != piece.GetPlayer();
             }
             return true;
         }

@@ -26,9 +26,62 @@ namespace Chess.Game.Pieces
             _symbol = "";
         }
 
+        public override List<BoardSquare> GetPossibleMoves(BoardState state, BoardSquare from)
+        {
+            var moves = new List<BoardSquare>();
+            foreach(var move in _possibleMoves)
+            {
+                var target = GetTargetSquare(state, from, move);
+                if(target != null)
+                {
+                    if(ValidateMove(state, from, (BoardSquare)target))
+                    {
+                        moves.Add((BoardSquare)target);
+                    }
+                }
+            }
+
+            return moves;
+        }
+
         public override (int, int)[] GetPossibleMoveOffsets()
         {
             return _possibleMoves;
+        }
+
+        private bool ValidateMove(BoardState state, BoardSquare from, BoardSquare to)
+        {
+            return CheckDirection(from, to) && CheckLongMove(from, to) && CheckCollision(state, from, to);
+        }
+
+        private bool CheckDirection(BoardSquare from, BoardSquare to)
+        {
+            if(GetPlayer() == 0)
+            {
+                return to.GetRank() > from.GetRank();
+            }
+            else
+            {
+                return to.GetRank() < from.GetRank();
+            }
+        }
+
+        private bool CheckLongMove(BoardSquare from, BoardSquare to)
+        {
+            if(Math.Abs(from.GetRank() - to.GetRank()) == 2)
+            {
+                return (GetPlayer() == 0 && from.GetRank() == 1) || (GetPlayer() == 1 && from.GetRank() == 6);
+            }
+            return true;
+        }
+
+        private bool CheckCollision(BoardState state, BoardSquare from, BoardSquare to)
+        {
+            if(to.GetFile() == from.GetFile())
+            {
+                return !IsLineBlocked(state, from, to) && to.GetPiece() == null;
+            }
+            return true;
         }
     }
 }

@@ -34,24 +34,37 @@ namespace Chess.Game.Modes.Standard
             }
             newBoardState = ClassicMoveGenerator.GetMove(ConvertToStandardBoardState(move.BoardBefore), move).Process();
             move.BoardAfter = newBoardState;
+            move.Piece.SetMoveCount(move.Piece.GetMoveCount() + 1);
             return newBoardState;
         }
 
         public virtual bool IsGameOver(BoardState state)
         {
             var standardBoardState = ConvertToStandardBoardState(state);
+            int totalLegalMoves = 0;
             for(int i = 0; i < PlayerCount; i++)
             {
-                if(standardBoardState.IsInCheck(i) && ClassicMoveGenerator.GetAllLegalMoves(standardBoardState, i).Count == 0)
+                int playerLegalMoves = ClassicMoveGenerator.GetAllLegalMoves(standardBoardState, i).Count;
+                totalLegalMoves += playerLegalMoves;
+                if(standardBoardState.IsInCheck(i) && playerLegalMoves == 0)
                 {
                     return true;
                 }
+            }
+            if(totalLegalMoves == 0)
+            {
+                return true;
             }
             return false;
         }
 
         public virtual GameResult GetGameResult(BoardState state)
         {
+            if(!IsGameOver(state))
+            {
+                throw new Exception("Game is not over yet.");
+            }
+
             return new GameResult(state.GetLastMove().Piece.GetPlayer());    
         }
 

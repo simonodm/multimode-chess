@@ -26,6 +26,19 @@ namespace Chess.Game.Pieces
             _symbol = "N";
         }
 
+        public override List<BoardSquare> GetPossibleMoves(BoardState state, BoardSquare from)
+        {
+            var moves = new List<BoardSquare>();
+            foreach(var move in _possibleMoves)
+            {
+                var target = GetTargetSquare(state, from, move);
+                if(target != null)
+                {
+                    moves.Add((BoardSquare)target);
+                }
+            }
+            return moves;
+        }
         public override (int, int)[] GetPossibleMoveOffsets()
         {
             return _possibleMoves;

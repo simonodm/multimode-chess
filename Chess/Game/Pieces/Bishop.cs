@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chess.Game.Modes.Standard;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,6 +26,21 @@ namespace Chess.Game.Pieces
                 }
             }
         }
+
+        public override List<BoardSquare> GetPossibleMoves(BoardState state, BoardSquare from)
+        {
+            var targetSquares = new List<BoardSquare>();
+            foreach(var offset in _possibleMoves)
+            {
+                var squareTo = GetTargetSquare(state, from, offset);
+                if(squareTo != null && !IsLineBlocked(state, from, (BoardSquare)squareTo))
+                {
+                    targetSquares.Add((BoardSquare)squareTo);
+                }
+            }
+            return targetSquares;
+        }
+
         public override (int, int)[] GetPossibleMoveOffsets()
         {
             return _possibleMoves;

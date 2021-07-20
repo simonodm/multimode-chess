@@ -20,6 +20,15 @@ namespace Chess.Game.Modes.Standard
 
         public static bool IsLegal(BoardSquare from, BoardSquare to)
         {
+            if(from.GetPiece() is Pawn && to.GetFile() != from.GetFile())
+            {
+                return false;
+            }
+            if(from.GetPiece() is King && Math.Abs(to.GetFile() - from.GetFile()) == 2)
+            {
+                return false;
+            }
+            return to.GetPiece() == null;
             if (to.GetPiece() == null)
             {
                 var movePiece = from.GetPiece();

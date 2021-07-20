@@ -13,8 +13,8 @@ namespace Chess.Game.Modes.Standard
         public override StandardBoardState Process()
         {
             var board = BoardBefore.GetBoard()
-                .Move(this)
-                .RemovePiece(GetEnPassantSquare(BoardBefore));
+                .RemovePiece(BoardBefore.GetLastMove().To)
+                .Move(this);
             return new StandardBoardState(board, this);
         }
 
@@ -34,7 +34,7 @@ namespace Chess.Game.Modes.Standard
         private static BoardSquare GetEnPassantSquare(BoardState state)
         {
             var enPassantFile = state.GetLastMove().From.GetFile();
-            var enPassantRank = state.GetLastMove().From.GetRank() + (state.GetLastMove().To.GetRank() - state.GetLastMove().From.GetRank());
+            var enPassantRank = state.GetLastMove().From.GetRank() + (state.GetLastMove().To.GetRank() - state.GetLastMove().From.GetRank()) / 2;
             var square = state.GetBoard().GetSquare(enPassantFile, enPassantRank);
             return square;
         }

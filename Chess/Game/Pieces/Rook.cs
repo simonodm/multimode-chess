@@ -25,6 +25,20 @@ namespace Chess.Game.Pieces
             }
         }
 
+        public override List<BoardSquare> GetPossibleMoves(BoardState state, BoardSquare from)
+        {
+            var moves = new List<BoardSquare>();
+            foreach(var move in _possibleMoveOffsets)
+            {
+                var target = GetTargetSquare(state, from, move);
+                if(target != null && !IsLineBlocked(state, from, (BoardSquare)target))
+                {
+                    moves.Add((BoardSquare)target);
+                }
+            }
+            return moves;
+        }
+
         public override (int, int)[] GetPossibleMoveOffsets()
         {
             return _possibleMoveOffsets;

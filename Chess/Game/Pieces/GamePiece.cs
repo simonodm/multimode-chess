@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chess.Game.Modes.Standard;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -44,6 +45,53 @@ namespace Chess.Game.Pieces
         {
             _moveCount = moveCount;
         }
+
+        protected bool IsLineBlocked(BoardState state, BoardSquare from, BoardSquare to)
+        {
+            bool pieceFound = false;
+            int startFile = from.GetFile();
+            int endFile = to.GetFile();
+            int startRank = from.GetRank();
+            int endRank = to.GetRank();
+            int i = startFile;
+            int j = startRank;
+
+            while (i != endFile || j != endRank)
+            {
+                if (i != startFile || j != startRank)
+                {
+                    var blockingPiece = state.GetBoard().GetSquare(i, j).GetPiece();
+                    if (blockingPiece != null && blockingPiece != this)
+                    {
+                        pieceFound = true;
+                    }
+                    if (pieceFound)
+                    {
+                        return true;
+                    }
+                }
+                if (startFile < endFile && i < endFile) i++;
+                if (startFile > endFile && i > endFile) i--;
+                if (startRank < endRank && j < endRank) j++;
+                if (startRank > endRank && j > endRank) j--;
+            }
+
+            return false;
+        }
+
+        protected BoardSquare? GetTargetSquare(BoardState state, BoardSquare from, (int, int) offset)
+        {
+            int newFile = from.GetFile() + offset.Item1;
+            int newRank = from.GetRank() + offset.Item2;
+            if(newFile >= 0 && newFile < state.GetBoard().GetWidth() && newRank >= 0 && newRank < state.GetBoard().GetHeight())
+            {
+                return state.GetBoard().GetSquare(newFile, newRank);
+            }
+            return null;
+        }
+
+        public abstract List<BoardSquare> GetPossibleMoves(BoardState state, BoardSquare from);
+
         public abstract (int, int)[] GetPossibleMoveOffsets();
     }
 }

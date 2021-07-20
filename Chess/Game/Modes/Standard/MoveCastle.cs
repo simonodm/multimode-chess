@@ -36,7 +36,9 @@ namespace Chess.Game.Modes.Standard
         {
             if (CheckBaseCastleConditions(from, to))
             {
-                for (int i = Math.Min(from.GetFile(), to.GetFile()); i <= Math.Max(from.GetFile(), to.GetFile()); i++)
+                var expectedRookSquare = GetRookSquare(state, from, to);
+
+                for (int i = Math.Min(from.GetFile(), expectedRookSquare.GetFile()); i <= Math.Max(from.GetFile(), expectedRookSquare.GetFile()); i++)
                 {
                     var square = state.GetBoard().GetSquare(i, from.GetRank());
                     if (state.IsSquareUnderThreat(square, (from.GetPiece().GetPlayer() + 1) % 2))
@@ -44,7 +46,8 @@ namespace Chess.Game.Modes.Standard
                         return false;
                     }
                 }
-                var expectedRook = GetRookSquare(state, from, to).GetPiece();
+
+                var expectedRook = expectedRookSquare.GetPiece();
                 if (expectedRook is Rook && expectedRook.GetPlayer() == from.GetPiece().GetPlayer() && expectedRook.GetMoveCount() == 0)
                 {
                     return true;
@@ -58,9 +61,7 @@ namespace Chess.Game.Modes.Standard
             var movePiece = from.GetPiece();
             return movePiece is King &&
                Math.Abs(to.GetFile() - from.GetFile()) == 2 &&
-               from.GetFile() == 4 &&
-               movePiece.GetMoveCount() == 0 &&
-               (from.GetRank() == 0 || from.GetRank() == 7);
+               movePiece.GetMoveCount() == 0;
         }
 
         private static BoardSquare GetRookSquare(BoardState state, BoardSquare from, BoardSquare to)

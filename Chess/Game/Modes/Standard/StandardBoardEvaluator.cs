@@ -19,9 +19,10 @@ namespace Chess.Game.Modes.Standard
         public double GetBoardScore(BoardState state)
         {
             double score = 0;
-            if(_rules.IsGameOver(state))
+            var convertedState = state.ToStandardBoardState();
+            if(_rules.IsGameOver(convertedState))
             {
-                var result = _rules.GetGameResult(state);
+                var result = _rules.GetGameResult(convertedState);
                 if(result.GetWinner() == 0)
                 {
                     return double.MaxValue;
@@ -31,10 +32,10 @@ namespace Chess.Game.Modes.Standard
                     return double.MinValue;
                 }
             }
-            foreach(var square in state.GetBoard().GetAllSquares())
+            foreach(var square in convertedState.GetBoard().GetAllSquares())
             {
                 score += CalculatePieceValue(square);
-                //score += CalculatePieceCoverage(state, square);
+                score += CalculatePieceCoverage(convertedState, square);
             }
             return score;
         }
@@ -55,13 +56,13 @@ namespace Chess.Game.Modes.Standard
             return 0;
         }
         
-        private double CalculatePieceCoverage(BoardState state, BoardSquare square)
+        private double CalculatePieceCoverage(StandardBoardState state, BoardSquare square)
         {
             const double COVERAGE_MULTIPLIER = 0.1;
             if(square.GetPiece() != null)
             {
                 double result = 0;
-                var moves = _rules.GetLegalMoves(square, state);
+                var moves = state.GetNonBlockedMoves(square);
                 foreach(var move in moves)
                 {
                     if(move.To.GetPiece() == null)

@@ -28,6 +28,35 @@ namespace Chess.Game.Pieces
             _symbol = "K";
         }
 
+        public override List<BoardSquare> GetPossibleMoves(BoardState state, BoardSquare from)
+        {
+            var moves = new List<BoardSquare>();
+            foreach(var move in _possibleMoves)
+            {
+                var target = GetTargetSquare(state, from, move);
+                if(target != null)
+                {
+                    if(CheckLongMove(state, from, (BoardSquare)target))
+                    {
+                        moves.Add((BoardSquare)target);
+                    }
+                }
+            }
+            return moves;
+        }
+
+        private bool CheckLongMove(BoardState state, BoardSquare from, BoardSquare to)
+        {
+            if(Math.Abs(to.GetFile() - from.GetFile()) == 2)
+            {
+                return (from.GetRank() == 0 || from.GetRank() == state.GetBoard().GetHeight() - 1) &&
+                    from.GetFile() == 4 &&
+                    !IsLineBlocked(state, from, to) &&
+                    to.GetPiece() == null;
+            }
+            return true;
+        }
+
         public override (int, int)[] GetPossibleMoveOffsets()
         {
             return _possibleMoves;

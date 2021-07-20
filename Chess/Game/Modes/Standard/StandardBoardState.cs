@@ -11,6 +11,8 @@ namespace Chess.Game.Modes.Standard
     {
         private BoardSquare _whiteKing;
         private BoardSquare _blackKing;
+        private Dictionary<BoardSquare, List<Move>> _cachedNonBlockedMoves
+            = new Dictionary<BoardSquare, List<Move>>();
 
         public StandardBoardState(int width, int height, Move lastMove = null) : base(width, height, lastMove)
         {
@@ -45,34 +47,26 @@ namespace Chess.Game.Modes.Standard
 
         public List<Move> GetNonBlockedMoves(BoardSquare square)
         {
-            var moveList = new List<Move>();
-            if (square.GetPiece() == null)
+            if(_cachedNonBlockedMoves.ContainsKey(square))
             {
-                return moveList;
+                return _cachedNonBlockedMoves[square];
             }
-
-            foreach (var moveOffset in square.GetPiece().GetPossibleMoveOffsets())
+            var moveList = new List<Move>();
+            if(square.GetPiece() != null)
             {
-                var board = GetBoard();
-                int newFile = square.GetFile() + moveOffset.Item1;
-                int newRank = square.GetRank() + moveOffset.Item2;
-                if (newFile >= 0 && newFile < board.GetWidth() && newRank >= 0 && newRank < board.GetHeight())
+                foreach(var targetSquare in square.GetPiece().GetPossibleMoves(this, square))
                 {
-                    var squareTo = board.GetSquare(newFile, newRank);
-                    if(!IsLineBlocked(square.GetPiece(), square, squareTo))
+                    moveList.Add(new Move(GameModePool.Get<ClassicRules>())
                     {
-                        var move = new Move(GameModePool.Get<ClassicRules>())
-                        {
-                            From = square,
-                            To = squareTo,
-                            BoardBefore = this,
-                            Piece = square.GetPiece()
-                        };
-                        moveList.Add(move);
-                    }
+                        BoardBefore = this,
+                        From = square,
+                        To = targetSquare,
+                        Piece = square.GetPiece()
+                    });
                 }
             }
 
+            _cachedNonBlockedMoves[square] = moveList;
             return moveList;
         }
 

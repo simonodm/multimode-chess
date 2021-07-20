@@ -47,7 +47,10 @@ namespace Chess.Game.Modes.Standard
 
         public static bool IsLegal(StandardBoardState state, BoardSquare from, BoardSquare to)
         {
-            return from.GetPiece() is Pawn && (to.GetRank() == 0 || to.GetRank() == state.GetBoard().GetHeight() - 1);
+            return from.GetPiece() is Pawn &&
+                (to.GetPiece() != null && to.GetFile() != from.GetFile() || (to.GetPiece() == null && to.GetFile() == from.GetFile())) &&
+                ((from.GetRank() == 6 && to.GetRank() == state.GetBoard().GetHeight() - 1) ||
+                (from.GetRank() == 1 && to.GetRank() == 0));
         }
 
         private GamePiece GetPieceFromSelectedOption()
