@@ -11,7 +11,6 @@ namespace Chess.Game.Modes.Standard
     {
         private BoardSquare _whiteKing;
         private BoardSquare _blackKing;
-        private ThreatMap _threatMap;
 
         public StandardBoardState(int width, int height, Move lastMove = null) : base(width, height, lastMove)
         {
@@ -20,27 +19,6 @@ namespace Chess.Game.Modes.Standard
         public StandardBoardState(Board board, Move lastMove = null) : base(board, lastMove)
         {
             InitKings();
-        }
-
-        public ThreatMap GetThreatMap()
-        {
-            if(_threatMap == null)
-            {
-                _threatMap = new ThreatMap(GetBoard().GetWidth(), GetBoard().GetHeight());
-
-                for (int player = 0; player < 2; player++)
-                {
-                    foreach (var square in GetBoard().GetAllSquares())
-                    {
-                        if (IsSquareUnderThreat(square, player))
-                        {
-                            _threatMap.ToggleThreat(square.GetFile(), square.GetRank(), player);
-                        }
-                     }
-                }
-            }
-            return _threatMap;
-            
         }
 
         public bool IsSquareUnderThreat(BoardSquare square, int byPlayer)
