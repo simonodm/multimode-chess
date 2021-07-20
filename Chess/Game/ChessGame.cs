@@ -45,7 +45,7 @@ namespace Chess.Game
                 _moveHistory.Add(move);
                 _clock.Switch();
                 _currentPlayer = (_currentPlayer + 1) % _rules.PlayerCount;
-                if(_vsAi && _currentPlayer == _AIplayer)
+                if(_vsAi && _currentPlayer == _AIplayer && !IsGameOver())
                 {
                     _boardState.SetScore(Minimax.GetBoardScore(_rules, _boardState));
                     ProcessMove(_boardState.GetScore().BestMove);

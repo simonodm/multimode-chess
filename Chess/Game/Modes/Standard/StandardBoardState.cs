@@ -113,14 +113,17 @@ namespace Chess.Game.Modes.Standard
 
             while (i != endFile || j != endRank)
             {
-                var blockingPiece = GetBoard().GetSquare(i, j).GetPiece();
-                if (blockingPiece != null && blockingPiece != piece)
+                if(i != startFile || j != startRank)
                 {
-                    pieceFound = true;
-                }
-                if (pieceFound)
-                {
-                    return true;
+                    var blockingPiece = GetBoard().GetSquare(i, j).GetPiece();
+                    if (blockingPiece != null && blockingPiece != piece)
+                    {
+                        pieceFound = true;
+                    }
+                    if (pieceFound)
+                    {
+                        return true;
+                    }
                 }
                 if (startFile < endFile && i < endFile) i++;
                 if (startFile > endFile && i > endFile) i--;

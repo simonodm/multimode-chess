@@ -13,8 +13,8 @@ namespace Chess.Game.Modes.Standard
         {
             AddOption("Queen");
             AddOption("Rook");
-            AddOption("Bishop");
             AddOption("Knight");
+            AddOption("Bishop");
         }
 
         public override StandardBoardState Process()
@@ -52,6 +52,10 @@ namespace Chess.Game.Modes.Standard
 
         private GamePiece GetPieceFromSelectedOption()
         {
+            if(SelectedOption == null)
+            {
+                return new Queen(Piece.GetPlayer());
+            }
             GamePiece piece;
             switch (SelectedOption.Id)
             {
