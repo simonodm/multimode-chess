@@ -87,6 +87,7 @@ namespace Chess
         private CheckBox GenerateOpponentCheckbox()
         {
             var opponentCheckbox = new CheckBox();
+            opponentCheckbox.AutoSize = true;
             return opponentCheckbox;
         }
         private NumericUpDown GenerateTimeLimitControl()
