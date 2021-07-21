@@ -68,7 +68,7 @@ namespace Chess.Game.Modes.Standard
             return new GameResult(state.GetLastMove().Piece.GetPlayer());    
         }
 
-        public virtual BoardState GetDefaultBoardState()
+        public virtual BoardState GetStartingBoardState()
         {
             var board = new Board(8, 8);
             for (int player = 0; player < PlayerCount; player++)
@@ -104,6 +104,11 @@ namespace Chess.Game.Modes.Standard
                     board = board.AddPiece(squareSecondRank, new Pawn(player));
                 }
             }
+            return new StandardBoardState(board);
+        }
+
+        public virtual BoardState GetStartingBoardState(Board board)
+        {
             return new StandardBoardState(board);
         }
 

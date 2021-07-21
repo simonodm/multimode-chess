@@ -11,6 +11,18 @@ namespace Chess
 {
     class GameSetupControl : Control
     {
+        public delegate void MultipleOptionEventHandler(object sender, MultipleOptionEventArgs e);
+        public event MultipleOptionEventHandler OptionPickRequired
+        {
+            add
+            {
+                _onOptionPickRequired += value;
+            }
+            remove
+            {
+                _onOptionPickRequired -= value;
+            }
+        }
         public delegate void GameStartEventHandler(object sender, GameStartEventArgs e);
         public event GameStartEventHandler GameStart
         {
@@ -32,7 +44,9 @@ namespace Chess
         private Label _incrementLabel;
         private NumericUpDown _increment;
         private Button _startButton;
+        private ConfigurableChessBoardControl _chessBoardSetup;
         private event GameStartEventHandler _onGameStart;
+        private event MultipleOptionEventHandler _onOptionPickRequired;
 
         public GameSetupControl()
         {
@@ -43,6 +57,7 @@ namespace Chess
             _comboBoxModes = GenerateGameModeDropdown();
             _timeLimit = GenerateTimeLimitControl();
             _increment = GenerateIncrementControl();
+            _chessBoardSetup = GenerateChessBoardControl();
             _startButton = GenerateStartButton();
             _checkBoxOpponent = GenerateOpponentCheckbox();
             Controls.Add(_comboBoxModes);
@@ -52,6 +67,7 @@ namespace Chess
             Controls.Add(_incrementLabel);
             Controls.Add(_timeLimit);
             Controls.Add(_increment);
+            Controls.Add(_chessBoardSetup);
             Controls.Add(_startButton);
             Controls.Add(_checkBoxOpponent);
         }
@@ -61,6 +77,7 @@ namespace Chess
             base.OnPaint(e);
 
             _comboBoxModes.Size = new Size(Width / 6, Height / 8);
+            _chessBoardSetup.Size = new Size(Width / 3, Width / 3);
             _gameModeLabel.Location = new Point((Width - _gameModeLabel.Size.Width) / 2, 12);
             _opponentLabel.Location = new Point((Width - _opponentLabel.Size.Width) / 2, 76);
             _timeLimitLabel.Location = new Point((Width - _timeLimitLabel.Size.Width) / 2, 140);
@@ -69,7 +86,8 @@ namespace Chess
             _checkBoxOpponent.Location = new Point((Width - _checkBoxOpponent.Size.Width) / 2, 100);
             _timeLimit.Location = new Point((Width - _timeLimit.Size.Width) / 2, 164);
             _increment.Location = new Point((Width - _increment.Size.Width) / 2, 228);
-            _startButton.Location = new Point((Width - _startButton.Size.Width) / 2, 292);
+            _chessBoardSetup.Location = new Point((Width - _chessBoardSetup.Size.Width) / 2, 292);
+            _startButton.Location = new Point((Width - _startButton.Size.Width) / 2, Height - 12);
         }
 
         private ComboBox GenerateGameModeDropdown()
@@ -138,11 +156,21 @@ namespace Chess
             return label;
         }
 
+        private ConfigurableChessBoardControl GenerateChessBoardControl()
+        {
+            var game = GameCreator.CreateFromModeId(0);
+            var board = game.GetBoardState().GetBoard();
+            var configurableBoard = new ConfigurableChessBoardControl(board.GetWidth(), board.GetHeight());
+            configurableBoard.UpdateBoard(board);
+            configurableBoard.UserInputRequired += OnOptionPickRequired;
+            return configurableBoard;
+        }
+
         private void startButton_OnClick(object sender, EventArgs e)
         {
             var args = new GameStartEventArgs
             {
-                Game = GameCreator.CreateFromModeId((int)_comboBoxModes.SelectedValue, (int)_timeLimit.Value, (int)_increment.Value, _checkBoxOpponent.Checked)
+                Game = GameCreator.CreateFromModeId((int)_comboBoxModes.SelectedValue, _chessBoardSetup.GetBoard(), (int)_timeLimit.Value, (int)_increment.Value, _checkBoxOpponent.Checked)
             };
             OnGameStart(args);
         }
@@ -151,5 +179,11 @@ namespace Chess
         {
             _onGameStart?.Invoke(this, e);
         }
+
+        private void OnOptionPickRequired(object sender, MultipleOptionEventArgs e)
+        {
+            _onOptionPickRequired?.Invoke(this, e);
+        }
+
     }
 }

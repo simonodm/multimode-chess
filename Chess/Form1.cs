@@ -30,15 +30,8 @@ namespace Chess
                 Location = new Point(0, 0)
             };
             _gameSetupView.GameStart += OnGameStart;
-            //var game = new ChessGame(new ClassicRules(), 10, 2);
-            //_gameView = new GameControl(game)
-            //{
-            //    Size = new Size(ClientRectangle.Width, ClientRectangle.Height),
-            //    Location = new Point(0, 0)
-            //};
-            //_gameView.OptionPickRequired += OnMultipleOptionInput;
+            _gameSetupView.OptionPickRequired += OnMultipleOptionInput;
             Controls.Add(_gameSetupView);
-            //Controls.Add(_gameView);
         }
 
         private void OnGameStart(object sender, GameStartEventArgs e)

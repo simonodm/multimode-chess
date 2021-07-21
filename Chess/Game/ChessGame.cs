@@ -17,6 +17,7 @@ namespace Chess.Game
         private int _currentPlayer;
         private bool _vsAi;
         private int _AIplayer = 1;
+        private BoardState _defaultBoardState;
 
         internal ChessGame(IGameRules rules, int timeLimit = 600, int increment = 0, bool ai = false)
         {
@@ -24,12 +25,20 @@ namespace Chess.Game
             _moveHistory = new List<Move>();
             _clock = new Clock(_rules.PlayerCount, timeLimit, increment);
             _vsAi = ai;
+            _defaultBoardState = _rules.GetStartingBoardState();
+            Reset();
+        }
+
+        internal ChessGame(IGameRules rules, Board board, int timeLimit = 600, int increment = 0, bool ai = false)
+            : this(rules, timeLimit, increment, ai)
+        {
+            _defaultBoardState = _rules.GetStartingBoardState(board);
             Reset();
         }
 
         public void Reset()
         {
-            _boardState = _rules.GetDefaultBoardState();
+            _boardState = _defaultBoardState;
             _currentPlayer = 0;
             _clock.Reset();
             _moveHistory.Clear();
