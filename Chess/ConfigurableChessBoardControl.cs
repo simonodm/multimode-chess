@@ -62,6 +62,7 @@ namespace Chess
             {
                 Options = GenerateColorOptions()
             };
+            // TODO: Do not request color if the chosen piece type was None.
             OnUserInputRequired(sender, argsPieces);
             OnUserInputRequired(sender, argsColor);
             if(argsPieces.PickedOption != null && argsColor.PickedOption != null)
