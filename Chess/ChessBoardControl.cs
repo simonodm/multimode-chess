@@ -1,197 +1,102 @@
-﻿using Chess.Game;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing;
+using Chess.Game;
 
 namespace Chess
 {
-    class ChessBoardControl : Control
+    abstract class ChessBoardControl : Control
     {
-        public delegate void MoveEventHandler(object sender, MoveEventArgs e);
-        public event MoveEventHandler MovePlayed
+        public event EventHandler TileClick
         {
             add
             {
-                onChessMove += value;
+                _onTileClicked += value;
             }
             remove
             {
-                onChessMove -= value;
+                _onTileClicked -= value;
             }
         }
-        public event MoveEventHandler MoveInputRequired
-        {
-            add
-            {
-                _onMoveInputRequired += value;
-            }
-            remove
-            {
-                _onMoveInputRequired -= value;
-            }
-        }
-
-        public ChessGame Game;
-        private ChessBoardTileControl _selectedTile;
-        private List<Move> _selectedLegalMoves;
         private ChessBoardTileControl[,] _tileMap;
-        private event MoveEventHandler onChessMove;
-        private event MoveEventHandler _onMoveInputRequired;
-        private bool _isBoardCurrent = true;
+        private int _width;
+        private int _height;
+        private event EventHandler _onTileClicked;
 
-        public ChessBoardControl(ChessGame game)
+        public ChessBoardControl(int width, int height)
         {
-            Game = game;
-            _tileMap = new ChessBoardTileControl[8, 8];
+            _tileMap = InitializeTileMap(width, height);
+            _width = width;
+            _height = height;
         }
 
-        public void UpdateBoard(BoardState state)
+        public ChessBoardTileControl GetTile(int x, int y)
         {
-            if(_tileMap == null)
+            return _tileMap[x, y];
+        }
+
+        public virtual void UpdateBoard(Board board)
+        {
+            for(int i = 0; i < _width; i++)
             {
-                return;
-            }
-            for(int i = 0; i < _tileMap.GetLength(0); i++)
-            {
-                for(int j = 0; j < _tileMap.GetLength(1); j++)
+                for(int j = 0; j < _height; j++)
                 {
-                    var currentSquare = _tileMap[i, j].Square;
-                    var newSquare = state.GetBoard().GetSquare(i, j);
-                    if(currentSquare.GetPiece() != newSquare.GetPiece())
+                    var tile = GetTile(i, j);
+                    var square = tile.Square;
+                    var newSquare = board.GetSquare(i, j);
+                    if(square != newSquare)
                     {
-                        _tileMap[i, j].Square = newSquare;
+                        tile.Square = newSquare;
                     }
                 }
             }
-            if (state == Game.GetBoardState())
-            {
-                _isBoardCurrent = true;
-            }
-            else
-            {
-                _isBoardCurrent = false;
-            }
         }
 
-        protected virtual void OnChessMove(MoveEventArgs e)
+        protected virtual void OnTileClick(object sender, EventArgs e)
         {
-            onChessMove?.Invoke(this, e);
-        }
-
-        protected virtual void OnMoveInputRequired(MoveEventArgs e)
-        {
-            _onMoveInputRequired?.Invoke(this, e);
-        }
-
-        private void Tile_Click(object sender, EventArgs e)
-        {
-            if(!_isBoardCurrent)
-            {
-                return;
-            }
-            var tile = (ChessBoardTileControl)sender;
-            if(_selectedTile == null)
-            {
-                SelectTile(tile);
-            }
-            else
-            {
-                var move = _selectedLegalMoves.FirstOrDefault(move => move.To == tile.Square);
-                if(tile != _selectedTile)
-                {
-                    if(move != default(Move))
-                    {
-                        var moveArgs = new MoveEventArgs { Move = move };
-                        if(move.IsUserInputRequired)
-                        {
-                            OnMoveInputRequired(moveArgs);
-                        }
-                        Game.ProcessMove(move);
-                        OnChessMove(moveArgs);
-                        UpdateBoard(Game.GetBoardState());
-                    }
-                    UnselectAll();
-                }
-                else
-                {
-                    UnselectAll();
-                    SelectTile(tile);
-                }
-            }
-        }
-
-        private void SelectTile(ChessBoardTileControl tile)
-        {
-            var square = tile.Square;
-            if(square.GetPiece() != null && square.GetPiece().GetPlayer() == Game.GetCurrentPlayer())
-            {
-                tile.Select();
-                _selectedTile = tile;
-                _selectedLegalMoves = new List<Move>();
-                var legalMoves = Game.GetLegalMoves(tile.Square, Game.GetBoardState());
-                foreach (var move in legalMoves)
-                {
-                    _tileMap[move.To.GetFile(), move.To.GetRank()].Select();
-                    _selectedLegalMoves.Add(move);
-                }
-            }
-        }
-
-        private void UnselectAll()
-        {
-            foreach(var tile in Controls)
-            {
-                if(tile is not ChessBoardTileControl)
-                {
-                    continue;
-                }
-                var castTile = (ChessBoardTileControl)tile;
-                if(castTile.IsSelected)
-                {
-                    castTile.Unselect();
-                }
-            }
-
-            if(_selectedTile != null)
-            {
-                _selectedTile = null;
-            }
+            _onTileClicked?.Invoke(sender, e);
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            if(Game.GetBoardState() == null || Controls.Count > 0)
+
+            if(_tileMap == null)
             {
                 return;
             }
 
-            var board = Game.GetBoardState().GetBoard();
+            int sizeX = Size.Width / _width;
+            int sizeY = Size.Height / _height;
 
-            int boardWidth = board.GetWidth();
-            int boardHeight = board.GetHeight();
-
-            int sizeX = Size.Width / boardWidth;
-            int sizeY = Size.Height / boardHeight;
-            for (int i = 0; i < boardWidth; i++)
+            for (int i = 0; i < _width; i++)
             {
-                for (int j = 0; j < boardHeight; j++)
+                for(int j = 0; j < _height; j++)
                 {
-                    var square = board.GetSquare(i, j);
-                    var tile = new ChessBoardTileControl(square)
-                    {
-                        Size = new Size(sizeX, sizeY),
-                        Location = new Point(i * sizeX, (boardHeight - j - 1) * sizeY)
-                    };
-                    _tileMap[square.GetFile(), square.GetRank()] = tile;
-                    tile.Click += Tile_Click;
+                    _tileMap[i, j].Size = new Size(sizeX, sizeY);
+                    _tileMap[i, j].Location = new Point(i * sizeX, (_height - j - 1) * sizeY);
+                }
+            }
+        }
+
+        private ChessBoardTileControl[,] InitializeTileMap(int width, int height)
+        {
+            var tileMap = new ChessBoardTileControl[width, height];
+            for(int i = 0; i < width; i++)
+            {
+                for(int j = 0; j < height; j++)
+                {
+                    var tile = new ChessBoardTileControl(new BoardSquare(i, j));
+                    tile.Click += OnTileClick;
+                    tileMap[i, j] = tile;
                     Controls.Add(tile);
                 }
             }
+            return tileMap;
         }
     }
 }

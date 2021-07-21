@@ -13,7 +13,7 @@ namespace Chess.Game
         private int _rank;
         private GamePiece _piece;
 
-        public BoardSquare(int file, int rank, GamePiece piece)
+        public BoardSquare(int file, int rank, GamePiece piece = null)
         {
             _file = file;
             _rank = rank;

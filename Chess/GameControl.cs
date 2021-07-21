@@ -23,7 +23,7 @@ namespace Chess
                 _onOptionPickRequired -= value;
             }
         }
-        private ChessBoardControl _boardControl;
+        private PlayableChessBoardControl _boardControl;
         private MoveHistoryControl _moveHistory;
         private BoardScoreControl _scoreControl;
         private ClockControl _clockControl;
@@ -42,7 +42,7 @@ namespace Chess
 
             if(_boardControl == null)
             {
-                _boardControl = new ChessBoardControl(_game)
+                _boardControl = new PlayableChessBoardControl(_game)
                 {
                     Location = new Point(12, 12),
                     Size = new Size(Height - 24, Height - 24)
@@ -105,7 +105,7 @@ namespace Chess
         private void OnSelectedMoveChange(object sender, MoveEventArgs e)
         {
             var move = e.Move;
-            _boardControl.UpdateBoard(move.BoardAfter);
+            _boardControl.UpdateBoard(move.BoardAfter.GetBoard());
             _scoreControl.SetScore(_game.Evaluate(move.BoardAfter).ToString());
         }
 
