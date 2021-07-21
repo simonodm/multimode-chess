@@ -17,6 +17,7 @@ namespace Chess
         
         public OptionPickerModalForm(IEnumerable<Option> options)
         {
+            ClientSize = new Size(320, 600);
             Text = "Choose an option";
             _buttonToOptionMap = new Dictionary<Button, Option>();
             int heightOffset = 0;
@@ -24,7 +25,7 @@ namespace Chess
             {
                 var button = new Button()
                 {
-                    Size = new Size(96, 24),
+                    Size = new Size(96, 32),
                     Location = new Point((Width - 96) / 2, heightOffset),
                     Text = option.Text
                 };

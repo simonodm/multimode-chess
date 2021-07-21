@@ -64,12 +64,19 @@ namespace Chess
             };
             OnUserInputRequired(sender, argsPieces);
             OnUserInputRequired(sender, argsColor);
-            var piece = GetPieceFromIds(argsPieces.PickedOption.Id, argsColor.PickedOption.Id);
-            if(tileSquare.GetPiece() != null)
+            if(argsPieces.PickedOption != null && argsColor.PickedOption != null)
             {
-                _board = _board.RemovePiece(tileSquare);
+                var piece = GetPieceFromIds(argsPieces.PickedOption.Id, argsColor.PickedOption.Id);
+                if (tileSquare.GetPiece() != null)
+                {
+                    _board = _board.RemovePiece(tileSquare);
+                }
+                if (piece != null)
+                {
+                    _board = _board.AddPiece(tileSquare, piece);
+                }
+                UpdateBoard(_board);
             }
-            UpdateBoard(_board.AddPiece(tileSquare, piece));
         }
 
         private List<Option> GenerateColorOptions()
@@ -89,7 +96,8 @@ namespace Chess
                 "Rook",
                 "Knight",
                 "Bishop",
-                "Pawn"
+                "Pawn",
+                "None"
             };
             for(int i = 0; i < pieces.Length; i++)
             {
@@ -114,6 +122,8 @@ namespace Chess
                     return new Bishop(colorId);
                 case 5:
                     return new Pawn(colorId);
+                case 6:
+                    return null;
             }
             throw new Exception("Invalid piece id.");
         }
