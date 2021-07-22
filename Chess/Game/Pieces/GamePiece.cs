@@ -90,7 +90,7 @@ namespace Chess.Game.Pieces
             return null;
         }
 
-        public abstract List<BoardSquare> GetPossibleMoves(BoardState state, BoardSquare from);
+        public abstract List<BoardSquare> GetPossibleMoveSquares(BoardState state, BoardSquare from);
 
         public abstract (int, int)[] GetPossibleMoveOffsets();
     }

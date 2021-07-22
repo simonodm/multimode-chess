@@ -37,7 +37,7 @@ namespace Chess
         private void OnGameStart(object sender, GameStartEventArgs e)
         {
             Controls.Clear();
-            _gameView = GenerateGameControl(e.Game);
+            _gameView = GenerateGameControl(e.Game, e.VersusAi);
             Controls.Add(_gameView);           
         }
 
@@ -53,9 +53,9 @@ namespace Chess
             }
         }
 
-        private GameControl GenerateGameControl(ChessGame game)
+        private GameControl GenerateGameControl(ChessGame game, bool versusAi)
         {
-            var gameControl = new GameControl(game)
+            var gameControl = new GameControl(game, versusAi)
             {
                 Size = new Size(ClientRectangle.Width, ClientRectangle.Height),
                 Location = new Point(0, 0)

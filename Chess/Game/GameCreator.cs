@@ -16,8 +16,8 @@ namespace Chess.Game
         {
             var rules = new TRules();
             return board == null ?
-                new ChessGame(rules, timeLimit, increment, vsAi) :
-                new ChessGame(rules, board, timeLimit, increment, vsAi);
+                new ChessGame(rules, timeLimit, increment) :
+                new ChessGame(rules, board, timeLimit, increment);
         }
 
         public static ChessGame CreateFromModeId(int modeId, Board board = null, int timeLimit = 600, int increment = 0, bool vsAi = false)

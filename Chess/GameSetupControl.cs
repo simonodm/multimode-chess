@@ -87,7 +87,7 @@ namespace Chess
             _timeLimit.Location = new Point((Width - _timeLimit.Size.Width) / 2, 164);
             _increment.Location = new Point((Width - _increment.Size.Width) / 2, 228);
             _chessBoardSetup.Location = new Point((Width - _chessBoardSetup.Size.Width) / 2, 292);
-            _startButton.Location = new Point((Width - _startButton.Size.Width) / 2, Height - 12);
+            _startButton.Location = new Point((Width - _startButton.Size.Width) / 2, Height - _startButton.Size.Height - 12);
         }
 
         private ComboBox GenerateGameModeDropdown()
@@ -170,7 +170,8 @@ namespace Chess
         {
             var args = new GameStartEventArgs
             {
-                Game = GameCreator.CreateFromModeId((int)_comboBoxModes.SelectedValue, _chessBoardSetup.GetBoard(), (int)_timeLimit.Value, (int)_increment.Value, _checkBoxOpponent.Checked)
+                Game = GameCreator.CreateFromModeId((int)_comboBoxModes.SelectedValue, _chessBoardSetup.GetBoard(), (int)_timeLimit.Value, (int)_increment.Value),
+                VersusAi = _checkBoxOpponent.Checked
             };
             OnGameStart(args);
         }

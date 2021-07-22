@@ -12,66 +12,49 @@ namespace Chess
     class PlayableChessBoardControl : ChessBoardControl
     {
         public delegate void MoveEventHandler(object sender, MoveEventArgs e);
-        public event MoveEventHandler MovePlayed
-        {
-            add
-            {
-                onChessMove += value;
-            }
-            remove
-            {
-                onChessMove -= value;
-            }
-        }
-        public event MoveEventHandler MoveInputRequired
-        {
-            add
-            {
-                _onMoveInputRequired += value;
-            }
-            remove
-            {
-                _onMoveInputRequired -= value;
-            }
-        }
+        public delegate void LegalMovesEventHandler(object sender, LegalMovesEventArgs e);
+        public delegate void BoardEventHandler(object sender, BoardEventArgs e);
+        public event MoveEventHandler MovePlayed;
+        public event MoveEventHandler MoveInputRequested;
+        public event LegalMovesEventHandler LegalMovesRequested;
+        public event BoardEventHandler BoardRequested;
 
-        public ChessGame Game;
+
         private ChessBoardTileControl _selectedTile;
         private List<Move> _selectedLegalMoves;
-        private event MoveEventHandler onChessMove;
-        private event MoveEventHandler _onMoveInputRequired;
         private bool _isBoardCurrent = true;
 
-        public PlayableChessBoardControl(ChessGame game) : base(game.GetBoardState().GetBoard().GetWidth(), game.GetBoardState().GetBoard().GetHeight())
+        public PlayableChessBoardControl(Board board) : base(board.GetWidth(), board.GetHeight())
         {
-            Game = game;
-
             TileClick += Tile_Click;
-            UpdateBoard(game.GetBoardState().GetBoard());
+            base.UpdateBoard(board);
         }
 
         public override void UpdateBoard(Board board)
         {
             base.UpdateBoard(board);
 
-            _isBoardCurrent = board == Game.GetBoardState().GetBoard();
-        }
-
-        protected override void OnTileClick(object sender, EventArgs e)
-        {
-            base.OnTileClick(sender, e);
-
-
+            _isBoardCurrent = GetCurrentBoard() == board;
         }
 
         protected virtual void OnChessMove(MoveEventArgs e)
         {
-            onChessMove?.Invoke(this, e);
+            MovePlayed?.Invoke(this, e);
         }
 
         protected virtual void OnMoveInputRequired(MoveEventArgs e)
         {
-            _onMoveInputRequired?.Invoke(this, e);
+            MoveInputRequested?.Invoke(this, e);
+        }
+
+        protected virtual void OnLegalMovesRequested(LegalMovesEventArgs e)
+        {
+            LegalMovesRequested?.Invoke(this, e);
+        }
+
+        protected virtual void OnBoardRequested(BoardEventArgs e)
+        {
+            BoardRequested?.Invoke(this, e);
         }
 
         private void Tile_Click(object sender, EventArgs e)
@@ -97,9 +80,8 @@ namespace Chess
                         {
                             OnMoveInputRequired(moveArgs);
                         }
-                        Game.ProcessMove(move);
                         OnChessMove(moveArgs);
-                        UpdateBoard(Game.GetBoardState().GetBoard());
+                        UpdateBoard(GetCurrentBoard());
                     }
                     UnselectAll();
                 }
@@ -114,17 +96,18 @@ namespace Chess
         private void SelectTile(ChessBoardTileControl tile)
         {
             var square = tile.Square;
-            if(square.GetPiece() != null && square.GetPiece().GetPlayer() == Game.GetCurrentPlayer())
+            if(square.GetPiece() != null)
             {
-                tile.Select();
+                tile.Highlight();
                 _selectedTile = tile;
                 _selectedLegalMoves = new List<Move>();
-                var legalMoves = Game.GetLegalMoves(tile.Square, Game.GetBoardState());
-                foreach (var move in legalMoves)
+                var legalMovesArgs = new LegalMovesEventArgs { Square = square };
+                OnLegalMovesRequested(legalMovesArgs);
+                foreach (var move in legalMovesArgs.LegalMoves)
                 {
-                    GetTile(move.To.GetFile(), move.To.GetRank()).Select();
+                    GetTile(move.To.GetFile(), move.To.GetRank()).Highlight();
                     _selectedLegalMoves.Add(move);
-                }
+                }            
             }
         }
 
@@ -137,9 +120,9 @@ namespace Chess
                     continue;
                 }
                 var castTile = (ChessBoardTileControl)tile;
-                if(castTile.IsSelected)
+                if(castTile.IsHighlighted)
                 {
-                    castTile.Unselect();
+                    castTile.RemoveHighlighting();
                 }
             }
 
@@ -147,6 +130,17 @@ namespace Chess
             {
                 _selectedTile = null;
             }
+        }
+
+        private Board GetCurrentBoard()
+        {
+            var args = new BoardEventArgs();
+            OnBoardRequested(args);
+            if(args.Board != null)
+            {
+                return args.Board;
+            }
+            throw new Exception("No board received via BoardRequested event.");
         }
     }
 }

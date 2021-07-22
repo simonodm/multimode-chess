@@ -10,27 +10,26 @@ namespace Chess.Game
 {
     class ChessGame
     {
+        private object _gameStateLock = new object();
+
         private BoardState _boardState;
         private IGameRules _rules;
         private List<Move> _moveHistory;
         private Clock _clock;
         private int _currentPlayer;
-        private bool _vsAi;
-        private int _AIplayer = 1;
         private BoardState _defaultBoardState;
 
-        internal ChessGame(IGameRules rules, int timeLimit = 600, int increment = 0, bool ai = false)
+        internal ChessGame(IGameRules rules, int timeLimit = 600, int increment = 0)
         {
             _rules = rules;
             _moveHistory = new List<Move>();
             _clock = new Clock(_rules.PlayerCount, timeLimit, increment);
-            _vsAi = ai;
             _defaultBoardState = _rules.GetStartingBoardState();
             Reset();
         }
 
-        internal ChessGame(IGameRules rules, Board board, int timeLimit = 600, int increment = 0, bool ai = false)
-            : this(rules, timeLimit, increment, ai)
+        internal ChessGame(IGameRules rules, Board board, int timeLimit = 600, int increment = 0)
+            : this(rules, timeLimit, increment)
         {
             _defaultBoardState = _rules.GetStartingBoardState(board);
             Reset();
@@ -39,82 +38,116 @@ namespace Chess.Game
         public void Reset()
         {
             _boardState = _defaultBoardState;
-            _currentPlayer = 0;
-            _clock.Reset();
-            _moveHistory.Clear();
-            _clock.Start();
+            lock (_gameStateLock)
+            {
+                _currentPlayer = 0;
+                _clock.Reset();
+                _moveHistory.Clear();
+                _clock.Start();
+            }
         }
 
         public void ProcessMove(Move move)
         {
-            if(_clock.GetRemainingTime(move.Piece.GetPlayer()) > 0)
+            lock (_gameStateLock)
             {
-                if (_moveHistory.Count > 0) move.Previous = _moveHistory[_moveHistory.Count - 1];
-                _boardState = _rules.Move(move);
-                _moveHistory.Add(move);
-                _clock.Switch();
-                _currentPlayer = (_currentPlayer + 1) % _rules.PlayerCount;
-                if(_vsAi && _currentPlayer == _AIplayer && !IsGameOver())
+                if (GetRemainingTime(move.Piece.GetPlayer()) > 0)
                 {
-                    _boardState.SetScore(Minimax.GetBoardScore(_rules, _boardState));
-                    ProcessMove(_boardState.GetScore().BestMove);
+                    if (_moveHistory.Count > 0) move.Previous = _moveHistory[_moveHistory.Count - 1];
+                    _boardState = _rules.Move(move);
+                    move.BoardAfter = _boardState;
+                    _moveHistory.Add(move);
+                    _clock.Switch();
+                    _currentPlayer = (_currentPlayer + 1) % _rules.PlayerCount;
                 }
+            }
+        }
+
+        public Move GetBestMove()
+        {
+            lock(_gameStateLock)
+            {
+                return Evaluate(_boardState).BestMove;
             }
         }
 
         public bool IsGameOver()
         {
-            return DidClockRunOut() || _rules.IsGameOver(_boardState);
+            lock(_gameStateLock)
+            {
+                return DidClockRunOut() || _rules.IsGameOver(_boardState);
+            }
         }
 
         public GameResult GetGameResult()
         {
-            if(!IsGameOver())
+            
+            if (!IsGameOver())
             {
                 throw new Exception("The game is not over yet.");
             }
-            var playersWithRemainingTime = GetAllPlayersWithRemainingTime();
-            if(playersWithRemainingTime.Count == 1)
+            lock (_gameStateLock)
             {
-                return new GameResult(playersWithRemainingTime[0]);
-            }
-            return _rules.GetGameResult(_boardState);
+                var playersWithRemainingTime = GetAllPlayersWithRemainingTime();
+                if (playersWithRemainingTime.Count == 1)
+                {
+                    return new GameResult(playersWithRemainingTime[0]);
+                }
+                return _rules.GetGameResult(_boardState);
+            }            
         }
 
-        public double Evaluate(BoardState state)
+        public MinimaxResult Evaluate(BoardState state)
         {
-            if(state.GetScore() != null)
+            lock(_gameStateLock)
             {
-                return state.GetScore().Score;
+                if (state.GetScore() == null)
+                {
+                    lock (state)
+                    {
+                        var result = Minimax.GetBoardScore(_rules, state);
+                        state.SetScore(result);
+                    }
+                }
+                return state.GetScore();
             }
-            var score = Minimax.GetBoardScore(_rules, state);
-            state.SetScore(score);
-            return score.Score;
         }
 
-        public IEnumerable<Move> GetLegalMoves(BoardSquare square, BoardState state)
+        public IEnumerable<Move> GetLegalMoves(BoardSquare square)
         {
-            return _rules.GetLegalMoves(square, state);
+            lock(_gameStateLock)
+            {
+                return _rules.GetLegalMoves(square, _boardState, _currentPlayer);
+            }
         }
 
-        public Clock GetClock()
+        public int GetRemainingTime(int player)
         {
-            return _clock;
+            return _clock.GetRemainingTime(player);
         }
 
         public int GetCurrentPlayer()
         {
-            return _currentPlayer;
+            lock(_gameStateLock)
+            {
+                return _currentPlayer;
+            }
         }
 
         public List<Move> GetMoveHistory()
         {
-            return _moveHistory;
+            lock(_gameStateLock)
+            {
+                return _moveHistory;
+            }
         }
 
         public BoardState GetBoardState()
         {
-            return _boardState;
+            lock(_gameStateLock)
+            {
+                return _boardState;
+            }
         }
 
         private List<int> GetAllPlayersWithRemainingTime()

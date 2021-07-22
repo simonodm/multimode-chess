@@ -7,9 +7,8 @@ using Chess.Game;
 
 namespace Chess
 {
-    class GameStartEventArgs : EventArgs
+    class BoardEventArgs : EventArgs
     {
-        public ChessGame Game;
-        public bool VersusAi;
+        public Board Board;
     }
 }

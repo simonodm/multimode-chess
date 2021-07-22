@@ -27,33 +27,33 @@ namespace Chess
         }
 
         public Panel Tile;
-        public bool IsSelected
+        public bool IsHighlighted
         {
             get
             {
-                return _isSelected;
+                return _isHighlighted;
             }
         }
         private BoardSquare _square;
-        private bool _isSelected = false;
+        private bool _isHighlighted = false;
 
         public ChessBoardTileControl(BoardSquare square)
         {
             _square = square;
         }
 
-        public void Select()
+        public void Highlight()
         {
-            Tile.BackColor = Color.Red;
-            _isSelected = true;
-            Tile.Invalidate();
+            Tile.BackColor = Color.DarkRed;
+            _isHighlighted = true;
+            Invalidate();
         }
 
-        public void Unselect()
+        public void RemoveHighlighting()
         {
             Tile.BackColor = GetColor();
-            _isSelected = false;
-            Tile.Invalidate();
+            _isHighlighted = false;
+            Invalidate();
         }
 
         private void Tile_Click(object sender, EventArgs e)
@@ -100,7 +100,6 @@ namespace Chess
                     Tile.Controls.Add(piecePictureBox);
                 }
             }
-            
         }
 
         private Color GetColor()
@@ -109,7 +108,7 @@ namespace Chess
             {
                 if (_square.GetRank() % 2 == 0)
                 {
-                    return Color.FromArgb(255, 192, 203);
+                    return Color.DarkGreen;
                 }
                 else
                 {
@@ -124,7 +123,7 @@ namespace Chess
                 }
                 else
                 {
-                    return Color.FromArgb(255, 192, 203);
+                    return Color.DarkGreen;
                 }
             }
         }

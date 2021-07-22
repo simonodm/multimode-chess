@@ -14,6 +14,7 @@ namespace Chess.Game.Modes.Standard
         private Dictionary<BoardSquare, List<Move>> _cachedNonBlockedMoves
             = new Dictionary<BoardSquare, List<Move>>();
 
+
         public StandardBoardState(int width, int height, Move lastMove = null) : base(width, height, lastMove)
         {
             InitKings();
@@ -54,7 +55,7 @@ namespace Chess.Game.Modes.Standard
             var moveList = new List<Move>();
             if(square.GetPiece() != null)
             {
-                foreach(var targetSquare in square.GetPiece().GetPossibleMoves(this, square))
+                foreach(var targetSquare in square.GetPiece().GetPossibleMoveSquares(this, square))
                 {
                     moveList.Add(new Move(GameModePool.Get<ClassicRules>())
                     {
@@ -81,55 +82,11 @@ namespace Chess.Game.Modes.Standard
             var moves = GetNonBlockedMoves(squareMock);
             foreach (var move in moves)
             {
-                // TODO: pawn and king special moves
                 if (move.To.GetPiece() != null && move.To.GetPiece().GetType() == piece.GetType() && move.To.GetPiece().GetPlayer() != piece.GetPlayer())
                 {
                     return true;
                 }
             }
-            return false;
-        }
-
-        private bool IsLineBlocked(GamePiece piece, BoardSquare from, BoardSquare to)
-        {
-            if (piece is Knight)
-            {
-                return false;
-            }
-
-            bool pieceFound = false;
-            int startFile = from.GetFile();
-            int endFile = to.GetFile();
-            int startRank = from.GetRank();
-            int endRank = to.GetRank();
-            int i = startFile;
-            int j = startRank;
-
-            while (i != endFile || j != endRank)
-            {
-                if(i != startFile || j != startRank)
-                {
-                    var blockingPiece = GetBoard().GetSquare(i, j).GetPiece();
-                    if (blockingPiece != null && blockingPiece != piece)
-                    {
-                        pieceFound = true;
-                    }
-                    if (pieceFound)
-                    {
-                        return true;
-                    }
-                }
-                if (startFile < endFile && i < endFile) i++;
-                if (startFile > endFile && i > endFile) i--;
-                if (startRank < endRank && j < endRank) j++;
-                if (startRank > endRank && j > endRank) j--;
-            }
-
-            if (to.GetPiece() != null && to.GetPiece().GetPlayer() == from.GetPiece().GetPlayer())
-            {
-                return true;
-            }
-
             return false;
         }
                 

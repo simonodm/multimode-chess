@@ -8,6 +8,8 @@ namespace Chess.Game
 {
     class Clock
     {
+        private object _clockSwitchLock = new object();
+
         private int _limit = 600;
         private int _increment = 0;
         private int[] _remainingTimes;
@@ -29,36 +31,48 @@ namespace Chess.Game
 
         public void Start()
         {
-            _gameStart = DateTime.Now;
-            _currentClockStart = _gameStart;
-            _currentPlayer = 0;
+            lock(_clockSwitchLock)
+            {
+                _gameStart = DateTime.Now;
+                _currentClockStart = _gameStart;
+                _currentPlayer = 0;
+            }
         }
 
         public void Switch()
         {
-            _remainingTimes[_currentPlayer] = GetRemainingTime(_currentPlayer) + _increment;
-            _currentClockStart = DateTime.Now;
-            _currentPlayer = (_currentPlayer + 1) % _remainingTimes.Length;
+            lock(_clockSwitchLock)
+            {
+                _remainingTimes[_currentPlayer] = GetRemainingTime(_currentPlayer) + _increment;
+                _currentClockStart = DateTime.Now;
+                _currentPlayer = (_currentPlayer + 1) % _remainingTimes.Length;
+            }
         }
 
         public void Reset()
         {
-            for(int i = 0; i < _remainingTimes.Length; i++)
+            lock(_clockSwitchLock)
             {
-                _remainingTimes[i] = _limit;
+                for (int i = 0; i < _remainingTimes.Length; i++)
+                {
+                    _remainingTimes[i] = _limit;
+                }
             }
         }
 
         public int GetRemainingTime(int player)
         {
-            if(player == _currentPlayer)
+            lock(_clockSwitchLock)
             {
-                TimeSpan currentMoveTime = DateTime.Now - _currentClockStart;
-                return Math.Max(0, _remainingTimes[_currentPlayer] - currentMoveTime.Seconds);
-            }
-            else
-            {
-                return Math.Max(0, _remainingTimes[player]);
+                if (player == _currentPlayer)
+                {
+                    TimeSpan currentMoveTime = DateTime.Now - _currentClockStart;
+                    return Math.Max(0, _remainingTimes[_currentPlayer] - currentMoveTime.Seconds);
+                }
+                else
+                {
+                    return Math.Max(0, _remainingTimes[player]);
+                }
             }
         }
 

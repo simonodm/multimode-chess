@@ -38,6 +38,10 @@ namespace Chess
                 };
                 _scoreLabel.ForeColor = Color.White;
                 _scoreLabel.Text = "0.00";
+                if(!_shown)
+                {
+                    _scoreLabel.Hide();
+                }
                 Controls.Add(_scoreLabel);
             }
         }

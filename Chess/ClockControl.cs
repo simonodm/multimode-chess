@@ -24,14 +24,14 @@ namespace Chess
         }
         private Label _remainingTimeWhite;
         private Label _remainingTimeBlack;
-        private Clock _clock;
+        private ChessGame _game;
         private Timer _timer;
         private event EventHandler _onRunOut;
 
 
-        public ClockControl(Clock clock)
+        public ClockControl(ChessGame game)
         {
-            _clock = clock;
+            _game = game;
             _timer = new Timer();
         }
 
@@ -68,8 +68,8 @@ namespace Chess
 
         private void timer_Tick(object sender, EventArgs e)
         {
-            int whiteRemainingTime = _clock.GetRemainingTime(0);
-            int blackRemainingTime = _clock.GetRemainingTime(1);
+            int whiteRemainingTime = _game.GetRemainingTime(0);
+            int blackRemainingTime = _game.GetRemainingTime(1);
             TimeSpan whiteTime = new TimeSpan(0, 0, whiteRemainingTime);
             TimeSpan blackTime = new TimeSpan(0, 0, blackRemainingTime);
             _remainingTimeWhite.Text = whiteTime.ToString(@"mm\:ss");

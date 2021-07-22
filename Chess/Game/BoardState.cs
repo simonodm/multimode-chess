@@ -57,26 +57,5 @@ namespace Chess.Game
             }
             return squares;
         }
-
-        public long GetHash()
-        {
-            // TODO: better hashing function
-            long hash = 0;
-            foreach(var square in _board.GetAllSquares())
-            {
-                int linearPosition = square.GetFile() * GetBoard().GetWidth() + square.GetRank();
-                if(square.GetPiece() != null)
-                {
-                    var squareHash = square.GetPiece().GetValue() * linearPosition;
-                    if(square.GetPiece().GetPlayer() == 1)
-                    {
-                        squareHash *= -1;
-                    }
-                    hash += squareHash;
-                }
-            }
-            return hash;
-        }
-
     }
 }

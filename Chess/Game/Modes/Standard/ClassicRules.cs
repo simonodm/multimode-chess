@@ -28,12 +28,9 @@ namespace Chess.Game.Modes.Standard
             if(move is ClassicMove)
             {
                 newBoardState = (move as ClassicMove).Process();
-                move.BoardAfter = newBoardState;
-                move.Notation = GetMoveNotation(move);
                 return newBoardState;
             }
             newBoardState = ClassicMoveGenerator.GetMove(ConvertToStandardBoardState(move.BoardBefore), move).Process();
-            move.BoardAfter = newBoardState;
             move.Piece.SetMoveCount(move.Piece.GetMoveCount() + 1);
             return newBoardState;
         }
@@ -117,8 +114,12 @@ namespace Chess.Game.Modes.Standard
             return ClassicMoveGenerator.GetAllLegalMoves(ConvertToStandardBoardState(currentState), player);
         }
 
-        public virtual IEnumerable<Move> GetLegalMoves(BoardSquare square, BoardState currentState)
+        public virtual IEnumerable<Move> GetLegalMoves(BoardSquare square, BoardState currentState, int player)
         {
+            if(square.GetPiece().GetPlayer() != player)
+            {
+                return Enumerable.Empty<Move>();
+            }
             return ClassicMoveGenerator.GetLegalMoves(ConvertToStandardBoardState(currentState), square);
         }
 
@@ -134,10 +135,11 @@ namespace Chess.Game.Modes.Standard
                 classicMove = move as ClassicMove;
             }
             StringBuilder sb = new StringBuilder();
-            int file = move.From.GetFile();
+            int fileFrom = move.From.GetFile();
+            int fileTo = move.To.GetFile();
             if (classicMove is MoveCapture && move.Piece is Pawn)
             {
-                sb.Append(file.ConvertToChessFile());
+                sb.Append(fileFrom.ConvertToChessFile());
             }
             else
             {
@@ -147,16 +149,17 @@ namespace Chess.Game.Modes.Standard
             {
                 sb.Append('x');
             }
-            sb.Append(file.ConvertToChessFile());
+            sb.Append(fileTo.ConvertToChessFile());
             sb.Append(move.To.GetRank() + 1);
-            if(ConvertToStandardBoardState(classicMove.BoardAfter).IsInCheck((move.Piece.GetPlayer() + 1) % PlayerCount))
-            {
-                sb.Append("+");
-            }
-            if(IsGameOver(move.BoardAfter))
+            if (IsGameOver(move.BoardAfter))
             {
                 sb.Append("#");
             }
+            else if (ConvertToStandardBoardState(classicMove.BoardAfter).IsInCheck((move.Piece.GetPlayer() + 1) % PlayerCount))
+            {
+                sb.Append("+");
+            }
+            
             return sb.ToString();
         }
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms;
 using System.Drawing;
 using Chess.Game;
@@ -30,10 +30,12 @@ namespace Chess
         private Label _winnerLabel;
         private ChessGame _game;
         private event MultipleOptionEventHandler _onOptionPickRequired;
+        private bool _versusAi;
 
-        public GameControl(ChessGame game)
+        public GameControl(ChessGame game, bool versusAi)
         {
             _game = game;
+            _versusAi = versusAi;
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -42,19 +44,21 @@ namespace Chess
 
             if(_boardControl == null)
             {
-                _boardControl = new PlayableChessBoardControl(_game)
+                _boardControl = new PlayableChessBoardControl(_game.GetBoardState().GetBoard())
                 {
                     Location = new Point(12, 12),
                     Size = new Size(Height - 24, Height - 24)
                 };
                 _boardControl.MovePlayed += OnMove;
-                _boardControl.MoveInputRequired += board_OnMoveInputRequired;
+                _boardControl.MoveInputRequested += board_OnMoveInputRequired;
+                _boardControl.LegalMovesRequested += board_LegalMovesRequested;
+                _boardControl.BoardRequested += board_CurrentBoardRequested;
                 Controls.Add(_boardControl);
             }
             
             if(_moveHistory == null)
             {
-                _moveHistory = new MoveHistoryControl(_game)
+                _moveHistory = new MoveHistoryControl()
                 {
                     Location = new Point(Height + 96, 12),
                     Size = new Size(Width - Height - 108, (Height / 2) - 24)
@@ -66,7 +70,7 @@ namespace Chess
 
             if(_clockControl == null)
             {
-                _clockControl = new ClockControl(_game.GetClock())
+                _clockControl = new ClockControl(_game)
                 {
                     Location = new Point(Height, 12),
                     Size = new Size(72, Height)
@@ -106,16 +110,45 @@ namespace Chess
         {
             var move = e.Move;
             _boardControl.UpdateBoard(move.BoardAfter.GetBoard());
-            _scoreControl.SetScore(_game.Evaluate(move.BoardAfter).ToString());
+            var selectedStateEvaluationThread = new Thread(() =>
+            {
+                var score = _game.Evaluate(move.BoardAfter);
+                _scoreControl.Invoke(new Action(() =>
+                {
+                    _scoreControl.SetScore(score.Score.ToString());
+                }));
+            });
+            selectedStateEvaluationThread.Start();
         }
 
         private void OnMove(object sender, MoveEventArgs e)
         {
-            _moveHistory.UpdateHistory();
-            if (_game.IsGameOver())
+            var moveProcessingThread = new Thread(() =>
             {
-                OnGameFinish(this, e);
-            }
+                _game.ProcessMove(e.Move);
+                if (_game.IsGameOver())
+                {
+                    OnGameFinish(this, e);
+                }
+                _moveHistory.Invoke(new Action(() =>
+                {
+                    _moveHistory.AddMove(e.Move);
+                }));
+                if(_versusAi)
+                {
+                    var aiMove = _game.GetBestMove();
+                    _game.ProcessMove(aiMove);
+                    if (_game.IsGameOver())
+                    {
+                        OnGameFinish(this, e);
+                    }
+                    _moveHistory.Invoke(new Action(() =>
+                    {
+                        _moveHistory.AddMove(aiMove);
+                    }));
+                }
+            });
+            moveProcessingThread.Start();
         }
 
         private void board_OnMoveInputRequired(object sender, MoveEventArgs e)
@@ -123,6 +156,16 @@ namespace Chess
             var args = new MultipleOptionEventArgs { Options = e.Move.Options };
             OnOptionPickRequired(this, args);
             e.Move.SelectOption(args.PickedOption.Id);
+        }
+
+        private void board_LegalMovesRequested(object sender, LegalMovesEventArgs e)
+        {
+            e.LegalMoves = _game.GetLegalMoves(e.Square);   
+        }
+
+        private void board_CurrentBoardRequested(object sender, BoardEventArgs e)
+        {
+            e.Board = _game.GetBoardState().GetBoard();
         }
 
         private void OnOptionPickRequired(object sender, MultipleOptionEventArgs e)
@@ -133,7 +176,10 @@ namespace Chess
 
         private void OnGameFinish(object sender, EventArgs e)
         {
-            _winnerLabel.Text = $"Winner: {_game.GetGameResult().GetWinnerString()}"; 
+            _winnerLabel.Invoke(new Action(() =>
+            {
+                _winnerLabel.Text = $"Winner: {_game.GetGameResult().GetWinnerString()}";
+            }));
         }
     }
 }

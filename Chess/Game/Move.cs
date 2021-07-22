@@ -10,6 +10,8 @@ namespace Chess.Game
 {
     class Move
     {
+        private object _optionLock = new object();
+
         public GamePiece Piece;
         public BoardSquare From;
         public BoardSquare To;
@@ -19,7 +21,13 @@ namespace Chess.Game
         public bool IsUserInputRequired = false;
         public List<Option> Options { get; private set; }
         public Option SelectedOption;
-        public string Notation { get; set; }
+        public string Notation
+        {
+            get
+            {
+                return _rules.GetMoveNotation(this);
+            }
+        }
 
         protected IGameRules _rules;
 
@@ -30,18 +38,24 @@ namespace Chess.Game
 
         public void AddOption(string optionName)
         {
-            if(!IsUserInputRequired)
+            lock(_optionLock)
             {
-                IsUserInputRequired = true;
-                Options = new List<Option>();
-            }
-            Options.Add(new Option(Options.Count, optionName));
+                if (!IsUserInputRequired)
+                {
+                    IsUserInputRequired = true;
+                    Options = new List<Option>();
+                }
+                Options.Add(new Option(Options.Count, optionName));
+            }           
         }
 
         public void SelectOption(int optionId)
         {
-            IsUserInputRequired = false;
-            SelectedOption = Options[optionId];
+            lock(_optionLock)
+            {
+                IsUserInputRequired = false;
+                SelectedOption = Options[optionId];
+            }
         }
 
     }
