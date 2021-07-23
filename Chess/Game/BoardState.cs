@@ -9,6 +9,8 @@ namespace Chess.Game
 {
     class BoardState
     {
+        private object _scoreLock = new object();
+
         private Move _lastMove;
         private MinimaxResult _score;
         private Board _board;
@@ -37,12 +39,18 @@ namespace Chess.Game
 
         public MinimaxResult GetScore()
         {
-            return _score;
+            lock(_scoreLock)
+            {
+                return _score;
+            }
         }
 
         public void SetScore(MinimaxResult score)
         {
-            _score = score;
+            lock(_scoreLock)
+            {
+                _score = score;
+            }
         }
 
         public List<BoardSquare> FindPieces<TPiece>() where TPiece : GamePiece

@@ -99,18 +99,12 @@ namespace Chess.Game
 
         public MinimaxResult Evaluate(BoardState state)
         {
-            lock(_gameStateLock)
+            if (state.GetScore() == null)
             {
-                if (state.GetScore() == null)
-                {
-                    lock (state)
-                    {
-                        var result = Minimax.GetBoardScore(_rules, state);
-                        state.SetScore(result);
-                    }
-                }
-                return state.GetScore();
+                var result = Minimax.GetBoardScore(_rules, state);
+                state.SetScore(result);
             }
+            return state.GetScore();
         }
 
         public IEnumerable<Move> GetLegalMoves(BoardSquare square)

@@ -48,7 +48,7 @@ namespace Chess
 
         public void SetScore(string score)
         {
-            _scoreLabel.Text = score.ToString();
+            _scoreLabel.Text = score;
         }
 
         private void toggleButton_OnClick(object sender, EventArgs e)

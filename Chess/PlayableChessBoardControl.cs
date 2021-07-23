@@ -23,6 +23,7 @@ namespace Chess
         private ChessBoardTileControl _selectedTile;
         private List<Move> _selectedLegalMoves;
         private bool _isBoardCurrent = true;
+        private bool _isEnabled = true;
 
         public PlayableChessBoardControl(Board board) : base(board.GetWidth(), board.GetHeight())
         {
@@ -35,6 +36,16 @@ namespace Chess
             base.UpdateBoard(board);
 
             _isBoardCurrent = GetCurrentBoard() == board;
+        }
+
+        public void Disable()
+        {
+            _isEnabled = false;
+        }
+
+        public void Enable()
+        {
+            _isEnabled = true;
         }
 
         protected virtual void OnChessMove(MoveEventArgs e)
@@ -59,7 +70,7 @@ namespace Chess
 
         private void Tile_Click(object sender, EventArgs e)
         {
-            if(!_isBoardCurrent)
+            if(!_isBoardCurrent || !_isEnabled)
             {
                 return;
             }

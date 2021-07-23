@@ -31,6 +31,7 @@ namespace Chess
         private ChessGame _game;
         private event MultipleOptionEventHandler _onOptionPickRequired;
         private bool _versusAi;
+        private HashSet<BoardState> _evaluatedStates = new HashSet<BoardState>();
 
         public GameControl(ChessGame game, bool versusAi)
         {
@@ -110,21 +111,43 @@ namespace Chess
         {
             var move = e.Move;
             _boardControl.UpdateBoard(move.BoardAfter.GetBoard());
-            var selectedStateEvaluationThread = new Thread(() =>
+            if(!_evaluatedStates.Contains(move.BoardAfter))
             {
-                var score = _game.Evaluate(move.BoardAfter);
-                _scoreControl.Invoke(new Action(() =>
+                _evaluatedStates.Add(move.BoardAfter);
+                ThreadPool.QueueUserWorkItem((state) =>
                 {
-                    _scoreControl.SetScore(score.Score.ToString());
-                }));
-            });
-            selectedStateEvaluationThread.Start();
+                    _scoreControl.Invoke(new Action(() =>
+                    {
+                        _scoreControl.SetScore("Calculating...");
+                    }));
+                    var score = _game.Evaluate(move.BoardAfter);
+                    if(move.BoardAfter == _game.GetBoardState())
+                    {
+                        _scoreControl.Invoke(new Action(() =>
+                        {
+                            _scoreControl.SetScore(score.Score.ToString());
+                        }));
+                    }
+                });
+            }
+            else if(move.BoardAfter.GetScore() != null)
+            {
+                _scoreControl.SetScore(move.BoardAfter.GetScore().Score.ToString());
+            }
+            else
+            {
+                _scoreControl.SetScore("Calculating...");
+            }
         }
 
         private void OnMove(object sender, MoveEventArgs e)
         {
-            var moveProcessingThread = new Thread(() =>
+            ThreadPool.QueueUserWorkItem((state) =>
             {
+                _boardControl.Invoke(new Action(() =>
+                {
+                    _boardControl.Disable();
+                }));
                 _game.ProcessMove(e.Move);
                 if (_game.IsGameOver())
                 {
@@ -134,7 +157,7 @@ namespace Chess
                 {
                     _moveHistory.AddMove(e.Move);
                 }));
-                if(_versusAi)
+                if (_versusAi)
                 {
                     var aiMove = _game.GetBestMove();
                     _game.ProcessMove(aiMove);
@@ -147,8 +170,11 @@ namespace Chess
                         _moveHistory.AddMove(aiMove);
                     }));
                 }
+                _boardControl.Invoke(new Action(() =>
+                {
+                    _boardControl.Enable();
+                }));
             });
-            moveProcessingThread.Start();
         }
 
         private void board_OnMoveInputRequired(object sender, MoveEventArgs e)
