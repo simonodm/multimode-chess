@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Chess
+﻿namespace Chess
 {
     delegate void GameStartEventHandler(object sender, GameStartEventArgs e);
     delegate void MoveEventHandler(object sender, MoveEventArgs e);

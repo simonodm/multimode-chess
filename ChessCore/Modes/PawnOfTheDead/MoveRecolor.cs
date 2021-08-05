@@ -1,18 +1,14 @@
-﻿using ChessCore.Game.Modes.Standard;
-using ChessCore.Game.Modes.Standard.Pieces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ChessCore.Exceptions;
+using ChessCore.Modes.Standard;
+using ChessCore.Modes.Standard.Pieces;
 
-namespace ChessCore.Game.Modes.PawnOfTheDead
+namespace ChessCore.Modes.PawnOfTheDead
 {
     class MoveRecolor : MoveCapture
     {
         public override StandardBoardState Process()
         {
-            if(Piece.GetPlayer() == 1)
+            if (Piece.GetPlayer() == 1)
             {
                 var newPiece = GetNewPiece(To.GetPiece());
                 var newBoard = BoardBefore.GetBoard().RemovePiece(To).AddPiece(To, newPiece);
@@ -23,31 +19,31 @@ namespace ChessCore.Game.Modes.PawnOfTheDead
 
         private StandardPiece GetNewPiece(GamePiece piece)
         {
-            if(piece is Pawn)
+            if (piece is Pawn)
             {
                 return new Pawn(1);
             }
-            if(piece is King)
+            if (piece is King)
             {
                 return new King(1);
             }
-            if(piece is Rook)
+            if (piece is Rook)
             {
                 return new Rook(1);
             }
-            if(piece is Knight)
+            if (piece is Knight)
             {
                 return new Knight(1);
             }
-            if(piece is Bishop)
+            if (piece is Bishop)
             {
                 return new Bishop(1);
             }
-            if(piece is Queen)
+            if (piece is Queen)
             {
                 return new Queen(1);
             }
-            throw new Exception("Unsupported piece.");
+            throw new ChessCoreException("Unsupported piece.");
         }
     }
 }

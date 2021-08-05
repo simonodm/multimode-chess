@@ -1,4 +1,4 @@
-﻿namespace ChessCore.Game
+﻿namespace ChessCore
 {
     public struct BoardSquare
     {
@@ -45,7 +45,7 @@
 
         public override bool Equals(object obj)
         {
-            if(obj is not BoardSquare)
+            if (obj is not BoardSquare)
             {
                 return false;
             }

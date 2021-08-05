@@ -1,5 +1,5 @@
-﻿using ChessCore.Game;
-using ChessCore.Game.Modes.Standard.Pieces;
+﻿using ChessCore;
+using ChessCore.Modes.Standard.Pieces;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -77,7 +77,7 @@ namespace Chess.Controls
                 piecePictureBox.SizeMode = PictureBoxSizeMode.Zoom;
                 piecePictureBox.Click += Tile_Click;
 
-                if(_tile.Controls.Count > 0)
+                if (_tile.Controls.Count > 0)
                 {
                     var currentPictureBox = _tile.Controls[0];
                     _tile.Controls.Clear();

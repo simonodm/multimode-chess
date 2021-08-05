@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ChessCore.Game.Modes.Standard.Pieces
+namespace ChessCore.Modes.Standard.Pieces
 {
     public class Knight : StandardPiece
     {
@@ -24,9 +24,9 @@ namespace ChessCore.Game.Modes.Standard.Pieces
         {
             var threatenedSquares = new List<BoardSquare>();
 
-            foreach(var possibleMove in PossibleMoves)
+            foreach (var possibleMove in PossibleMoves)
             {
-                if(!IsOutOfBounds(possibleMove, state, from))
+                if (!IsOutOfBounds(possibleMove, state, from))
                 {
                     var target = GetTargetSquare(possibleMove, state, from);
                     threatenedSquares.Add(target);
@@ -39,7 +39,7 @@ namespace ChessCore.Game.Modes.Standard.Pieces
         protected override StandardMove GenerateMove(StandardBoardState state, BoardSquare from, BoardSquare to)
         {
             var targetPiece = to.GetPiece();
-            if(targetPiece == null)
+            if (targetPiece == null)
             {
                 return new MoveNormal
                 {
@@ -49,7 +49,7 @@ namespace ChessCore.Game.Modes.Standard.Pieces
                     BoardBefore = state
                 };
             }
-            else if(targetPiece.GetPlayer() != GetPlayer())
+            else if (targetPiece.GetPlayer() != GetPlayer())
             {
                 return new MoveCapture
                 {

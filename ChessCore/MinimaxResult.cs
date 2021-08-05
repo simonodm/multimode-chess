@@ -1,4 +1,4 @@
-﻿namespace ChessCore.Game
+﻿namespace ChessCore
 {
     public class MinimaxResult
     {

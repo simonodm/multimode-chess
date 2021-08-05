@@ -1,7 +1,5 @@
 ﻿using Chess.Controls;
-using ChessCore.Game;
 using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -68,8 +66,18 @@ namespace Chess
                 Size = new Size(ClientRectangle.Width, ClientRectangle.Height)
             };
             gameControl.OptionPickRequired += OnMultipleOptionInput;
+            gameControl.GameCancelled += OnGameCancel;
 
             return gameControl;
+        }
+
+        private void OnGameCancel(object sender, EventArgs e)
+        {
+            Controls.Clear();
+            _gameView.Dispose();
+            _gameView = null;
+            _gameSetupView = GenerateSetupControl();
+            Controls.Add(_gameSetupView);
         }
     }
 }

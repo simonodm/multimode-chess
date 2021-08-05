@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ChessCore.Game.Modes.Standard.Pieces
+namespace ChessCore.Modes.Standard.Pieces
 {
     public class Pawn : StandardPiece
     {
@@ -26,7 +26,7 @@ namespace ChessCore.Game.Modes.Standard.Pieces
         {
             var threatenedSquares = new List<BoardSquare>();
 
-            foreach(var possibleMove in PossibleMoves)
+            foreach (var possibleMove in PossibleMoves)
             {
                 if (!IsOutOfBounds(possibleMove, state, from))
                 {
@@ -43,13 +43,13 @@ namespace ChessCore.Game.Modes.Standard.Pieces
 
         protected override StandardMove GenerateMove(StandardBoardState state, BoardSquare from, BoardSquare to)
         {
-            if(!IsDirectionCorrect(from, to))
+            if (!IsDirectionCorrect(from, to))
             {
                 return null;
             }
 
             StandardMove move = null;
-            if(IsEnPassant(state, to))
+            if (IsEnPassant(state, to))
             {
                 move = new MoveEnPassant()
                 {
@@ -59,7 +59,7 @@ namespace ChessCore.Game.Modes.Standard.Pieces
                     BoardBefore = state
                 };
             }
-            else if(IsPromotion(state, from, to))
+            else if (IsPromotion(state, from, to))
             {
                 move = new MovePromotion()
                 {
@@ -69,7 +69,7 @@ namespace ChessCore.Game.Modes.Standard.Pieces
                     BoardBefore = state
                 };
             }
-            else if(IsNormal(state, from, to))
+            else if (IsNormal(state, from, to))
             {
                 move = new MoveNormal()
                 {
@@ -79,7 +79,7 @@ namespace ChessCore.Game.Modes.Standard.Pieces
                     BoardBefore = state
                 };
             }
-            else if(IsCapture(state, from, to))
+            else if (IsCapture(state, from, to))
             {
                 move = new MoveCapture()
                 {
@@ -103,7 +103,7 @@ namespace ChessCore.Game.Modes.Standard.Pieces
         {
             var previousMove = state.GetLastMove();
 
-            if(previousMove != null && previousMove.Piece is Pawn && Math.Abs(previousMove.To.GetRank() - previousMove.From.GetRank()) == 2)
+            if (previousMove != null && previousMove.Piece is Pawn && Math.Abs(previousMove.To.GetRank() - previousMove.From.GetRank()) == 2)
             {
                 var enPassantRank = previousMove.From.GetRank() + (previousMove.To.GetRank() - previousMove.From.GetRank()) / 2;
                 var enPassantSquare = state.GetBoard().GetSquare(previousMove.From.GetFile(), enPassantRank);
@@ -125,7 +125,7 @@ namespace ChessCore.Game.Modes.Standard.Pieces
         {
             return IsValidMoveForward(state, from, to);
         }
-        
+
         private bool IsCapture(StandardBoardState state, BoardSquare from, BoardSquare to)
         {
             return IsValidMoveDiagonal(state, from, to);
@@ -133,12 +133,12 @@ namespace ChessCore.Game.Modes.Standard.Pieces
 
         private bool IsValidMoveForward(StandardBoardState state, BoardSquare from, BoardSquare to)
         {
-            if(to.GetPiece() != null)
+            if (to.GetPiece() != null)
             {
                 return false;
             }
 
-            if(from.GetFile() == to.GetFile()) 
+            if (from.GetFile() == to.GetFile())
             {
                 if (Math.Abs(to.GetRank() - from.GetRank()) == 2)
                 {
@@ -154,7 +154,7 @@ namespace ChessCore.Game.Modes.Standard.Pieces
 
         private bool IsValidMoveDiagonal(StandardBoardState state, BoardSquare from, BoardSquare to)
         {
-            if(from.GetFile() != to.GetFile())
+            if (from.GetFile() != to.GetFile())
             {
                 return (to.GetPiece() != null && to.GetPiece().GetPlayer() != GetPlayer()) || IsEnPassant(state, to);
             }

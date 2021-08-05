@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ChessCore.Game.Modes.Standard
+namespace ChessCore.Modes.Standard
 {
     public abstract class StandardPiece : GamePiece
     {
@@ -11,10 +11,10 @@ namespace ChessCore.Game.Modes.Standard
         {
             var threatenedSquares = GetThreatenedSquares(state, from);
             var legalMoves = new List<StandardMove>();
-            foreach(var square in threatenedSquares)
+            foreach (var square in threatenedSquares)
             {
                 var move = GenerateMove(state, from, square);
-                if(move != null && !move.Process().IsInCheck(GetPlayer()))
+                if (move != null && !move.Process().IsInCheck(GetPlayer()))
                 {
                     legalMoves.Add(move);
                 }
@@ -25,12 +25,12 @@ namespace ChessCore.Game.Modes.Standard
         public virtual List<BoardSquare> GetThreatenedSquares(StandardBoardState state, BoardSquare from)
         {
             var threatenedSquares = new List<BoardSquare>();
-            foreach(var possibleMove in PossibleMoves)
+            foreach (var possibleMove in PossibleMoves)
             {
-                if(!IsOutOfBounds(possibleMove, state, from))
+                if (!IsOutOfBounds(possibleMove, state, from))
                 {
                     var squareTo = GetTargetSquare(possibleMove, state, from);
-                    if(!state.IsLineBlocked(from, squareTo))
+                    if (!state.IsLineBlocked(from, squareTo))
                     {
                         threatenedSquares.Add(squareTo);
                     }

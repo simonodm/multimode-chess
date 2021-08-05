@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace ChessCore.Game
+﻿namespace ChessCore
 {
     public abstract class GamePiece
     {
@@ -35,14 +33,14 @@ namespace ChessCore.Game
         }
         public int GetMoveCount()
         {
-            lock(_moveCountLock)
+            lock (_moveCountLock)
             {
                 return _moveCount;
             }
         }
         public void SetMoveCount(int moveCount)
         {
-            lock(_moveCountLock)
+            lock (_moveCountLock)
             {
                 _moveCount = moveCount;
             }

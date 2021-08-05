@@ -1,4 +1,4 @@
-﻿using ChessCore.Game;
+﻿using ChessCore;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -28,7 +28,7 @@ namespace Chess
                     Text = option.Text
                 };
                 button.Click += button_Click;
-                
+
                 _buttonToOptionMap[button] = option;
                 heightOffset += 48;
 

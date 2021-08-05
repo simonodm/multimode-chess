@@ -1,7 +1,8 @@
-﻿using System;
+﻿using ChessCore.Exceptions;
+using System;
 using System.Collections.Generic;
 
-namespace ChessCore.Game.Modes.Standard.Pieces
+namespace ChessCore.Modes.Standard.Pieces
 {
     public class King : StandardPiece
     {
@@ -26,7 +27,7 @@ namespace ChessCore.Game.Modes.Standard.Pieces
 
         protected override StandardMove GenerateMove(StandardBoardState state, BoardSquare from, BoardSquare to)
         {
-            if(IsCastle(state, from, to))
+            if (IsCastle(state, from, to))
             {
                 return new MoveCastle()
                 {
@@ -36,7 +37,7 @@ namespace ChessCore.Game.Modes.Standard.Pieces
                     BoardBefore = state
                 };
             }
-            else if(Math.Abs(from.GetFile() - to.GetFile()) <= 1)
+            else if (Math.Abs(from.GetFile() - to.GetFile()) <= 1)
             {
                 return base.GenerateMove(state, from, to);
             }
@@ -46,7 +47,7 @@ namespace ChessCore.Game.Modes.Standard.Pieces
 
         private bool IsCastle(StandardBoardState state, BoardSquare from, BoardSquare to)
         {
-            if(Math.Abs(to.GetFile() - from.GetFile()) == 2)
+            if (Math.Abs(to.GetFile() - from.GetFile()) == 2)
             {
                 if (IsCastlePositionValid(state, from))
                 {
@@ -54,13 +55,14 @@ namespace ChessCore.Game.Modes.Standard.Pieces
                     return IsCastleLegal(state, from, rookSquare);
                 }
             }
-            
+
             return false;
         }
 
         private bool IsCastlePositionValid(StandardBoardState state, BoardSquare from)
         {
-            if((GetPlayer() == 0 && from.GetRank() == 0) || (GetPlayer() == 1 && from.GetRank() == state.GetBoard().GetHeight() - 1)) {
+            if ((GetPlayer() == 0 && from.GetRank() == 0) || (GetPlayer() == 1 && from.GetRank() == state.GetBoard().GetHeight() - 1))
+            {
                 return from.GetFile() == 4;
             }
             return false;
@@ -80,7 +82,7 @@ namespace ChessCore.Game.Modes.Standard.Pieces
             for (int file = Math.Min(rookSquare.GetFile(), kingSquare.GetFile()); file < Math.Max(rookSquare.GetFile(), kingSquare.GetFile()); file++)
             {
                 var square = state.GetBoard().GetSquare(file, kingSquare.GetRank());
-                if(square != kingSquare && square != rookSquare)
+                if (square != kingSquare && square != rookSquare)
                 {
                     if (square.GetPiece() != null || state.GetThreatMap().GetThreatCount(square, (GetPlayer() + 1) % 2) > 0)
                     {
@@ -93,15 +95,15 @@ namespace ChessCore.Game.Modes.Standard.Pieces
 
         private BoardSquare GetRookSquare(StandardBoardState state, BoardSquare from, BoardSquare to)
         {
-            if(to.GetFile() == 6)
+            if (to.GetFile() == 6)
             {
                 return state.GetBoard().GetSquare(7, from.GetRank());
             }
-            else if(to.GetFile() == 2)
+            else if (to.GetFile() == 2)
             {
                 return state.GetBoard().GetSquare(0, from.GetRank());
             }
-            throw new Exception("Invalid target square supplied.");
+            throw new ChessCoreException("Invalid target square supplied.");
         }
     }
 }

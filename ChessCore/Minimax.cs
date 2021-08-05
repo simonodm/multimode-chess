@@ -1,8 +1,7 @@
-﻿using ChessCore.Game.Modes;
+﻿using ChessCore.Modes;
 using System;
-using System.Collections.Generic;
 
-namespace ChessCore.Game
+namespace ChessCore
 {
     class Minimax
     {
@@ -43,12 +42,12 @@ namespace ChessCore.Game
                 double score = _rules.GetEvaluator().GetBoardScore(state);
                 bool isGameOver = false;
                 int winner = 0;
-                if(gameResult == GameResult.WHITE_WIN)
+                if (gameResult == GameResult.WHITE_WIN)
                 {
                     isGameOver = true;
                     winner = 0;
                 }
-                else if(gameResult == GameResult.BLACK_WIN)
+                else if (gameResult == GameResult.BLACK_WIN)
                 {
                     isGameOver = true;
                     winner = 1;
@@ -66,7 +65,7 @@ namespace ChessCore.Game
             var legalMoves = _rules.GetAllLegalMoves(state, player);
             foreach (var move in legalMoves)
             {
-                if(bestMove == null)
+                if (bestMove == null)
                 {
                     bestMove = move; // preventing situations when no move is viable (no score gets below/above double.MinValue/double.MaxValue)
                 }
@@ -103,9 +102,9 @@ namespace ChessCore.Game
 
                 if (move.Options != null)
                 {
-                    foreach(var option in move.Options)
+                    foreach (var option in move.Options)
                     {
-                        if(!bestMoveFound)
+                        if (!bestMoveFound)
                         {
                             move.SelectOption(option.Id);
                             processMove();
@@ -117,7 +116,7 @@ namespace ChessCore.Game
                     processMove();
                 }
 
-                if(bestMoveFound)
+                if (bestMoveFound)
                 {
                     break;
                 }

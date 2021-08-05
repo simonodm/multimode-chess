@@ -1,16 +1,16 @@
-﻿using ChessCore.Game.Modes.Standard.Pieces;
-using System;
-
-namespace ChessCore.Game.Modes.Standard
+﻿namespace ChessCore.Modes.Standard
 {
     class MovePromotion : StandardMove
     {
+        private IPieceFactory _pieceFactory;
+
         public MovePromotion() : base()
         {
-            AddOption("Queen");
-            AddOption("Rook");
-            AddOption("Knight");
-            AddOption("Bishop");
+            _pieceFactory = _rules.GetPieceFactory();
+            foreach (var option in _pieceFactory.GetPieceOptions(new int[] { 0, 3, 4, 5 }))
+            {
+                Options.Add(option);
+            }
         }
 
         public override StandardBoardState Process()
@@ -47,31 +47,7 @@ namespace ChessCore.Game.Modes.Standard
 
         private GamePiece GetPieceFromSelectedOption()
         {
-            if (SelectedOption == null)
-            {
-                return new Queen(Piece.GetPlayer());
-            }
-
-            GamePiece piece;
-            switch (SelectedOption.Id)
-            {
-                case 0:
-                    piece = new Queen(Piece.GetPlayer());
-                    break;
-                case 1:
-                    piece = new Rook(Piece.GetPlayer());
-                    break;
-                case 2:
-                    piece = new Knight(Piece.GetPlayer());
-                    break;
-                case 3:
-                    piece = new Bishop(Piece.GetPlayer());
-                    break;
-                default:
-                    throw new Exception("Unrecognized option");
-            }
-
-            return piece;
+            return _pieceFactory.GetPiece(SelectedOption.Id, Piece.GetPlayer());
         }
     }
 }

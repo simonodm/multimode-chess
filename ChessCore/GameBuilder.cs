@@ -1,13 +1,7 @@
-﻿using ChessCore.Game.Modes;
-using ChessCore.Game.Modes.PawnOfTheDead;
-using ChessCore.Game.Modes.Standard;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ChessCore.Modes;
+using ChessCore.Modes.Standard;
 
-namespace ChessCore.Game
+namespace ChessCore
 {
     public class GameBuilder
     {
@@ -39,7 +33,7 @@ namespace ChessCore.Game
 
         public ChessGame Create()
         {
-            if(_board != null)
+            if (_board != null)
             {
                 return new ChessGame(_rules, _board);
             }

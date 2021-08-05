@@ -1,7 +1,7 @@
-﻿using System;
+﻿using ChessCore.Exceptions;
 using System.Collections.Generic;
 
-namespace ChessCore.Game
+namespace ChessCore
 {
     public class Board
     {
@@ -61,7 +61,7 @@ namespace ChessCore.Game
         {
             if (_board[file, rank].GetPiece() != null)
             {
-                throw new Exception($"A piece is already present on square {file.ConvertToChessFile()}{rank + 1}.");
+                throw new ChessCoreException($"A piece is already present on square {file.ConvertToChessFile()}{rank + 1}.");
             }
             var newBoard = CopyBoard();
             newBoard[file, rank].SetPiece(piece);
@@ -75,9 +75,9 @@ namespace ChessCore.Game
 
         public Board RemovePiece(int file, int rank)
         {
-            if(_board[file, rank].GetPiece() == null)
+            if (_board[file, rank].GetPiece() == null)
             {
-                throw new Exception($"No piece found on square {file.ConvertToChessFile()}{rank + 1}");
+                throw new ChessCoreException($"No piece found on square {file.ConvertToChessFile()}{rank + 1}");
             }
             var newBoard = CopyBoard();
             newBoard[file, rank].SetPiece(null);

@@ -1,6 +1,4 @@
-﻿using ChessCore.Game.Modes.Standard;
-
-namespace ChessCore.Game.Modes
+﻿namespace ChessCore.Modes
 {
     public static class GameModePool
     {

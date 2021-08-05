@@ -1,18 +1,20 @@
-﻿using ChessCore.Game.Modes.Standard.Pieces;
-using System;
+﻿using ChessCore.Exceptions;
+using ChessCore.Modes.Standard.Pieces;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
-namespace ChessCore.Game.Modes.Standard
+namespace ChessCore.Modes.Standard
 {
     public class StandardRules : IGameRules
     {
+        private StandardPieceFactory _pieceFactory;
+        private StandardBoardEvaluator _evaluator;
+
         public virtual BoardState Move(Move move)
         {
             if (move is not StandardMove)
             {
-                throw new Exception("Invalid move supplied.");
+                throw new InvalidMoveException("Invalid move supplied.");
             }
             return (move as StandardMove).Process();
         }
@@ -61,7 +63,7 @@ namespace ChessCore.Game.Modes.Standard
             sb.Append(fileTo.ConvertToChessFile());
             sb.Append(move.To.GetRank() + 1);
 
-            if(move.BoardAfter != null)
+            if (move.BoardAfter != null)
             {
                 var gameResult = GetGameResult(move.BoardAfter);
                 if (gameResult == GameResult.WHITE_WIN || gameResult == GameResult.BLACK_WIN)
@@ -73,13 +75,17 @@ namespace ChessCore.Game.Modes.Standard
                     sb.Append("+");
                 }
             }
-            
+
             return sb.ToString();
         }
 
         public IBoardEvaluator GetEvaluator()
         {
-            return new StandardBoardEvaluator(this);
+            if (_evaluator == null)
+            {
+                _evaluator = new StandardBoardEvaluator(this);
+            }
+            return _evaluator;
         }
 
         public virtual GameResult GetGameResult(BoardState state)
@@ -90,7 +96,7 @@ namespace ChessCore.Game.Modes.Standard
                 int playerLegalMoves = GetAllLegalMoves(standardBoardState, player).Count;
                 if (playerLegalMoves == 0)
                 {
-                    if(standardBoardState.IsInCheck(player))
+                    if (standardBoardState.IsInCheck(player))
                     {
                         if (player == 0)
                         {
@@ -150,10 +156,42 @@ namespace ChessCore.Game.Modes.Standard
             return new StandardBoardState(board);
         }
 
+        public IPieceFactory GetPieceFactory()
+        {
+            if (_pieceFactory == null)
+            {
+                _pieceFactory = new StandardPieceFactory();
+            }
+            return _pieceFactory;
+        }
+
         public BoardState GetStartingBoardState(Board board)
         {
+            var boardState = new StandardBoardState(board);
+            var kings = boardState.FindPieces<King>();
+            int whiteKings = 0;
+            int blackKings = 0;
+            foreach (var kingSquare in kings)
+            {
+                if (kingSquare.GetPiece().GetPlayer() == 0)
+                {
+                    whiteKings++;
+                }
+                else if (kingSquare.GetPiece().GetPlayer() == 1)
+                {
+                    blackKings++;
+                }
+                else
+                {
+                    throw new InvalidBoardException("Invalid king player found");
+                }
+            }
+            if (whiteKings != 1 || blackKings != 1)
+            {
+                throw new InvalidBoardException("Invalid king count");
+            }
             return new StandardBoardState(board);
         }
-       
+
     }
 }
