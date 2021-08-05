@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ChessCore.Game.Modes
+namespace ChessCore.Modes
 {
     public interface IGameRules
     {
@@ -11,6 +11,7 @@ namespace ChessCore.Game.Modes
         public BoardState GetStartingBoardState(Board board);
         public GameResult GetGameResult(BoardState state);
         public IBoardEvaluator GetEvaluator();
+        public IPieceFactory GetPieceFactory();
         public string GetMoveNotation(Move move);
     }
 }

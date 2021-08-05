@@ -1,7 +1,8 @@
-﻿using ChessCore.Game;
-using ChessCore.Game.Modes;
-using ChessCore.Game.Modes.PawnOfTheDead;
-using ChessCore.Game.Modes.Standard;
+﻿using ChessCore;
+using ChessCore.Exceptions;
+using ChessCore.Modes;
+using ChessCore.Modes.PawnOfTheDead;
+using ChessCore.Modes.Standard;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -21,11 +22,12 @@ namespace Chess.Controls
         private NumericUpDown _increment;
         private ConfigurableChessBoardControl _chessBoardSetup;
 
-        private Label _gameModeLabel;      
+        private Label _gameModeLabel;
         private Label _opponentLabel;
         private Label _playerLabel;
         private Label _timeLimitLabel;
         private Label _incrementLabel;
+        private Label _errorLabel;
 
         private Button _startButton;
         private Button _clearBoardButton;
@@ -46,6 +48,7 @@ namespace Chess.Controls
             _gameModeLabel.Location = new Point((Width - _gameModeLabel.Size.Width) / 2, 12);
             _opponentLabel.Location = new Point((Width - _opponentLabel.Size.Width) / 2, 76);
             _playerLabel.Location = new Point((Width - _playerLabel.Size.Width) / 2, 140);
+            _errorLabel.Location = new Point((Width - _errorLabel.Size.Width) / 2, _chessBoardSetup.Location.Y + _chessBoardSetup.Size.Height + 12);
             _timeLimitLabel.Location = new Point((Width - _timeLimitLabel.Size.Width) / 2, 204);
             _incrementLabel.Location = new Point((Width - _incrementLabel.Size.Width) / 2, 268);
             _comboBoxModes.Location = new Point(Width / 2 - Width / 12, 36);
@@ -60,11 +63,12 @@ namespace Chess.Controls
 
         private void InitializeControls()
         {
-            _gameModeLabel = GenerateLabel("Select game mode");
-            _opponentLabel = GenerateLabel("Play vs AI?");
-            _playerLabel = GenerateLabel("Select piece color");
-            _timeLimitLabel = GenerateLabel("Select time limit per player");
-            _incrementLabel = GenerateLabel("Select increment per player");
+            _gameModeLabel = GenerateLabel("Select game mode", Color.White);
+            _opponentLabel = GenerateLabel("Play vs AI?", Color.White);
+            _playerLabel = GenerateLabel("Select piece color", Color.White);
+            _timeLimitLabel = GenerateLabel("Select time limit per player", Color.White);
+            _incrementLabel = GenerateLabel("Select increment per player", Color.White);
+            _errorLabel = GenerateLabel("", Color.Red);
             _comboBoxModes = GenerateGameModeDropdown();
             _comboBoxPlayer = GeneratePlayerDropdown();
             _timeLimit = GenerateTimeLimitControl();
@@ -79,6 +83,7 @@ namespace Chess.Controls
             Controls.Add(_gameModeLabel);
             Controls.Add(_opponentLabel);
             Controls.Add(_playerLabel);
+            Controls.Add(_errorLabel);
             Controls.Add(_timeLimitLabel);
             Controls.Add(_incrementLabel);
             Controls.Add(_timeLimit);
@@ -165,14 +170,14 @@ namespace Chess.Controls
             return button;
         }
 
-        private Label GenerateLabel(string text)
+        private Label GenerateLabel(string text, Color foreColor)
         {
             var label = new Label
             {
                 Size = new Size(200, 20)
             };
             label.Text = text;
-            label.ForeColor = Color.White;
+            label.ForeColor = foreColor;
             label.AutoSize = true;
 
             return label;
@@ -181,7 +186,7 @@ namespace Chess.Controls
         private ConfigurableChessBoardControl GenerateChessBoardControl()
         {
             var board = _rules.GetStartingBoardState().GetBoard();
-            var configurableBoard = new ConfigurableChessBoardControl(board.GetWidth(), board.GetHeight());
+            var configurableBoard = new ConfigurableChessBoardControl(board.GetWidth(), board.GetHeight(), _rules);
 
             configurableBoard.UpdateBoard(board);
             configurableBoard.UserInputRequired += OnOptionPickRequired;
@@ -191,10 +196,19 @@ namespace Chess.Controls
 
         private void startButton_OnClick(object sender, EventArgs e)
         {
-            var game = new GameBuilder()
+            ChessGame game;
+            try
+            {
+                game = new GameBuilder()
                 .WithGameMode(_rules)
                 .WithBoard(_chessBoardSetup.GetBoard())
                 .Create();
+            }
+            catch (InvalidBoardException ex)
+            {
+                DisplayError($"Invalid board: {ex.Message}");
+                return;
+            }
 
             var args = new GameStartEventArgs
             {
@@ -222,7 +236,7 @@ namespace Chess.Controls
 
         private void gameModeComboBox_OnSelectedIndexChanged(object sender, EventArgs e)
         {
-            switch(_comboBoxModes.SelectedIndex)
+            switch (_comboBoxModes.SelectedIndex)
             {
                 case 0:
                     _rules = GameModePool.Get<StandardRules>();
@@ -233,6 +247,7 @@ namespace Chess.Controls
                 default:
                     throw new Exception("Invalid game mode id supplied.");
             }
+            _chessBoardSetup.SetRules(_rules);
         }
 
         private void playerComboBox_OnSelectedIndexChanged(object sender, EventArgs e)
@@ -250,5 +265,10 @@ namespace Chess.Controls
             OptionPickRequired?.Invoke(this, e);
         }
 
+        private void DisplayError(string errorMessage)
+        {
+            _errorLabel.Text = errorMessage;
+            _errorLabel.Location = new Point((Width - _errorLabel.Size.Width) / 2, _errorLabel.Location.Y);
+        }
     }
 }

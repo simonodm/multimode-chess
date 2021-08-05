@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ChessCore.Game
+﻿namespace ChessCore
 {
     static class IntExt
     {

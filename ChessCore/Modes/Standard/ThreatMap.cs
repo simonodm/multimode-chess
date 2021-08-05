@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ChessCore.Game.Modes.Standard
+﻿namespace ChessCore.Modes.Standard
 {
     class ThreatMap
     {
@@ -24,7 +18,7 @@ namespace ChessCore.Game.Modes.Standard
 
         public int GetThreatCount(int file, int rank, int byPlayer)
         {
-            if(byPlayer == 0)
+            if (byPlayer == 0)
             {
                 return _whiteThreatMap[file, rank];
             }
@@ -50,7 +44,7 @@ namespace ChessCore.Game.Modes.Standard
         private void ProcessSquareThreats(StandardBoardState state, BoardSquare square)
         {
             var piece = square.GetPiece();
-            if(piece != null && piece is StandardPiece)
+            if (piece != null && piece is StandardPiece)
             {
                 var standardPiece = (StandardPiece)piece;
 

@@ -1,7 +1,6 @@
-﻿using ChessCore.Game.Modes.Standard.Pieces;
-using System.Collections.Generic;
+﻿using ChessCore.Modes.Standard.Pieces;
 
-namespace ChessCore.Game.Modes.Standard
+namespace ChessCore.Modes.Standard
 {
     public class StandardBoardState : BoardState
     {

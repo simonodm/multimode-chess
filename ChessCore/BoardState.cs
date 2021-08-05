@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ChessCore.Game
+namespace ChessCore
 {
     public class BoardState
     {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ChessCore.Game.Modes.Standard.Pieces
+namespace ChessCore.Modes.Standard.Pieces
 {
     public class Bishop : StandardPiece
     {

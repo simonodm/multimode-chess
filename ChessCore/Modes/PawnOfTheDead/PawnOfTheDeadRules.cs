@@ -1,12 +1,12 @@
-﻿using ChessCore.Game.Modes.Standard;
+﻿using ChessCore.Modes.Standard;
 
-namespace ChessCore.Game.Modes.PawnOfTheDead
+namespace ChessCore.Modes.PawnOfTheDead
 {
     public class PawnOfTheDeadRules : StandardRules
     {
         public override BoardState Move(Move move)
         {
-            if(move is MoveCapture)
+            if (move is MoveCapture)
             {
                 var moveRecolor = new MoveRecolor
                 {

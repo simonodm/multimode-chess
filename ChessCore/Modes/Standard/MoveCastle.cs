@@ -1,4 +1,4 @@
-﻿namespace ChessCore.Game.Modes.Standard
+﻿namespace ChessCore.Modes.Standard
 {
     class MoveCastle : StandardMove
     {

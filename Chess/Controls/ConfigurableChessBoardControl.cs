@@ -1,7 +1,8 @@
-﻿using ChessCore.Game;
-using ChessCore.Game.Modes.Standard.Pieces;
+﻿using ChessCore;
+using ChessCore.Modes;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Chess.Controls
 {
@@ -9,11 +10,13 @@ namespace Chess.Controls
     {
         public event MultipleOptionEventHandler UserInputRequired;
         private Board _board;
+        private IGameRules _rules;
 
-        public ConfigurableChessBoardControl(int width, int height) : base(width, height)
+        public ConfigurableChessBoardControl(int width, int height, IGameRules rules) : base(width, height)
         {
             _board = new Board(width, height);
             TileClick += Tile_Click;
+            _rules = rules;
         }
 
         public override void UpdateBoard(Board board)
@@ -29,6 +32,11 @@ namespace Chess.Controls
         public Board GetBoard()
         {
             return _board;
+        }
+
+        public void SetRules(IGameRules rules)
+        {
+            _rules = rules;
         }
 
         private void OnUserInputRequired(object sender, MultipleOptionEventArgs e)
@@ -49,30 +57,38 @@ namespace Chess.Controls
                 Options = GenerateColorOptions()
             };
 
-            // TODO: Do not request color if the chosen piece type was None.
-            OnUserInputRequired(sender, pieceArgs);
-            OnUserInputRequired(sender, colorArgs);
-
-            ProcessSelectedOptions(tileSquare, pieceArgs, colorArgs);
+            ProcessPieceSelection(tileSquare, pieceArgs, colorArgs);
         }
 
-        private void ProcessSelectedOptions(BoardSquare targetSquare, MultipleOptionEventArgs pieceArgs, MultipleOptionEventArgs colorArgs)
+        private void ProcessPieceSelection(BoardSquare targetSquare, MultipleOptionEventArgs pieceArgs, MultipleOptionEventArgs colorArgs)
         {
-            if (pieceArgs.PickedOption != null && colorArgs.PickedOption != null)
+            OnUserInputRequired(this, pieceArgs);
+            var pickedPieceOption = pieceArgs.PickedOption;
+            if (pickedPieceOption != null)
             {
-                var piece = GetPieceFromIds(pieceArgs.PickedOption.Id, colorArgs.PickedOption.Id);
-
-                if (targetSquare.GetPiece() != null)
+                if (pickedPieceOption.Id == pieceArgs.Options[pieceArgs.Options.Count - 1].Id) // None selected
                 {
-                    _board = _board.RemovePiece(targetSquare);
+                    if (targetSquare.GetPiece() != null)
+                    {
+                        _board = _board.RemovePiece(targetSquare);
+                    }
                 }
-                if (piece != null)
+                else
                 {
-                    _board = _board.AddPiece(targetSquare, piece);
+                    OnUserInputRequired(this, colorArgs);
+                    if (colorArgs.PickedOption != null)
+                    {
+                        var piece = _rules.GetPieceFactory().GetPiece(pieceArgs.PickedOption.Id, colorArgs.PickedOption.Id);
+                        if (targetSquare.GetPiece() != null)
+                        {
+                            _board = _board.RemovePiece(targetSquare);
+                        }
+                        _board = _board.AddPiece(targetSquare, piece);
+                    }
                 }
-
-                UpdateBoard(_board);
             }
+
+            UpdateBoard(_board);
         }
 
         private List<Option> GenerateColorOptions()
@@ -85,43 +101,9 @@ namespace Chess.Controls
 
         private List<Option> GeneratePieceOptions()
         {
-            var options = new List<Option>();
-            string[] pieces = {
-                "King",
-                "Queen",
-                "Rook",
-                "Knight",
-                "Bishop",
-                "Pawn",
-                "None"
-            };
-            for (int i = 0; i < pieces.Length; i++)
-            {
-                options.Add(new Option(i, pieces[i]));
-            }
+            var options = _rules.GetPieceFactory().GetPieceOptions().ToList();
+            options.Add(new Option(options.Count, "None"));
             return options;
-        }
-
-        private GamePiece GetPieceFromIds(int pieceId, int colorId)
-        {
-            switch (pieceId)
-            {
-                case 0:
-                    return new King(colorId);
-                case 1:
-                    return new Queen(colorId);
-                case 2:
-                    return new Rook(colorId);
-                case 3:
-                    return new Knight(colorId);
-                case 4:
-                    return new Bishop(colorId);
-                case 5:
-                    return new Pawn(colorId);
-                case 6:
-                    return null;
-            }
-            throw new Exception("Invalid piece id.");
         }
     }
 }

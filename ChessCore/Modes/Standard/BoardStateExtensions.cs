@@ -1,10 +1,10 @@
-﻿namespace ChessCore.Game.Modes.Standard
+﻿namespace ChessCore.Modes.Standard
 {
     static class BoardStateExtensions
     {
         public static StandardBoardState ToStandardBoardState(this BoardState state)
         {
-            if(state is StandardBoardState)
+            if (state is StandardBoardState)
             {
                 return (StandardBoardState)state;
             }

@@ -1,5 +1,4 @@
-﻿using ChessCore.Game;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -67,7 +66,7 @@ namespace Chess.Controls
             };
 
             Controls.Add(_remainingTimeWhiteLabel);
-            Controls.Add(_remainingTimeBlackLabel); 
+            Controls.Add(_remainingTimeBlackLabel);
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -104,7 +103,7 @@ namespace Chess.Controls
 
         private void Increment(int increment = 0)
         {
-            if(_currentPlayer == 0)
+            if (_currentPlayer == 0)
             {
                 _remainingTimeWhite += increment;
             }

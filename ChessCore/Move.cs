@@ -1,7 +1,7 @@
-﻿using ChessCore.Game.Modes;
+﻿using ChessCore.Modes;
 using System.Collections.Generic;
 
-namespace ChessCore.Game
+namespace ChessCore
 {
     public class Move
     {
@@ -17,7 +17,7 @@ namespace ChessCore.Game
             get => _boardAfter;
             set
             {
-                lock(_boardAfterLock)
+                lock (_boardAfterLock)
                 {
                     _boardAfter = value;
                 }

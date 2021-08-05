@@ -1,9 +1,8 @@
-﻿using ChessCore.Game.Modes;
-using System;
+﻿using ChessCore.Modes;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ChessCore.Game
+namespace ChessCore
 {
     public class ChessGame
     {
@@ -59,7 +58,7 @@ namespace ChessCore.Game
                     _moveHistory.Add(move);
                     _currentPlayer = (_currentPlayer + 1) % PLAYER_COUNT;
                     _gameResultCurrent = false;
-                } 
+                }
             }
         }
 
@@ -75,7 +74,7 @@ namespace ChessCore.Game
         {
             lock (_gameStateLock)
             {
-                if(!_gameResultCurrent)
+                if (!_gameResultCurrent)
                 {
                     _gameResult = GetGameResult();
                     _gameResultCurrent = true;
@@ -88,7 +87,7 @@ namespace ChessCore.Game
         {
             lock (_gameStateLock)
             {
-                if(!_gameResultCurrent)
+                if (!_gameResultCurrent)
                 {
                     UpdateGameResult();
                 }
@@ -113,7 +112,7 @@ namespace ChessCore.Game
         {
             lock (_gameStateLock)
             {
-                if(_gameResult == GameResult.ONGOING)
+                if (_gameResult == GameResult.ONGOING)
                 {
                     return _rules.GetLegalMoves(square, _currentBoardState, _currentPlayer);
                 }

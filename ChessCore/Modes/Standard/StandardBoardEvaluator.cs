@@ -1,4 +1,4 @@
-﻿namespace ChessCore.Game.Modes.Standard
+﻿namespace ChessCore.Modes.Standard
 {
     class StandardBoardEvaluator : IBoardEvaluator
     {
@@ -21,7 +21,7 @@
                 {
                     return double.MaxValue;
                 }
-                else if(gameResult == GameResult.BLACK_WIN)
+                else if (gameResult == GameResult.BLACK_WIN)
                 {
                     return double.MinValue;
                 }
@@ -62,13 +62,13 @@
             const double THREAT_MULTIPLIER = 0.1;
 
             double whiteThreatScore = state.GetThreatMap().GetThreatCount(square, 0);
-            if(square.GetPiece() != null && square.GetPiece().GetPlayer() == 1)
+            if (square.GetPiece() != null && square.GetPiece().GetPlayer() == 1)
             {
                 whiteThreatScore *= square.GetPiece().GetValue();
             }
 
             double blackThreatScore = state.GetThreatMap().GetThreatCount(square, 1);
-            if(square.GetPiece() != null && square.GetPiece().GetPlayer() == 0)
+            if (square.GetPiece() != null && square.GetPiece().GetPlayer() == 0)
             {
                 blackThreatScore *= square.GetPiece().GetValue();
             }
