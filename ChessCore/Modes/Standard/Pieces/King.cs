@@ -82,7 +82,11 @@ namespace ChessCore.Modes.Standard.Pieces
             for (int file = Math.Min(rookSquare.GetFile(), kingSquare.GetFile()); file < Math.Max(rookSquare.GetFile(), kingSquare.GetFile()); file++)
             {
                 var square = state.GetBoard().GetSquare(file, kingSquare.GetRank());
-                if (square != kingSquare && square != rookSquare)
+                if (square == kingSquare)
+                {
+                    return state.GetThreatMap().GetThreatCount(square, (GetPlayer() + 1) % 2) > 0;
+                }
+                if (square != rookSquare)
                 {
                     if (square.GetPiece() != null || state.GetThreatMap().GetThreatCount(square, (GetPlayer() + 1) % 2) > 0)
                     {

@@ -107,7 +107,7 @@ namespace ChessCore.Modes.Standard
                             return GameResult.WHITE_WIN;
                         }
                     }
-                    else
+                    else if (player == GetCurrentPlayer(state))
                     {
                         return GameResult.DRAW;
                     }
@@ -191,6 +191,15 @@ namespace ChessCore.Modes.Standard
                 throw new InvalidBoardException("Invalid king count");
             }
             return new StandardBoardState(board);
+        }
+
+        private int GetCurrentPlayer(BoardState state)
+        {
+            if (state.GetLastMove() == null)
+            {
+                return 0;
+            }
+            return (state.GetLastMove().Piece.GetPlayer() + 1) % 2;
         }
 
     }

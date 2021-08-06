@@ -65,12 +65,12 @@ namespace ChessCore
             var legalMoves = _rules.GetAllLegalMoves(state, player);
             foreach (var move in legalMoves)
             {
-                if (bestMove == null)
-                {
-                    bestMove = move; // preventing situations when no move is viable (no score gets below/above double.MinValue/double.MaxValue)
-                }
                 var processMove = new Action(() =>
                 {
+                    if (bestMove == null)
+                    {
+                        bestMove = move; // preventing situations when no move is viable (no score gets below/above double.MinValue/double.MaxValue)
+                    }
                     var score = ProcessBoard(_rules.Move(move), (player + 1) % 2, currentDepth + 1, newAlpha, newBeta);
                     if (player == 0)
                     {
@@ -106,7 +106,7 @@ namespace ChessCore
                     {
                         if (!bestMoveFound)
                         {
-                            move.SelectOption(option.Id);
+                            move.SelectOption(option);
                             processMove();
                         }
                     }

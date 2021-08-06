@@ -1,4 +1,5 @@
-﻿using ChessCore.Modes;
+﻿using ChessCore.Exceptions;
+using ChessCore.Modes;
 using System.Collections.Generic;
 
 namespace ChessCore
@@ -36,12 +37,14 @@ namespace ChessCore
 
         protected IGameRules _rules;
         private BoardState _boardAfter;
+        private Dictionary<int, int> _optionIdToIndexMap = new Dictionary<int, int>();
+
         public Move(IGameRules rules)
         {
             _rules = rules;
         }
 
-        public void AddOption(string optionName)
+        public void AddOption(Option option)
         {
             lock (_optionLock)
             {
@@ -50,17 +53,36 @@ namespace ChessCore
                     IsUserInputRequired = true;
                     Options = new List<Option>();
                 }
-                Options.Add(new Option(Options.Count, optionName));
+                if (_optionIdToIndexMap.ContainsKey(option.Id))
+                {
+                    throw new ChessCoreException("Duplicate option id added to Move.Options");
+                }
+                _optionIdToIndexMap[option.Id] = Options.Count;
+                Options.Add(option);
             }
         }
 
-        public void SelectOption(int optionId)
+        public void SelectOption(Option option)
         {
+            if (option.Id != Options[_optionIdToIndexMap[option.Id]].Id)
+            {
+                throw new ChessCoreException("Unrecognized option selected.");
+            }
             lock (_optionLock)
             {
                 IsUserInputRequired = false;
-                SelectedOption = Options[optionId];
+                SelectedOption = option;
             }
+        }
+
+        public void UnselectOption()
+        {
+            if (SelectedOption == null)
+            {
+                throw new ChessCoreException("No option to unselect.");
+            }
+            SelectedOption = null;
+            IsUserInputRequired = true;
         }
 
     }

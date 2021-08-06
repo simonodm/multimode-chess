@@ -1,4 +1,6 @@
-﻿namespace ChessCore.Modes.Standard
+﻿using ChessCore.Exceptions;
+
+namespace ChessCore.Modes.Standard
 {
     class MovePromotion : StandardMove
     {
@@ -9,12 +11,16 @@
             _pieceFactory = _rules.GetPieceFactory();
             foreach (var option in _pieceFactory.GetPieceOptions(new int[] { 0, 3, 4, 5 }))
             {
-                Options.Add(option);
+                AddOption(option);
             }
         }
 
         public override StandardBoardState Process()
         {
+            if (SelectedOption == null)
+            {
+                throw new ChessCoreException("No option was selected for MovePromotion.");
+            }
             StandardMove move;
             if (To.GetPiece() != null)
             {

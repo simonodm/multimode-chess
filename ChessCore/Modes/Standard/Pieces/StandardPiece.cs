@@ -14,11 +14,24 @@ namespace ChessCore.Modes.Standard
             foreach (var square in threatenedSquares)
             {
                 var move = GenerateMove(state, from, square);
-                if (move != null && !move.Process().IsInCheck(GetPlayer()))
+                if (move != null)
                 {
-                    legalMoves.Add(move);
+                    if (move.IsUserInputRequired)
+                    {
+                        move.SelectOption(move.Options[0]); // Selected option does not affect check after promotion
+                    }
+
+                    if (!move.Process().IsInCheck(GetPlayer()))
+                    {
+                        if (move.SelectedOption != null)
+                        {
+                            move.UnselectOption();
+                        }
+                        legalMoves.Add(move);
+                    }
                 }
             }
+
             return legalMoves;
         }
 

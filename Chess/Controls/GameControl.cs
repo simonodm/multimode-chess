@@ -176,7 +176,7 @@ namespace Chess.Controls
         {
             var args = new MultipleOptionEventArgs { Options = e.Move.Options };
             OnOptionPickRequired(this, args);
-            e.Move.SelectOption(args.PickedOption.Id);
+            e.Move.SelectOption(args.PickedOption);
         }
 
         private void board_LegalMovesRequested(object sender, LegalMovesEventArgs e)
@@ -346,6 +346,10 @@ namespace Chess.Controls
             if (!control.IsDisposed && control.IsHandleCreated)
             {
                 control.Invoke(action);
+            }
+            else if (!control.IsDisposed && !control.IsHandleCreated)
+            {
+                control.HandleCreated += new EventHandler((sender, e) => control.Invoke(action));
             }
         }
         #endregion
