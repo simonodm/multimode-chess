@@ -1,7 +1,11 @@
 ﻿namespace ChessCore.Modes.Standard
 {
-    class MoveCastle : StandardMove
+    /// <summary>
+    /// A move type representing Kings' castling moves.
+    /// </summary>
+    internal class MoveCastle : StandardMove
     {
+        /// <inheritdoc cref="StandardMove.Process"/>
         public override StandardBoardState Process()
         {
             var rookSquare = GetRookSquare(BoardBefore, From, To);

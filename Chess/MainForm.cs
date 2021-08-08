@@ -35,13 +35,11 @@ namespace Chess
 
         private void OnMultipleOptionInput(object sender, MultipleOptionEventArgs e)
         {
-            using (var optionForm = new OptionPickerModalForm(e.Options))
+            using var optionForm = new OptionPickerModalForm(e.Options);
+            optionForm.ShowDialog();
+            if (optionForm.DialogResult == DialogResult.OK)
             {
-                optionForm.ShowDialog();
-                if (optionForm.DialogResult == DialogResult.OK)
-                {
-                    e.PickedOption = optionForm.PickedOption;
-                }
+                e.PickedOption = optionForm.PickedOption;
             }
         }
 

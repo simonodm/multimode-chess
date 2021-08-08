@@ -9,13 +9,13 @@ namespace Chess.Controls
         public event EventHandler RunOut;
         private Label _remainingTimeWhiteLabel;
         private Label _remainingTimeBlackLabel;
-        private Timer _timer;
+        private readonly Timer _timer;
 
         private int _remainingTimeWhite;
         private int _remainingTimeBlack;
-        private int _increment;
-        private int _currentPlayer = 0;
-        private bool _flipped;
+        private readonly int _increment;
+        private int _currentPlayer;
+        private readonly bool _flipped;
 
         public ClockControl(int timeLimit, int increment, bool flipped = false)
         {
@@ -93,10 +93,10 @@ namespace Chess.Controls
 
         private void UpdateTimes()
         {
-            TimeSpan whiteTime = new TimeSpan(0, 0, _remainingTimeWhite);
-            TimeSpan blackTime = new TimeSpan(0, 0, _remainingTimeBlack);
+            var whiteTime = new TimeSpan(0, 0, _remainingTimeWhite);
+            var blackTime = new TimeSpan(0, 0, _remainingTimeBlack);
 
-            string timeFormat = @"mm\:ss";
+            const string timeFormat = @"mm\:ss";
             _remainingTimeWhiteLabel.Text = whiteTime.ToString(timeFormat);
             _remainingTimeBlackLabel.Text = blackTime.ToString(timeFormat);
         }

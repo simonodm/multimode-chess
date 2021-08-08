@@ -23,10 +23,7 @@ namespace Chess.Controls
         {
             base.UpdateBoard(board);
 
-            if (board != _board)
-            {
-                _board = board;
-            }
+            _board = board;
         }
 
         public Board GetBoard()
@@ -66,7 +63,7 @@ namespace Chess.Controls
             var pickedPieceOption = pieceArgs.PickedOption;
             if (pickedPieceOption != null)
             {
-                if (pickedPieceOption.Id == pieceArgs.Options[pieceArgs.Options.Count - 1].Id) // None selected
+                if (pickedPieceOption.Id == pieceArgs.Options[^1].Id) // None selected
                 {
                     if (targetSquare.GetPiece() != null)
                     {
@@ -93,9 +90,11 @@ namespace Chess.Controls
 
         private List<Option> GenerateColorOptions()
         {
-            var options = new List<Option>();
-            options.Add(new Option(0, "White"));
-            options.Add(new Option(1, "Black"));
+            var options = new List<Option>
+            {
+                new Option(0, "White"),
+                new Option(1, "Black")
+            };
             return options;
         }
 

@@ -2,12 +2,15 @@
 
 namespace ChessCore.Modes.Standard.Pieces
 {
+    /// <summary>
+    /// Represents a standard rook.
+    /// </summary>
     public class Rook : StandardPiece
     {
         public Rook(int player) : base(player)
         {
-            _value = 5;
-            _symbol = "R";
+            Value = 5;
+            Symbol = "R";
             PossibleMoves = new HashSet<(int, int)>();
             for (int i = -7; i < 8; i++)
             {

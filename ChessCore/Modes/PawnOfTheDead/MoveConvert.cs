@@ -4,17 +4,19 @@ using ChessCore.Modes.Standard.Pieces;
 
 namespace ChessCore.Modes.PawnOfTheDead
 {
-    class MoveRecolor : MoveCapture
+    /// <summary>
+    /// Represents the Pawn of the Dead's black capture (convert) move.
+    /// </summary>
+    class MoveConvert : MoveCapture
     {
+        /// <inheritdoc cref="MoveCapture.Process"/>
         public override StandardBoardState Process()
         {
-            if (Piece.GetPlayer() == 1)
-            {
-                var newPiece = GetNewPiece(To.GetPiece());
-                var newBoard = BoardBefore.GetBoard().RemovePiece(To).AddPiece(To, newPiece);
-                return new StandardBoardState(newBoard, this);
-            }
-            return base.Process();
+            if (Piece.GetPlayer() != 1) return base.Process();
+
+            var newPiece = GetNewPiece(To.GetPiece());
+            var newBoard = BoardBefore.GetBoard().RemovePiece(To).AddPiece(To, newPiece);
+            return new StandardBoardState(newBoard, this);
         }
 
         private StandardPiece GetNewPiece(GamePiece piece)

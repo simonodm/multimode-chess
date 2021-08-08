@@ -8,7 +8,7 @@ namespace Chess.Controls
     {
         private Button _toggleButton;
         private Label _scoreLabel;
-        private bool _scoreShown = false;
+        private bool _scoreShown;
 
         public BoardScoreControl()
         {
@@ -41,19 +41,23 @@ namespace Chess.Controls
 
         private Button GenerateToggleButton()
         {
-            var toggleButton = new Button(); ;
+            var toggleButton = new Button
+            {
+                Text = "Toggle board score",
+                ForeColor = Color.White
+            };
             toggleButton.Click += toggleButton_OnClick;
-            toggleButton.Text = "Toggle board score";
-            toggleButton.ForeColor = Color.White;
 
             return toggleButton;
         }
 
         private Label GenerateScoreLabel()
         {
-            var scoreLabel = new Label();
-            scoreLabel.ForeColor = Color.White;
-            scoreLabel.Text = "0.00";
+            var scoreLabel = new Label
+            {
+                ForeColor = Color.White,
+                Text = "0.00"
+            };
             if (!_scoreShown)
             {
                 scoreLabel.Hide();

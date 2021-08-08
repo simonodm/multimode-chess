@@ -30,8 +30,4 @@ namespace Chess
     {
         public Board Board;
     }
-    class PickedOptionEventArgs : EventArgs
-    {
-        public Option Option;
-    }
 }

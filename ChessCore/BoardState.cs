@@ -1,20 +1,18 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace ChessCore
 {
+    /// <summary>
+    /// Represents a board state.
+    /// </summary>
     public class BoardState
     {
-        private object _scoreLock = new object();
+        private readonly object _scoreLock = new object();
 
-        private Move _lastMove;
+        private readonly Move _lastMove;
+        private readonly Board _board;
         private MinimaxResult _score;
-        private Board _board;
-
-        public BoardState(int width, int height, Move lastMove = null)
-        {
-            _board = new Board(width, height);
-            _lastMove = lastMove;
-        }
 
         public BoardState(Board board, Move lastMove = null)
         {
@@ -22,16 +20,28 @@ namespace ChessCore
             _lastMove = lastMove;
         }
 
+        /// <summary>
+        /// Retrieves the state's board.
+        /// </summary>
+        /// <returns>A Board instance</returns>
         public Board GetBoard()
         {
             return _board;
         }
 
+        /// <summary>
+        /// Retrieves the move which lead to this state.
+        /// </summary>
+        /// <returns>The previous move if this state is not the initial state, null otherwise</returns>
         public Move GetLastMove()
         {
             return _lastMove;
         }
 
+        /// <summary>
+        /// Retrieves the state's minimax score. The score must be set externally prior to calling this method.
+        /// </summary>
+        /// <returns>A MinimaxResult instance if a score was set, null otherwise</returns>
         public MinimaxResult GetScore()
         {
             lock (_scoreLock)
@@ -40,6 +50,10 @@ namespace ChessCore
             }
         }
 
+        /// <summary>
+        /// Updates the state's minimax score
+        /// </summary>
+        /// <param name="score">Minimax score</param>
         public void SetScore(MinimaxResult score)
         {
             lock (_scoreLock)
@@ -48,18 +62,14 @@ namespace ChessCore
             }
         }
 
-        public List<BoardSquare> FindPieces<TPiece>() where TPiece : GamePiece
+        /// <summary>
+        /// Enumerates all the pieces of the given type found on the board.
+        /// </summary>
+        /// <typeparam name="TPiece">A piece type</typeparam>
+        /// <returns>An enumerable of board squares</returns>
+        public IEnumerable<BoardSquare> FindPieces<TPiece>() where TPiece : GamePiece
         {
-            var squares = new List<BoardSquare>();
-            foreach (var square in _board.GetAllSquares())
-            {
-                if (square.GetPiece() is TPiece)
-                {
-                    squares.Add(square);
-                }
-            }
-
-            return squares;
+            return _board.GetAllSquares().Where(square => square.GetPiece() is TPiece);
         }
     }
 }

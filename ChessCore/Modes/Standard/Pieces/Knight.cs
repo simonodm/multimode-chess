@@ -2,12 +2,15 @@
 
 namespace ChessCore.Modes.Standard.Pieces
 {
+    /// <summary>
+    /// Represents a standard knight.
+    /// </summary>
     public class Knight : StandardPiece
     {
         public Knight(int player) : base(player)
         {
-            _value = 3;
-            _symbol = "N";
+            Value = 3;
+            Symbol = "N";
             PossibleMoves = new HashSet<(int, int)> {
                 (-2, -1),
                 (-2, +1),
@@ -20,13 +23,14 @@ namespace ChessCore.Modes.Standard.Pieces
             };
         }
 
+        /// <inheritdoc cref="StandardPiece.GetThreatenedSquares"/>
         public override List<BoardSquare> GetThreatenedSquares(StandardBoardState state, BoardSquare from)
         {
             var threatenedSquares = new List<BoardSquare>();
 
             foreach (var possibleMove in PossibleMoves)
             {
-                if (!IsOutOfBounds(possibleMove, state, from))
+                if (!IsOutOfBounds(possibleMove, state.GetBoard(), from))
                 {
                     var target = GetTargetSquare(possibleMove, state, from);
                     threatenedSquares.Add(target);
@@ -36,6 +40,7 @@ namespace ChessCore.Modes.Standard.Pieces
             return threatenedSquares;
         }
 
+        /// <inheritdoc cref="StandardPiece.GenerateMove"/>
         protected override StandardMove GenerateMove(StandardBoardState state, BoardSquare from, BoardSquare to)
         {
             var targetPiece = to.GetPiece();

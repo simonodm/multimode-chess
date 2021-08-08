@@ -5,26 +5,20 @@ using System.Windows.Forms;
 
 namespace Chess.Controls
 {
-    abstract class ChessBoardControl : Control
+    internal abstract class ChessBoardControl : Control
     {
         public event EventHandler TileClick
         {
-            add
-            {
-                _onTileClicked += value;
-            }
-            remove
-            {
-                _onTileClicked -= value;
-            }
+            add => _onTileClicked += value;
+            remove => _onTileClicked -= value;
         }
-        private ChessBoardTileControl[,] _tileMap;
-        private int _width;
-        private int _height;
+        private readonly ChessBoardTileControl[,] _tileMap;
+        private readonly int _width;
+        private readonly int _height;
         private event EventHandler _onTileClicked;
         private bool _blackOriented;
 
-        public ChessBoardControl(int width, int height, bool blackOriented = false)
+        protected ChessBoardControl(int width, int height, bool blackOriented = false)
         {
             _tileMap = InitializeTileMap(width, height);
             _width = width;
@@ -103,6 +97,7 @@ namespace Chess.Controls
                     Controls.Add(tile);
                 }
             }
+
             return tileMap;
         }
     }

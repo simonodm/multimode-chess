@@ -1,14 +1,18 @@
 ﻿namespace ChessCore.Modes.Standard
 {
-    class StandardBoardEvaluator : IBoardEvaluator
+    /// <summary>
+    /// Represents a standard rules board evaluator. This class only calculates the immediate position's score (it does not minimax).
+    /// </summary>
+    internal class StandardBoardEvaluator : IBoardEvaluator
     {
-        private IGameRules _rules;
+        private readonly IGameRules _rules;
 
         public StandardBoardEvaluator(IGameRules rules)
         {
             _rules = rules;
         }
 
+        /// <inheritdoc cref="IBoardEvaluator"/>
         public double GetBoardScore(BoardState state)
         {
             double score = 0;
@@ -21,14 +25,11 @@
                 {
                     return double.MaxValue;
                 }
-                else if (gameResult == GameResult.BLACK_WIN)
+                if (gameResult == GameResult.BLACK_WIN)
                 {
                     return double.MinValue;
                 }
-                else
-                {
-                    return 0;
-                }
+                return 0;
             }
 
             foreach (var square in convertedState.GetBoard().GetAllSquares())
@@ -42,24 +43,20 @@
 
         private int CalculatePieceValue(BoardSquare square)
         {
-            if (square.GetPiece() != null)
+            if (square.GetPiece() == null) return 0;
+            if (square.GetPiece().GetPlayer() == 0)
             {
-                if (square.GetPiece().GetPlayer() == 0)
-                {
-                    return square.GetPiece().GetValue();
-                }
-                else
-                {
-                    return -square.GetPiece().GetValue();
-                }
+                return square.GetPiece().GetValue();
             }
-
-            return 0;
+            else
+            {
+                return -square.GetPiece().GetValue();
+            }
         }
 
         private double CalculateThreatScore(StandardBoardState state, BoardSquare square)
         {
-            const double THREAT_MULTIPLIER = 0.1;
+            const double threatMultiplier = 0.1;
 
             double whiteThreatScore = state.GetThreatMap().GetThreatCount(square, 0);
             if (square.GetPiece() != null && square.GetPiece().GetPlayer() == 1)
@@ -73,8 +70,8 @@
                 blackThreatScore *= square.GetPiece().GetValue();
             }
 
-            whiteThreatScore *= THREAT_MULTIPLIER;
-            blackThreatScore *= THREAT_MULTIPLIER;
+            whiteThreatScore *= threatMultiplier;
+            blackThreatScore *= threatMultiplier;
 
             return whiteThreatScore - blackThreatScore;
         }

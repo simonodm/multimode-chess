@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace Chess.Controls
 {
-    class MoveHistoryControl : Control
+    internal class MoveHistoryControl : Control
     {
         public event MoveEventHandler SelectedMoveChanged;
         private ListBox _listBox;
@@ -41,9 +41,11 @@ namespace Chess.Controls
 
         private void InitializeControls()
         {
-            _listBox = new ListBox();
-            _listBox.IntegralHeight = false;
-            _listBox.DisplayMember = "Notation";
+            _listBox = new ListBox
+            {
+                IntegralHeight = false,
+                DisplayMember = "Notation"
+            };
             _listBox.SelectedIndexChanged += listBox_OnSelectedIndexChanged;
 
             Controls.Add(_listBox);

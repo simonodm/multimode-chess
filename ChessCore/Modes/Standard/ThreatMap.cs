@@ -1,10 +1,14 @@
 ﻿namespace ChessCore.Modes.Standard
 {
-    class ThreatMap
+    internal class ThreatMap
     {
-        int[,] _whiteThreatMap;
-        int[,] _blackThreatMap;
+        readonly int[,] _whiteThreatMap;
+        readonly int[,] _blackThreatMap;
 
+        /// <summary>
+        /// Generates a map of threatened squares by both players.
+        /// </summary>
+        /// <param name="state">Board state to generate threats for</param>
         public ThreatMap(StandardBoardState state)
         {
             int width = state.GetBoard().GetWidth();
@@ -16,18 +20,24 @@
             GenerateThreatMaps(state);
         }
 
+        /// <summary>
+        /// Retrieves the amount of pieces by the supplied player threatening the square at the supplied file and rank.
+        /// </summary>
+        /// <param name="file">Square file</param>
+        /// <param name="rank">Square rank</param>
+        /// <param name="byPlayer">Which player to calculate threats from</param>
+        /// <returns>Threat count for the given square by the given player</returns>
         public int GetThreatCount(int file, int rank, int byPlayer)
         {
-            if (byPlayer == 0)
-            {
-                return _whiteThreatMap[file, rank];
-            }
-            else
-            {
-                return _blackThreatMap[file, rank];
-            }
+            return byPlayer == 0 ? _whiteThreatMap[file, rank] : _blackThreatMap[file, rank];
         }
 
+        /// <summary>
+        /// Retrieves the amount of pieces by the supplied player threatening the square at the supplied file and rank.
+        /// </summary>
+        /// <param name="square">Square</param>
+        /// <param name="byPlayer">Which player to calculate threats from</param>
+        /// <returns>Threat count for the given square by the given player</returns>
         public int GetThreatCount(BoardSquare square, int byPlayer)
         {
             return GetThreatCount(square.GetFile(), square.GetRank(), byPlayer);
@@ -44,15 +54,14 @@
         private void ProcessSquareThreats(StandardBoardState state, BoardSquare square)
         {
             var piece = square.GetPiece();
-            if (piece != null && piece is StandardPiece)
-            {
-                var standardPiece = (StandardPiece)piece;
+            if (piece == null || piece is not StandardPiece) return;
 
-                var threatenedSquares = standardPiece.GetThreatenedSquares(state, square);
-                foreach (var threatenedSquare in threatenedSquares)
-                {
-                    IncrementSquareThreat(standardPiece, threatenedSquare);
-                }
+            var standardPiece = (StandardPiece)piece;
+            var threatenedSquares = standardPiece.GetThreatenedSquares(state, square);
+
+            foreach (var threatenedSquare in threatenedSquares)
+            {
+                IncrementSquareThreat(standardPiece, threatenedSquare);
             }
         }
 

@@ -2,8 +2,12 @@
 
 namespace ChessCore.Modes.Standard
 {
-    class MoveEnPassant : StandardMove
+    /// <summary>
+    /// A move type representing Pawn en passant moves.
+    /// </summary>
+    internal class MoveEnPassant : StandardMove
     {
+        /// <inheritdoc cref="StandardMove.Process"/>
         public override StandardBoardState Process()
         {
             var lastMove = BoardBefore.GetLastMove();

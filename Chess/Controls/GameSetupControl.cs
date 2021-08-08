@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace Chess.Controls
 {
-    class GameSetupControl : Control
+    internal class GameSetupControl : Control
     {
         public event MultipleOptionEventHandler OptionPickRequired;
         public event GameStartEventHandler GameStart;
@@ -96,13 +96,17 @@ namespace Chess.Controls
 
         private ComboBox GenerateGameModeDropdown()
         {
-            var gameModeOptions = new List<Option>();
-            gameModeOptions.Add(new Option(0, "Classic"));
-            gameModeOptions.Add(new Option(1, "Pawn of the Dead"));
-            var comboBoxModes = new ComboBox();
-            comboBoxModes.ValueMember = "Id";
-            comboBoxModes.DisplayMember = "Text";
-            comboBoxModes.DataSource = gameModeOptions;
+            var gameModeOptions = new List<Option>
+            {
+                new Option(0, "Classic"),
+                new Option(1, "Pawn of the Dead")
+            };
+            var comboBoxModes = new ComboBox
+            {
+                ValueMember = "Id",
+                DisplayMember = "Text",
+                DataSource = gameModeOptions
+            };
             comboBoxModes.SelectedIndexChanged += gameModeComboBox_OnSelectedIndexChanged;
             _rules = GameModePool.Get<StandardRules>();
 
@@ -116,11 +120,13 @@ namespace Chess.Controls
                 new Option(0, "White"),
                 new Option(1, "Black")
             };
-            var comboBoxPlayer = new ComboBox();
-            comboBoxPlayer.DataSource = playerOptions;
-            comboBoxPlayer.ValueMember = "Id";
-            comboBoxPlayer.DisplayMember = "Text";
-            comboBoxPlayer.Enabled = false;
+            var comboBoxPlayer = new ComboBox
+            {
+                DataSource = playerOptions,
+                ValueMember = "Id",
+                DisplayMember = "Text",
+                Enabled = false
+            };
             comboBoxPlayer.SelectedIndexChanged += playerComboBox_OnSelectedIndexChanged;
 
             return comboBoxPlayer;
@@ -128,8 +134,10 @@ namespace Chess.Controls
 
         private CheckBox GenerateOpponentCheckbox()
         {
-            var opponentCheckbox = new CheckBox();
-            opponentCheckbox.AutoSize = true;
+            var opponentCheckbox = new CheckBox
+            {
+                AutoSize = true
+            };
             opponentCheckbox.CheckedChanged += opponentCheckbox_OnCheckedChanged;
             return opponentCheckbox;
         }
@@ -161,10 +169,10 @@ namespace Chess.Controls
         {
             var button = new Button
             {
-                Size = new Size(128, 64)
+                Size = new Size(128, 64),
+                Text = text,
+                ForeColor = Color.White
             };
-            button.Text = text;
-            button.ForeColor = Color.White;
             button.Click += clickHandler;
 
             return button;
@@ -174,11 +182,11 @@ namespace Chess.Controls
         {
             var label = new Label
             {
-                Size = new Size(200, 20)
+                Size = new Size(200, 20),
+                Text = text,
+                ForeColor = foreColor,
+                AutoSize = true
             };
-            label.Text = text;
-            label.ForeColor = foreColor;
-            label.AutoSize = true;
 
             return label;
         }

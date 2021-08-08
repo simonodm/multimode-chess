@@ -2,19 +2,27 @@
 
 namespace ChessCore.Modes.Standard
 {
-    class MovePromotion : StandardMove
+    /// <summary>
+    /// A move type representing Pawn promotion. This move requires user input.
+    /// </summary>
+    internal class MovePromotion : StandardMove
     {
-        private IPieceFactory _pieceFactory;
+        private readonly IPieceFactory _pieceFactory;
 
-        public MovePromotion() : base()
+        public MovePromotion()
         {
-            _pieceFactory = _rules.GetPieceFactory();
-            foreach (var option in _pieceFactory.GetPieceOptions(new int[] { 0, 3, 4, 5 }))
+            _pieceFactory = Rules.GetPieceFactory();
+            foreach (var option in _pieceFactory.GetPieceOptions(new[] { 0, 3, 4, 5 }))
             {
                 AddOption(option);
             }
         }
 
+        /// <summary>
+        /// Processes the promotion according to the selected option.
+        /// </summary>
+        /// <exception cref="ChessCoreException">Thrown if no option was selected before processing.</exception>
+        /// <returns>Board state after processing the move</returns>
         public override StandardBoardState Process()
         {
             if (SelectedOption == null)
@@ -24,7 +32,7 @@ namespace ChessCore.Modes.Standard
             StandardMove move;
             if (To.GetPiece() != null)
             {
-                move = new MoveCapture()
+                move = new MoveCapture
                 {
                     BoardBefore = BoardBefore,
                     From = From,
@@ -34,7 +42,7 @@ namespace ChessCore.Modes.Standard
             }
             else
             {
-                move = new MoveNormal()
+                move = new MoveNormal
                 {
                     BoardBefore = BoardBefore,
                     From = From,

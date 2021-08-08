@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace ChessCore
 {
+    /// <summary>
+    /// Represents a single chess game.
+    /// </summary>
     public class ChessGame
     {
         private const int PLAYER_COUNT = 2;
@@ -16,11 +19,11 @@ namespace ChessCore
         private int _currentPlayer;
 
         private GameResult _gameResult;
-        private bool _gameResultCurrent = false;
+        private bool _gameResultCurrent;
 
-        private object _gameStateLock = new object();
+        private readonly object _gameStateLock = new object();
 
-        internal ChessGame(IGameRules rules, int timeLimit = 600, int increment = 0)
+        internal ChessGame(IGameRules rules)
         {
             _rules = rules;
             _moveHistory = new List<Move>();
@@ -28,13 +31,16 @@ namespace ChessCore
             Reset();
         }
 
-        internal ChessGame(IGameRules rules, Board board, int timeLimit = 600, int increment = 0)
-            : this(rules, timeLimit, increment)
+        internal ChessGame(IGameRules rules, Board board)
+            : this(rules)
         {
             _defaultBoardState = _rules.GetStartingBoardState(board);
             Reset();
         }
 
+        /// <summary>
+        /// Resets the game.
+        /// </summary>
         public void Reset()
         {
             lock (_gameStateLock)
@@ -47,6 +53,10 @@ namespace ChessCore
             }
         }
 
+        /// <summary>
+        /// Processes the supplied move.
+        /// </summary>
+        /// <param name="move">Move to process</param>
         public void ProcessMove(Move move)
         {
             lock (_gameStateLock)
@@ -62,6 +72,10 @@ namespace ChessCore
             }
         }
 
+        /// <summary>
+        /// Retrieves the best possible (legal) move for the current board state as seen by minimax.
+        /// </summary>
+        /// <returns>A Move instance</returns>
         public Move GetNextBestMove()
         {
             lock (_gameStateLock)
@@ -70,6 +84,10 @@ namespace ChessCore
             }
         }
 
+        /// <summary>
+        /// Determines whether the game has finished.
+        /// </summary>
+        /// <returns>true if the game is over, false otherwise</returns>
         public bool IsGameOver()
         {
             lock (_gameStateLock)
@@ -83,6 +101,10 @@ namespace ChessCore
             }
         }
 
+        /// <summary>
+        /// Retrieves the game result of the current board state.
+        /// </summary>
+        /// <returns>Game result</returns>
         public GameResult GetGameResult()
         {
             lock (_gameStateLock)
@@ -96,6 +118,11 @@ namespace ChessCore
             }
         }
 
+        /// <summary>
+        /// Evaluates the supplied board state with a minimax algorithm.
+        /// </summary>
+        /// <param name="state">Board state to evaluate</param>
+        /// <returns>A MinimaxResult instance</returns>
         public MinimaxResult Evaluate(BoardState state)
         {
             if (state.GetScore() == null)
@@ -108,6 +135,11 @@ namespace ChessCore
             return state.GetScore();
         }
 
+        /// <summary>
+        /// Retrieves all the legal moves from the given square.
+        /// </summary>
+        /// <param name="square">Square to retrieve moves from</param>
+        /// <returns>An enumerable of legal moves</returns>
         public IEnumerable<Move> GetLegalMoves(BoardSquare square)
         {
             lock (_gameStateLock)
@@ -120,6 +152,10 @@ namespace ChessCore
             }
         }
 
+        /// <summary>
+        /// Retrieves the player who should play the next move.
+        /// </summary>
+        /// <returns>0 if white, 1 if black</returns>
         public int GetCurrentPlayer()
         {
             lock (_gameStateLock)
@@ -128,6 +164,10 @@ namespace ChessCore
             }
         }
 
+        /// <summary>
+        /// Retrieves the game's move history up to current board state.
+        /// </summary>
+        /// <returns>A list of played moves</returns>
         public List<Move> GetMoveHistory()
         {
             lock (_gameStateLock)
@@ -136,6 +176,10 @@ namespace ChessCore
             }
         }
 
+        /// <summary>
+        /// Retrieves the current board state.
+        /// </summary>
+        /// <returns>Current board state</returns>
         public BoardState GetBoardState()
         {
             lock (_gameStateLock)
@@ -144,12 +188,19 @@ namespace ChessCore
             }
         }
 
+        /// <summary>
+        /// Force ends the game with a draw.
+        /// </summary>
         public void EndGame()
         {
             _gameResult = GameResult.DRAW;
             _gameResultCurrent = true;
         }
 
+        /// <summary>
+        /// Force ends the game with the specified winner
+        /// </summary>
+        /// <param name="winner">Game winner</param>
         public void EndGame(int winner)
         {
             _gameResult = winner == 0 ? GameResult.WHITE_WIN : GameResult.BLACK_WIN;

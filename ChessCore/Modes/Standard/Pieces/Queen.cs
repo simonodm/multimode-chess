@@ -2,12 +2,15 @@
 
 namespace ChessCore.Modes.Standard.Pieces
 {
+    /// <summary>
+    /// Represents a standard queen.
+    /// </summary>
     public class Queen : StandardPiece
     {
         public Queen(int player) : base(player)
         {
-            _value = 9;
-            _symbol = "Q";
+            Value = 9;
+            Symbol = "Q";
             PossibleMoves = new HashSet<(int, int)>();
             for (int i = -7; i < 8; i++)
             {

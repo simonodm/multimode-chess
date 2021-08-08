@@ -6,10 +6,10 @@ using System.Windows.Forms;
 
 namespace Chess
 {
-    class OptionPickerModalForm : Form
+    internal class OptionPickerModalForm : Form
     {
         public Option PickedOption;
-        private Dictionary<Button, Option> _buttonToOptionMap;
+        private readonly Dictionary<Button, Option> _buttonToOptionMap;
 
         public OptionPickerModalForm(IEnumerable<Option> options)
         {

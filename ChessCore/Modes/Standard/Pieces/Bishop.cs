@@ -2,12 +2,15 @@
 
 namespace ChessCore.Modes.Standard.Pieces
 {
+    /// <summary>
+    /// Represents a standard bishop.
+    /// </summary>
     public class Bishop : StandardPiece
     {
         public Bishop(int player) : base(player)
         {
-            _value = 3;
-            _symbol = "B";
+            Value = 3;
+            Symbol = "B";
             PossibleMoves = new HashSet<(int, int)>();
             for (int i = -7; i < 8; i++)
             {

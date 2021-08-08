@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace Chess.Controls
 {
-    class GameControl : Control
+    internal class GameControl : Control
     {
         private const string CALCULATING_STRING = "Calculating...";
 
@@ -22,12 +22,12 @@ namespace Chess.Controls
         private Label _winnerLabel;
         private Button _cancelButton;
 
-        private ChessGame _game;
-        private bool _versusAi;
-        private int _humanPlayer;
-        private HashSet<BoardState> _evaluatedStates = new HashSet<BoardState>();
-        private TaskFactory _taskFactory = new TaskFactory();
-        private CancellationTokenSource _cancellationSource = new CancellationTokenSource();
+        private readonly ChessGame _game;
+        private readonly bool _versusAi;
+        private readonly int _humanPlayer;
+        private readonly HashSet<BoardState> _evaluatedStates = new HashSet<BoardState>();
+        private readonly TaskFactory _taskFactory = new TaskFactory();
+        private readonly CancellationTokenSource _cancellationSource = new CancellationTokenSource();
 
         public GameControl(GameStartEventArgs startArgs)
         {
@@ -110,8 +110,10 @@ namespace Chess.Controls
 
         private Label GenerateWinnerLabel()
         {
-            var winnerLabel = new Label();
-            winnerLabel.ForeColor = Color.White;
+            var winnerLabel = new Label
+            {
+                ForeColor = Color.White
+            };
 
             return winnerLabel;
         }
@@ -142,7 +144,7 @@ namespace Chess.Controls
             base.OnHandleCreated(e);
             if (_humanPlayer == 1)
             {
-                RunCancellableTask(() => ProcessAiMove());
+                RunCancellableTask(ProcessAiMove);
             }
         }
 
@@ -207,23 +209,23 @@ namespace Chess.Controls
             switch (gameResult)
             {
                 case GameResult.WHITE_WIN:
-                    resultString = "Winner: White";
+                    resultString = "ForcedWinner: White";
                     break;
                 case GameResult.BLACK_WIN:
-                    resultString = "Winner: Black";
+                    resultString = "ForcedWinner: Black";
                     break;
                 case GameResult.DRAW:
                     resultString = "Draw";
                     break;
             }
-            SafeInvoke(_winnerLabel, new Action(() =>
+            SafeInvoke(_winnerLabel, () =>
             {
                 _winnerLabel.Text = resultString;
-            }));
-            SafeInvoke(_clockControl, new Action(() =>
+            });
+            SafeInvoke(_clockControl, () =>
             {
                 _clockControl.Stop();
-            }));
+            });
         }
 
         private void OnGameCancelled(object sender, EventArgs e)
@@ -257,42 +259,42 @@ namespace Chess.Controls
 
         private string GetScoreString(MinimaxResult score)
         {
-            if (score.IsGameOver)
+            if (score.GameOverCanBeForced)
             {
-                return score.Winner == 0 ? $"Forced mate by white" : "Forced mate by black";
+                return score.ForcedWinner == 0 ? "Forced mate by white" : "Forced mate by black";
             }
             return score.Score.ToString("F2");
         }
 
         private void EvaluateStateJob(Move move)
         {
-            SafeInvoke(_scoreControl, new Action(() =>
+            SafeInvoke(_scoreControl, () =>
             {
                 _scoreControl.SetScore(CALCULATING_STRING);
-            }));
+            });
 
             var score = _game.Evaluate(move.BoardAfter);
             if (move.BoardAfter == _game.GetBoardState())
             {
-                SafeInvoke(_scoreControl, new Action(() =>
+                SafeInvoke(_scoreControl, () =>
                 {
                     _scoreControl.SetScore(GetScoreString(score));
-                }));
+                });
             }
         }
 
         private void ProcessMoveJob(MoveEventArgs e)
         {
-            SafeInvoke(_boardControl, new Action(() =>
+            SafeInvoke(_boardControl, () =>
             {
                 _boardControl.Disable();
-            }));
+            });
 
             _game.ProcessMove(e.Move);
-            SafeInvoke(_moveHistory, new Action(() =>
+            SafeInvoke(_moveHistory, () =>
             {
                 _moveHistory.AddMove(e.Move);
-            }));
+            });
 
             bool isGameOver = _game.IsGameOver();
             if (isGameOver)
@@ -301,20 +303,20 @@ namespace Chess.Controls
             }
             else
             {
-                SafeInvoke(_clockControl, new Action(() =>
+                SafeInvoke(_clockControl, () =>
                 {
                     _clockControl.Switch();
-                }));
+                });
 
                 if (_versusAi)
                 {
                     ProcessAiMove();
                 }
 
-                SafeInvoke(_boardControl, new Action(() =>
+                SafeInvoke(_boardControl, () =>
                 {
                     _boardControl.Enable();
-                }));
+                });
             }
         }
 
@@ -326,19 +328,19 @@ namespace Chess.Controls
                 throw new Exception("No AI move found.");
             }
             _game.ProcessMove(aiMove);
-            SafeInvoke(_clockControl, new Action(() =>
+            SafeInvoke(_clockControl, () =>
             {
                 _clockControl.Switch();
-            }));
+            });
 
             if (_game.IsGameOver())
             {
                 OnGameFinish(this, new EventArgs());
             }
-            SafeInvoke(_moveHistory, new Action(() =>
+            SafeInvoke(_moveHistory, () =>
             {
                 _moveHistory.AddMove(aiMove);
-            }));
+            });
         }
 
         private void SafeInvoke(Control control, Action action)
@@ -349,7 +351,7 @@ namespace Chess.Controls
             }
             else if (!control.IsDisposed && !control.IsHandleCreated)
             {
-                control.HandleCreated += new EventHandler((sender, e) => control.Invoke(action));
+                control.HandleCreated += (sender, e) => control.Invoke(action);
             }
         }
         #endregion

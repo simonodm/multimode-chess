@@ -1,9 +1,12 @@
 ﻿namespace ChessCore
 {
+    /// <summary>
+    /// Represents a single board square.
+    /// </summary>
     public struct BoardSquare
     {
-        private int _file;
-        private int _rank;
+        private readonly int _file;
+        private readonly int _rank;
         private GamePiece _piece;
 
         public BoardSquare(int file, int rank, GamePiece piece = null)
@@ -13,21 +16,37 @@
             _piece = piece;
         }
 
+        /// <summary>
+        /// Retrieves the square's file.
+        /// </summary>
+        /// <returns>Square file</returns>
         public int GetFile()
         {
             return _file;
         }
 
+        /// <summary>
+        /// Retrieves the square's rank.
+        /// </summary>
+        /// <returns>Square rank</returns>
         public int GetRank()
         {
             return _rank;
         }
 
+        /// <summary>
+        /// Retrieves the piece present on the square.
+        /// </summary>
+        /// <returns>An instance of GamePiece if there is a piece present, null otherwise</returns>
         public GamePiece GetPiece()
         {
             return _piece;
         }
 
+        /// <summary>
+        /// Updates the piece on the square. Previous piece is discarded.
+        /// </summary>
+        /// <param name="piece">New piece to add to the square</param>
         public void SetPiece(GamePiece piece)
         {
             _piece = piece;

@@ -1,12 +1,9 @@
 ﻿namespace ChessCore.Modes.Standard
 {
-    class MoveCapture : StandardMove
+    /// <summary>
+    /// A move type representing a capturing move.
+    /// </summary>
+    internal class MoveCapture : MoveNormal
     {
-        public override StandardBoardState Process()
-        {
-            var board = BoardBefore.GetBoard()
-                .Move(this);
-            return new StandardBoardState(board, this);
-        }
     }
 }

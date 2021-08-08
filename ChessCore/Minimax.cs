@@ -3,11 +3,14 @@ using System;
 
 namespace ChessCore
 {
-    class Minimax
+    /// <summary>
+    /// Represents a single minimax evaluation of the supplied board state according to the supplied rules and depth.
+    /// </summary>
+    internal class Minimax
     {
-        private IGameRules _rules;
-        private BoardState _startingState;
-        private int _maxDepth = 2;
+        private readonly IGameRules _rules;
+        private readonly BoardState _startingState;
+        private readonly int _maxDepth;
 
         public Minimax(IGameRules rules, BoardState startingState, int maxDepth = 2)
         {
@@ -16,6 +19,10 @@ namespace ChessCore
             _maxDepth = maxDepth;
         }
 
+        /// <summary>
+        /// Evaluates the state supplied in constructor.
+        /// </summary>
+        /// <returns>The evaluation result</returns>
         public MinimaxResult Evaluate()
         {
             int player = 0;
@@ -42,15 +49,16 @@ namespace ChessCore
                 double score = _rules.GetEvaluator().GetBoardScore(state);
                 bool isGameOver = false;
                 int winner = 0;
-                if (gameResult == GameResult.WHITE_WIN)
+                switch (gameResult)
                 {
-                    isGameOver = true;
-                    winner = 0;
-                }
-                else if (gameResult == GameResult.BLACK_WIN)
-                {
-                    isGameOver = true;
-                    winner = 1;
+                    case GameResult.WHITE_WIN:
+                        isGameOver = true;
+                        winner = 0;
+                        break;
+                    case GameResult.BLACK_WIN:
+                        isGameOver = true;
+                        winner = 1;
+                        break;
                 }
                 return new MinimaxResult(state, score, null, isGameOver, winner);
             }
@@ -100,15 +108,18 @@ namespace ChessCore
                     }
                 });
 
-                if (move.Options != null)
+                if (move.IsUserInputRequired)
                 {
                     foreach (var option in move.Options)
                     {
-                        if (!bestMoveFound)
+                        if (bestMoveFound) continue;
+                        if (move.SelectedOption != null)
                         {
-                            move.SelectOption(option);
-                            processMove();
+                            move.UnselectOption();
                         }
+
+                        move.SelectOption(option);
+                        processMove();
                     }
                 }
                 else

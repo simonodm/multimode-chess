@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Chess.Controls
 {
-    class PlayableChessBoardControl : ChessBoardControl
+    internal class PlayableChessBoardControl : ChessBoardControl
     {
         public event MoveEventHandler MovePlayed;
         public event MoveEventHandler MoveInputRequested;
@@ -68,13 +68,14 @@ namespace Chess.Controls
             }
 
             var tile = (ChessBoardTileControl)sender;
+
             if (_selectedTile == null)
             {
                 SelectTile(tile);
             }
             else
             {
-                var move = _selectedLegalMoves.FirstOrDefault(move => move.To == tile.Square);
+                var move = _selectedLegalMoves.FirstOrDefault(legalMove => legalMove.To == tile.Square);
 
                 if (tile != _selectedTile)
                 {
@@ -95,18 +96,17 @@ namespace Chess.Controls
         private void SelectTile(ChessBoardTileControl tile)
         {
             var square = tile.Square;
-            if (square.GetPiece() != null)
+            if (square.GetPiece() == null) return;
+
+            tile.Highlight();
+            _selectedTile = tile;
+            _selectedLegalMoves = new List<Move>();
+            var legalMovesArgs = new LegalMovesEventArgs { Square = square };
+            OnLegalMovesRequested(legalMovesArgs);
+            foreach (var move in legalMovesArgs.LegalMoves)
             {
-                tile.Highlight();
-                _selectedTile = tile;
-                _selectedLegalMoves = new List<Move>();
-                var legalMovesArgs = new LegalMovesEventArgs { Square = square };
-                OnLegalMovesRequested(legalMovesArgs);
-                foreach (var move in legalMovesArgs.LegalMoves)
-                {
-                    GetTile(move.To.GetFile(), move.To.GetRank()).Highlight();
-                    _selectedLegalMoves.Add(move);
-                }
+                GetTile(move.To.GetFile(), move.To.GetRank()).Highlight();
+                _selectedLegalMoves.Add(move);
             }
         }
 
@@ -125,10 +125,7 @@ namespace Chess.Controls
                 }
             }
 
-            if (_selectedTile != null)
-            {
-                _selectedTile = null;
-            }
+            _selectedTile = null;
         }
 
         private void ProcessMove(Move move)

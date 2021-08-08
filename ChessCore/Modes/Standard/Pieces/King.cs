@@ -4,12 +4,15 @@ using System.Collections.Generic;
 
 namespace ChessCore.Modes.Standard.Pieces
 {
+    /// <summary>
+    /// Represents a standard king.
+    /// </summary>
     public class King : StandardPiece
     {
         public King(int player) : base(player)
         {
-            _value = 10;
-            _symbol = "K";
+            Value = 10;
+            Symbol = "K";
             PossibleMoves = new HashSet<(int, int)>
             {
                 (-2, 0),
@@ -25,6 +28,7 @@ namespace ChessCore.Modes.Standard.Pieces
             };
         }
 
+        /// <inheritdoc cref="StandardPiece.GenerateMove"/>
         protected override StandardMove GenerateMove(StandardBoardState state, BoardSquare from, BoardSquare to)
         {
             if (IsCastle(state, from, to))

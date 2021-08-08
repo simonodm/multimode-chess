@@ -3,12 +3,15 @@ using System.Collections.Generic;
 
 namespace ChessCore.Modes.Standard.Pieces
 {
+    /// <summary>
+    /// Represents a standard pawn.
+    /// </summary>
     public class Pawn : StandardPiece
     {
         public Pawn(int player) : base(player)
         {
-            _value = 1;
-            _symbol = "";
+            Value = 1;
+            Symbol = "";
             PossibleMoves = new HashSet<(int, int)>
             {
                 (0, -2),
@@ -22,25 +25,26 @@ namespace ChessCore.Modes.Standard.Pieces
             };
         }
 
+        /// <inheritdoc cref="StandardPiece.GetThreatenedSquares"/>
         public override List<BoardSquare> GetThreatenedSquares(StandardBoardState state, BoardSquare from)
         {
             var threatenedSquares = new List<BoardSquare>();
 
             foreach (var possibleMove in PossibleMoves)
             {
-                if (!IsOutOfBounds(possibleMove, state, from))
+                if (IsOutOfBounds(possibleMove, state.GetBoard(), from)) continue;
+
+                var to = GetTargetSquare(possibleMove, state, from);
+                if (IsDirectionCorrect(from, to) && (IsValidMoveForward(state, from, to) || IsValidMoveDiagonal(state, from, to)))
                 {
-                    var to = GetTargetSquare(possibleMove, state, from);
-                    if (IsDirectionCorrect(from, to) && (IsValidMoveForward(state, from, to) || IsValidMoveDiagonal(state, from, to)))
-                    {
-                        threatenedSquares.Add(to);
-                    }
+                    threatenedSquares.Add(to);
                 }
             }
 
             return threatenedSquares;
         }
 
+        /// <inheritdoc cref="StandardPiece.GenerateMove"/>
         protected override StandardMove GenerateMove(StandardBoardState state, BoardSquare from, BoardSquare to)
         {
             if (!IsDirectionCorrect(from, to))
@@ -103,7 +107,7 @@ namespace ChessCore.Modes.Standard.Pieces
         {
             var previousMove = state.GetLastMove();
 
-            if (previousMove != null && previousMove.Piece is Pawn && Math.Abs(previousMove.To.GetRank() - previousMove.From.GetRank()) == 2)
+            if (previousMove?.Piece is Pawn && Math.Abs(previousMove.To.GetRank() - previousMove.From.GetRank()) == 2)
             {
                 var enPassantRank = previousMove.From.GetRank() + (previousMove.To.GetRank() - previousMove.From.GetRank()) / 2;
                 var enPassantSquare = state.GetBoard().GetSquare(previousMove.From.GetFile(), enPassantRank);
