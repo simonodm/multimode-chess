@@ -4,9 +4,16 @@ using System.Windows.Forms;
 
 namespace Chess.Controls
 {
-    class ClockControl : Control
+    /// <summary>
+    /// A control which displays and updates the players' remaining times.
+    /// </summary>
+    internal class ClockControl : UserControl
     {
+        /// <summary>
+        /// Occurs when one of the clocks runs out.
+        /// </summary>
         public event EventHandler RunOut;
+
         private Label _remainingTimeWhiteLabel;
         private Label _remainingTimeBlackLabel;
         private readonly Timer _timer;
@@ -33,6 +40,9 @@ namespace Chess.Controls
             InitializeControls();
         }
 
+        /// <summary>
+        /// Switches the currently running timer to the other player.
+        /// </summary>
         public void Switch()
         {
             Increment(_increment);
@@ -40,18 +50,34 @@ namespace Chess.Controls
             UpdateTimes();
         }
 
+        /// <summary>
+        /// Starts the timers.
+        /// </summary>
         public void Start()
         {
             _timer.Start();
             UpdateTimes();
         }
 
+        /// <summary>
+        /// Stops the timers.
+        /// </summary>
         public void Stop()
         {
             _timer.Stop();
         }
 
-        public void InitializeControls()
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+
+            var topLocation = new Point(0, 0);
+            var bottomLocation = new Point(0, Height - 48);
+            _remainingTimeBlackLabel.Location = _flipped ? bottomLocation : topLocation;
+            _remainingTimeWhiteLabel.Location = _flipped ? topLocation : bottomLocation;
+        }
+
+        private void InitializeControls()
         {
             _remainingTimeWhiteLabel = new Label()
             {
@@ -67,16 +93,6 @@ namespace Chess.Controls
 
             Controls.Add(_remainingTimeWhiteLabel);
             Controls.Add(_remainingTimeBlackLabel);
-        }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-
-            var topLocation = new Point(0, 0);
-            var bottomLocation = new Point(0, Height - 48);
-            _remainingTimeBlackLabel.Location = _flipped ? bottomLocation : topLocation;
-            _remainingTimeWhiteLabel.Location = _flipped ? topLocation : bottomLocation;
         }
 
         private void timer_Tick(object sender, EventArgs e)

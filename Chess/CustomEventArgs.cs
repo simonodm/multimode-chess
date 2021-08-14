@@ -26,8 +26,4 @@ namespace Chess
         public List<Option> Options;
         public Option PickedOption;
     }
-    class BoardEventArgs : EventArgs
-    {
-        public Board Board;
-    }
 }

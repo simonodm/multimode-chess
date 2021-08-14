@@ -1,4 +1,5 @@
-﻿using ChessCore.Modes;
+﻿using ChessCore.Exceptions;
+using ChessCore.Modes;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -32,8 +33,9 @@ namespace ChessCore
         }
 
         internal ChessGame(IGameRules rules, Board board)
-            : this(rules)
         {
+            _rules = rules;
+            _moveHistory = new List<Move>();
             _defaultBoardState = _rules.GetStartingBoardState(board);
             Reset();
         }
@@ -48,8 +50,7 @@ namespace ChessCore
                 _currentBoardState = _defaultBoardState;
                 _currentPlayer = 0;
                 _moveHistory.Clear();
-                _gameResult = GameResult.ONGOING;
-                _gameResultCurrent = true;
+                UpdateGameResult();
             }
         }
 
@@ -57,18 +58,22 @@ namespace ChessCore
         /// Processes the supplied move.
         /// </summary>
         /// <param name="move">Move to process</param>
+        /// <exception cref="InvalidMoveException">Thrown if an illegal move is supplied</exception>
         public void ProcessMove(Move move)
         {
             lock (_gameStateLock)
             {
-                if (_gameResult == GameResult.ONGOING)
+                if (GetGameResult() != GameResult.ONGOING) return;
+                if (!IsMoveLegal(move))
                 {
-                    _currentBoardState = _rules.Move(move);
-                    move.BoardAfter = _currentBoardState;
-                    _moveHistory.Add(move);
-                    _currentPlayer = (_currentPlayer + 1) % PLAYER_COUNT;
-                    _gameResultCurrent = false;
+                    throw new InvalidMoveException("Illegal move cannot be processed.");
                 }
+                _currentBoardState = _rules.Move(move);
+                move.BoardAfter = _currentBoardState;
+                _moveHistory.Add(move);
+                _currentPlayer = (_currentPlayer + 1) % PLAYER_COUNT;
+                _gameResultCurrent = false;
+                move.Piece.SetMoveCount(move.Piece.GetMoveCount() + 1);
             }
         }
 
@@ -122,7 +127,7 @@ namespace ChessCore
         /// Evaluates the supplied board state with a minimax algorithm.
         /// </summary>
         /// <param name="state">Board state to evaluate</param>
-        /// <returns>A MinimaxResult instance</returns>
+        /// <returns>The result of minimax calculation</returns>
         public MinimaxResult Evaluate(BoardState state)
         {
             if (state.GetScore() == null)
@@ -211,6 +216,14 @@ namespace ChessCore
         {
             _gameResult = _rules.GetGameResult(_currentBoardState);
             _gameResultCurrent = true;
+        }
+
+        private bool IsMoveLegal(Move move)
+        {
+            var foundMove = _rules.GetAllLegalMoves(_currentBoardState, _currentPlayer).FirstOrDefault(legalMove =>
+                legalMove.GetType() == move.GetType() && legalMove.Piece == move.Piece && legalMove.From == move.From &&
+                legalMove.To == move.To);
+            return foundMove != default(Move);
         }
     }
 }

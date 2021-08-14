@@ -5,17 +5,19 @@ using System.Windows.Forms;
 
 namespace Chess.Controls
 {
-    internal abstract class ChessBoardControl : Control
+    /// <summary>
+    /// A base class for an interactive board control.
+    /// </summary>
+    internal abstract class ChessBoardControl : UserControl
     {
-        public event EventHandler TileClick
-        {
-            add => _onTileClicked += value;
-            remove => _onTileClicked -= value;
-        }
+        /// <summary>
+        /// Occurs when a tile is clicked.
+        /// </summary>
+        public event EventHandler TileClick;
+
         private readonly ChessBoardTileControl[,] _tileMap;
         private readonly int _width;
         private readonly int _height;
-        private event EventHandler _onTileClicked;
         private bool _blackOriented;
 
         protected ChessBoardControl(int width, int height, bool blackOriented = false)
@@ -26,11 +28,21 @@ namespace Chess.Controls
             _blackOriented = blackOriented;
         }
 
+        /// <summary>
+        /// Retrieves the tile control at the specified chessboard coordinates.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns>The ChessBoardTileControl at the specified coordinates</returns>
         public ChessBoardTileControl GetTile(int x, int y)
         {
             return _tileMap[x, y];
         }
 
+        /// <summary>
+        /// Updates the displayed board.
+        /// </summary>
+        /// <param name="board">Board to display</param>
         public virtual void UpdateBoard(Board board)
         {
             for (int i = 0; i < _width; i++)
@@ -48,6 +60,9 @@ namespace Chess.Controls
             }
         }
 
+        /// <summary>
+        /// Flips the board vertically and horizontally
+        /// </summary>
         public void Flip()
         {
             _blackOriented = !_blackOriented;
@@ -56,7 +71,7 @@ namespace Chess.Controls
 
         protected virtual void OnTileClick(object sender, EventArgs e)
         {
-            _onTileClicked?.Invoke(sender, e);
+            TileClick?.Invoke(sender, e);
         }
 
         protected override void OnPaint(PaintEventArgs e)

@@ -51,7 +51,7 @@ namespace Chess
                 Size = new Size(ClientRectangle.Width, ClientRectangle.Height)
             };
             gameSetupControl.GameStart += OnGameStart;
-            gameSetupControl.OptionPickRequired += OnMultipleOptionInput;
+            gameSetupControl.UserInputRequired += OnMultipleOptionInput;
 
             return gameSetupControl;
         }
@@ -63,7 +63,7 @@ namespace Chess
                 Location = new Point(0, 0),
                 Size = new Size(ClientRectangle.Width, ClientRectangle.Height)
             };
-            gameControl.OptionPickRequired += OnMultipleOptionInput;
+            gameControl.UserInputRequired += OnMultipleOptionInput;
             gameControl.GameCancelled += OnGameCancel;
 
             return gameControl;

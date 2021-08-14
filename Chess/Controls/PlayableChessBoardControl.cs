@@ -5,36 +5,57 @@ using System.Linq;
 
 namespace Chess.Controls
 {
+    /// <summary>
+    /// An interactive, playable chess board.
+    /// </summary>
     internal class PlayableChessBoardControl : ChessBoardControl
     {
+        /// <summary>
+        /// Occurs when the user plays a move.
+        /// </summary>
         public event MoveEventHandler MovePlayed;
+
+        /// <summary>
+        /// Occurs when the control requires additional input.
+        /// </summary>
         public event MoveEventHandler MoveInputRequested;
+
+        /// <summary>
+        /// Occurs when the board requires a list of legal moves to continue.
+        /// </summary>
         public event LegalMovesEventHandler LegalMovesRequested;
-        public event BoardEventHandler BoardRequested;
 
         private ChessBoardTileControl _selectedTile;
         private List<Move> _selectedLegalMoves;
         private bool _isBoardCurrent = true;
         private bool _isEnabled = true;
 
-        public PlayableChessBoardControl(Board board, bool blackOriented = false) : base(board.GetWidth(), board.GetHeight(), blackOriented)
+        public PlayableChessBoardControl(Board gameBoard, bool blackOriented = false) : base(gameBoard.GetWidth(), gameBoard.GetHeight(), blackOriented)
         {
             TileClick += Tile_Click;
-            base.UpdateBoard(board);
+            base.UpdateBoard(gameBoard);
         }
 
-        public override void UpdateBoard(Board board)
+        /// <inheritdoc cref="ChessBoardControl.UpdateBoard"/>
+        /// <param name="isCurrent">Whether the board is the game's current board</param>
+        public void UpdateBoard(Board board, bool isCurrent = false)
         {
             base.UpdateBoard(board);
 
-            _isBoardCurrent = GetCurrentBoard() == board;
+            _isBoardCurrent = isCurrent;
         }
 
+        /// <summary>
+        /// Disables the board's interactivity.
+        /// </summary>
         public void Disable()
         {
             _isEnabled = false;
         }
 
+        /// <summary>
+        /// Enables the board's interactivity.
+        /// </summary>
         public void Enable()
         {
             _isEnabled = true;
@@ -53,11 +74,6 @@ namespace Chess.Controls
         protected virtual void OnLegalMovesRequested(LegalMovesEventArgs e)
         {
             LegalMovesRequested?.Invoke(this, e);
-        }
-
-        protected virtual void OnBoardRequested(BoardEventArgs e)
-        {
-            BoardRequested?.Invoke(this, e);
         }
 
         private void Tile_Click(object sender, EventArgs e)
@@ -136,19 +152,6 @@ namespace Chess.Controls
                 OnMoveInputRequired(moveArgs);
             }
             OnChessMove(moveArgs);
-
-            UpdateBoard(GetCurrentBoard());
-        }
-
-        private Board GetCurrentBoard()
-        {
-            var args = new BoardEventArgs();
-            OnBoardRequested(args);
-            if (args.Board != null)
-            {
-                return args.Board;
-            }
-            throw new Exception("No board received via BoardRequested event.");
         }
     }
 }

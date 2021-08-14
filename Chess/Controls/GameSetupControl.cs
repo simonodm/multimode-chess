@@ -10,9 +10,19 @@ using System.Windows.Forms;
 
 namespace Chess.Controls
 {
-    internal class GameSetupControl : Control
+    /// <summary>
+    /// A control which allows the user to configure the game before start.
+    /// </summary>
+    internal class GameSetupControl : UserControl
     {
-        public event MultipleOptionEventHandler OptionPickRequired;
+        /// <summary>
+        /// Occurs when the setup requires additional user input to continue.
+        /// </summary>
+        public event MultipleOptionEventHandler UserInputRequired;
+
+        /// <summary>
+        /// Occurs when the user starts the game.
+        /// </summary>
         public event GameStartEventHandler GameStart;
 
         private ComboBox _comboBoxModes;
@@ -270,7 +280,7 @@ namespace Chess.Controls
 
         private void OnOptionPickRequired(object sender, MultipleOptionEventArgs e)
         {
-            OptionPickRequired?.Invoke(this, e);
+            UserInputRequired?.Invoke(this, e);
         }
 
         private void DisplayError(string errorMessage)

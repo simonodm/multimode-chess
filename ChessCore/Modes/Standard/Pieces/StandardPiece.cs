@@ -19,10 +19,10 @@ namespace ChessCore.Modes.Standard
         /// </summary>
         /// <param name="state">Board state to calculate legal moves for</param>
         /// <param name="from">Board square to calculate legal moves from</param>
-        /// <returns>A list of legal moves</returns>
-        public virtual List<StandardMove> GetLegalMoves(StandardBoardState state, BoardSquare from)
+        /// <returns>An IReadOnlyList of legal moves</returns>
+        public virtual IReadOnlyList<StandardMove> GetLegalMoves(StandardBoardState state, BoardSquare from)
         {
-            var threatenedSquares = GetThreatenedSquares(state, from);
+            var threatenedSquares = GetVisibleSquares(state, from);
             var legalMoves = new List<StandardMove>();
             foreach (var square in threatenedSquares)
             {
@@ -48,12 +48,12 @@ namespace ChessCore.Modes.Standard
         }
 
         /// <summary>
-        /// Retrieves the list of all squares threatened by the piece in the given board state from the given square.
+        /// Retrieves the list of all squares visible by the piece in the given board state from the given square.
         /// </summary>
-        /// <param name="state">Board square to calculate threats for</param>
-        /// <param name="from">Board square to calculate threats from</param>
-        /// <returns>A list of threatened board squares</returns>
-        public virtual List<BoardSquare> GetThreatenedSquares(StandardBoardState state, BoardSquare from)
+        /// <param name="state">Board square to calculate visibility for</param>
+        /// <param name="from">Board square to calculate visibility from</param>
+        /// <returns>An enumerable of visible board squares</returns>
+        public virtual IEnumerable<BoardSquare> GetVisibleSquares(StandardBoardState state, BoardSquare from)
         {
             var threatenedSquares = new List<BoardSquare>();
             foreach (var possibleMove in PossibleMoves)
@@ -67,6 +67,17 @@ namespace ChessCore.Modes.Standard
                 }
             }
             return threatenedSquares;
+        }
+
+        /// <summary>
+        /// Retrieves the list of all squares threatened by the piece in the given board state from the given square.
+        /// </summary>
+        /// <param name="state">Board square to calculate threats for</param>
+        /// <param name="from">Board square to calculate threats from</param>
+        /// <returns>An enumerable of threatened board squares</returns>
+        public virtual IEnumerable<BoardSquare> GetThreatenedSquares(StandardBoardState state, BoardSquare from)
+        {
+            return GetVisibleSquares(state, from);
         }
 
         /// <summary>

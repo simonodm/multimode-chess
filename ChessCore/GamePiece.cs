@@ -7,7 +7,7 @@
     {
         protected int Value = 0;
         protected string Symbol = "";
-        private int _player;
+        private readonly int _player;
         private int _moveCount;
         private readonly object _moveCountLock = new object();
 
@@ -21,7 +21,7 @@
         }
 
         /// <summary>
-        /// Retrieves the piece's value to be used for position evaluation.
+        /// Retrieves the piece's value.
         /// </summary>
         /// <returns>An integer representing the piece's absolute value</returns>
         public int GetValue()
@@ -30,7 +30,7 @@
         }
 
         /// <summary>
-        /// Retrieves the piece's symbol to be used for move notation.
+        /// Retrieves the piece's symbol in the game's move notation.
         /// </summary>
         /// <returns>The piece's symbol</returns>
         public string GetSymbol()

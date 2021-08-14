@@ -23,8 +23,8 @@ namespace ChessCore.Modes.Standard.Pieces
             };
         }
 
-        /// <inheritdoc cref="StandardPiece.GetThreatenedSquares"/>
-        public override List<BoardSquare> GetThreatenedSquares(StandardBoardState state, BoardSquare from)
+        /// <inheritdoc cref="StandardPiece.GetVisibleSquares"/>
+        public override IEnumerable<BoardSquare> GetVisibleSquares(StandardBoardState state, BoardSquare from)
         {
             var threatenedSquares = new List<BoardSquare>();
 

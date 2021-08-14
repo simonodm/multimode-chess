@@ -5,9 +5,13 @@ using System.Windows.Forms;
 
 namespace Chess.Controls
 {
-    internal class MoveHistoryControl : Control
+    internal class MoveHistoryControl : UserControl
     {
+        /// <summary>
+        /// Occurs when the user selects a different move from history.
+        /// </summary>
         public event MoveEventHandler SelectedMoveChanged;
+
         private ListBox _listBox;
 
         public MoveHistoryControl()
@@ -15,6 +19,10 @@ namespace Chess.Controls
             InitializeControls();
         }
 
+        /// <summary>
+        /// Adds a new move to history.
+        /// </summary>
+        /// <param name="move">Move to add</param>
         public void AddMove(Move move)
         {
             _listBox.Items.Add(move);

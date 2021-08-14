@@ -6,9 +6,16 @@ using System.Linq;
 
 namespace Chess.Controls
 {
-    class ConfigurableChessBoardControl : ChessBoardControl
+    /// <summary>
+    /// A control which allows the user to configure the chessboard.
+    /// </summary>
+    internal class ConfigurableChessBoardControl : ChessBoardControl
     {
+        /// <summary>
+        /// Occurs when the control requires user input.
+        /// </summary>
         public event MultipleOptionEventHandler UserInputRequired;
+
         private Board _board;
         private IGameRules _rules;
 
@@ -19,6 +26,7 @@ namespace Chess.Controls
             _rules = rules;
         }
 
+        /// <inheritdoc cref="ChessBoardControl.UpdateBoard"/>
         public override void UpdateBoard(Board board)
         {
             base.UpdateBoard(board);
@@ -26,11 +34,19 @@ namespace Chess.Controls
             _board = board;
         }
 
+        /// <summary>
+        /// Retrieves the currently displayed board.
+        /// </summary>
+        /// <returns>A Board instance for the current board configuration</returns>
         public Board GetBoard()
         {
             return _board;
         }
 
+        /// <summary>
+        /// Updates the rules to retrieve possible configurations from.
+        /// </summary>
+        /// <param name="rules">A concrete IGameRules implementation</param>
         public void SetRules(IGameRules rules)
         {
             _rules = rules;

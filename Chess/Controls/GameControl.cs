@@ -8,11 +8,27 @@ using System.Windows.Forms;
 
 namespace Chess.Controls
 {
-    internal class GameControl : Control
+    /// <summary>
+    /// A control which displays a chess game and enables the user to play it.
+    /// Contains the board, move history, players' clocks, board score, game result, and
+    /// an exit button.
+    /// </summary>
+    internal class GameControl : UserControl
     {
         private const string CALCULATING_STRING = "Calculating...";
 
-        public event MultipleOptionEventHandler OptionPickRequired;
+        // Lock to prevent race condition in SafeInvoke between dispose check and Control.Invoke().
+        // Must be locked every time a child control is being disposed.
+        private readonly object _disposeLock = new object();
+
+        /// <summary>
+        /// Occurs when the game requires user input to continue.
+        /// </summary>
+        public event MultipleOptionEventHandler UserInputRequired;
+
+        /// <summary>
+        /// Occurs when user exits the game.
+        /// </summary>
         public event EventHandler GameCancelled;
 
         private PlayableChessBoardControl _boardControl;
@@ -28,12 +44,14 @@ namespace Chess.Controls
         private readonly HashSet<BoardState> _evaluatedStates = new HashSet<BoardState>();
         private readonly TaskFactory _taskFactory = new TaskFactory();
         private readonly CancellationTokenSource _cancellationSource = new CancellationTokenSource();
+        private Board _currentGameBoard;
 
         public GameControl(GameStartEventArgs startArgs)
         {
             _game = startArgs.Game;
             _versusAi = startArgs.VersusAi;
             _humanPlayer = startArgs.HumanPlayer;
+            _currentGameBoard = _game.GetBoardState().GetBoard();
 
             bool boardFlipped = startArgs.HumanPlayer == 1;
             InitializeControls(startArgs.TimeLimit, startArgs.Increment, boardFlipped);
@@ -86,7 +104,6 @@ namespace Chess.Controls
             boardControl.MovePlayed += board_OnMove;
             boardControl.MoveInputRequested += board_OnMoveInputRequired;
             boardControl.LegalMovesRequested += board_LegalMovesRequested;
-            boardControl.BoardRequested += board_CurrentBoardRequested;
 
             return boardControl;
         }
@@ -142,16 +159,29 @@ namespace Chess.Controls
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
-            if (_humanPlayer == 1)
+            if (_game.IsGameOver())
+            {
+                OnGameFinish(this, e);
+            }
+            else if (_humanPlayer == 1)
             {
                 RunCancellableTask(ProcessAiMove);
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            lock (_disposeLock)
+            {
+                base.Dispose(disposing);
             }
         }
 
         private void moveHistory_OnSelectedMoveChange(object sender, MoveEventArgs e)
         {
             var move = e.Move;
-            _boardControl.UpdateBoard(move.BoardAfter.GetBoard());
+            bool isBoardCurrent = move.BoardAfter.GetBoard() == _currentGameBoard;
+            _boardControl.UpdateBoard(move.BoardAfter.GetBoard(), isBoardCurrent);
 
             if (!_evaluatedStates.Contains(move.BoardAfter))
             {
@@ -186,11 +216,6 @@ namespace Chess.Controls
             e.LegalMoves = _game.GetLegalMoves(e.Square);
         }
 
-        private void board_CurrentBoardRequested(object sender, BoardEventArgs e)
-        {
-            e.Board = _game.GetBoardState().GetBoard();
-        }
-
         private void clock_OnRunOut(object sender, EventArgs e)
         {
             _game.EndGame((_game.GetCurrentPlayer() + 1) % 2);
@@ -199,25 +224,19 @@ namespace Chess.Controls
 
         private void OnOptionPickRequired(object sender, MultipleOptionEventArgs e)
         {
-            OptionPickRequired?.Invoke(this, e);
+            UserInputRequired?.Invoke(this, e);
         }
 
         private void OnGameFinish(object sender, EventArgs e)
         {
             var gameResult = _game.GetGameResult();
-            string resultString = "";
-            switch (gameResult)
+            string resultString = gameResult switch
             {
-                case GameResult.WHITE_WIN:
-                    resultString = "ForcedWinner: White";
-                    break;
-                case GameResult.BLACK_WIN:
-                    resultString = "ForcedWinner: Black";
-                    break;
-                case GameResult.DRAW:
-                    resultString = "Draw";
-                    break;
-            }
+                GameResult.WHITE_WIN => "Winner: White",
+                GameResult.BLACK_WIN => "Winner: Black",
+                GameResult.DRAW => "Draw",
+                _ => ""
+            };
             SafeInvoke(_winnerLabel, () =>
             {
                 _winnerLabel.Text = resultString;
@@ -230,12 +249,11 @@ namespace Chess.Controls
 
         private void OnGameCancelled(object sender, EventArgs e)
         {
-            if (GameCancelled != null)
-            {
-                GameCancelled.Invoke(this, e);
-                _cancellationSource.Cancel();
-                _cancellationSource.Dispose();
-            }
+            if (GameCancelled == null) return;
+
+            GameCancelled.Invoke(this, e);
+            _cancellationSource.Cancel();
+            _cancellationSource.Dispose();
         }
         #endregion
         #region Workers
@@ -274,7 +292,7 @@ namespace Chess.Controls
             });
 
             var score = _game.Evaluate(move.BoardAfter);
-            if (move.BoardAfter == _game.GetBoardState())
+            if (move.BoardAfter.GetBoard() == _currentGameBoard)
             {
                 SafeInvoke(_scoreControl, () =>
                 {
@@ -285,39 +303,19 @@ namespace Chess.Controls
 
         private void ProcessMoveJob(MoveEventArgs e)
         {
-            SafeInvoke(_boardControl, () =>
+            if (e.Move == null)
             {
-                _boardControl.Disable();
-            });
-
-            _game.ProcessMove(e.Move);
-            SafeInvoke(_moveHistory, () =>
-            {
-                _moveHistory.AddMove(e.Move);
-            });
-
-            bool isGameOver = _game.IsGameOver();
-            if (isGameOver)
-            {
-                OnGameFinish(this, e);
+                throw new Exception("Null move supplied.");
             }
-            else
+
+            SafeInvoke(_boardControl, () => _boardControl.Disable());
+            ProcessMove(e.Move);
+            if (_versusAi && !_game.IsGameOver())
             {
-                SafeInvoke(_clockControl, () =>
-                {
-                    _clockControl.Switch();
-                });
-
-                if (_versusAi)
-                {
-                    ProcessAiMove();
-                }
-
-                SafeInvoke(_boardControl, () =>
-                {
-                    _boardControl.Enable();
-                });
+                ProcessAiMove();
             }
+
+            SafeInvoke(_boardControl, () => _boardControl.Enable());
         }
 
         private void ProcessAiMove()
@@ -325,35 +323,48 @@ namespace Chess.Controls
             var aiMove = _game.GetNextBestMove();
             if (aiMove == null)
             {
-                throw new Exception("No AI move found.");
+                throw new Exception("No AI move returned by the engine.");
             }
-            _game.ProcessMove(aiMove);
+
+            ProcessMove(aiMove);
+        }
+
+        private void ProcessMove(Move move)
+        {
+            _game.ProcessMove(move);
+            _currentGameBoard = move.BoardAfter.GetBoard();
+
+            SafeInvoke(_moveHistory, () =>
+            {
+                _moveHistory.AddMove(move);
+            });
             SafeInvoke(_clockControl, () =>
             {
                 _clockControl.Switch();
             });
 
-            if (_game.IsGameOver())
+            bool isGameOver = _game.IsGameOver();
+            if (isGameOver)
             {
                 OnGameFinish(this, new EventArgs());
             }
-            SafeInvoke(_moveHistory, () =>
-            {
-                _moveHistory.AddMove(aiMove);
-            });
         }
 
         private void SafeInvoke(Control control, Action action)
         {
-            if (!control.IsDisposed && control.IsHandleCreated)
+            lock (_disposeLock)
             {
-                control.Invoke(action);
-            }
-            else if (!control.IsDisposed && !control.IsHandleCreated)
-            {
-                control.HandleCreated += (sender, e) => control.Invoke(action);
+                if (!control.IsDisposed && control.IsHandleCreated)
+                {
+                    Invoke(new Action(() => control.Invoke(action)));
+                }
+                else if (!control.IsDisposed && !control.IsHandleCreated)
+                {
+                    control.HandleCreated += (sender, e) => control.Invoke(action);
+                }
             }
         }
+
         #endregion
     }
 }

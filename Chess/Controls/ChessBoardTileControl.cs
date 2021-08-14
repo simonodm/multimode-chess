@@ -6,8 +6,14 @@ using System.Windows.Forms;
 
 namespace Chess.Controls
 {
-    class ChessBoardTileControl : Control
+    /// <summary>
+    /// Represents a control for a single chessboard tile.
+    /// </summary>
+    internal class ChessBoardTileControl : UserControl
     {
+        /// <summary>
+        /// A BoardSquare displayed in the tile. Updating this property invalidates the control.
+        /// </summary>
         public BoardSquare Square
         {
             get => _square;
@@ -19,7 +25,11 @@ namespace Chess.Controls
             }
         }
 
+        /// <summary>
+        /// true if the tile is currently highlighted, false otherwise
+        /// </summary>
         public bool IsHighlighted { get; private set; }
+
         private GamePiece _previousPiece;
         private BoardSquare _square;
         private Panel _tile;
@@ -30,12 +40,18 @@ namespace Chess.Controls
             InitializeControls();
         }
 
+        /// <summary>
+        /// Highlights the tile in dark red.
+        /// </summary>
         public void Highlight()
         {
             _tile.BackColor = Color.DarkRed;
             IsHighlighted = true;
         }
 
+        /// <summary>
+        /// Removes the highlighting on the tile.
+        /// </summary>
         public void RemoveHighlighting()
         {
             _tile.BackColor = GetColor();

@@ -4,7 +4,10 @@ using System.Windows.Forms;
 
 namespace Chess.Controls
 {
-    class BoardScoreControl : Control
+    /// <summary>
+    /// A control for displaying board score.
+    /// </summary>
+    internal class BoardScoreControl : UserControl
     {
         private Button _toggleButton;
         private Label _scoreLabel;
@@ -15,6 +18,10 @@ namespace Chess.Controls
             InitializeControls();
         }
 
+        /// <summary>
+        /// Updates the score to display.
+        /// </summary>
+        /// <param name="score">New score</param>
         public void SetScore(string score)
         {
             _scoreLabel.Text = score;

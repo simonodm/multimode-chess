@@ -6,6 +6,9 @@ using System.Windows.Forms;
 
 namespace Chess
 {
+    /// <summary>
+    /// A form which lists possible options and enables the user to choose one of them.
+    /// </summary>
     internal class OptionPickerModalForm : Form
     {
         public Option PickedOption;

@@ -1,6 +1,7 @@
 ﻿using ChessCore.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ChessCore.Modes.Standard.Pieces
 {
@@ -28,6 +29,12 @@ namespace ChessCore.Modes.Standard.Pieces
             };
         }
 
+        /// <inheritdoc cref="StandardPiece.GetThreatenedSquares"/>
+        public override IEnumerable<BoardSquare> GetThreatenedSquares(StandardBoardState state, BoardSquare from)
+        {
+            return base.GetThreatenedSquares(state, from).Where(square => Math.Abs(square.GetFile() - from.GetFile()) <= 1);
+        }
+
         /// <inheritdoc cref="StandardPiece.GenerateMove"/>
         protected override StandardMove GenerateMove(StandardBoardState state, BoardSquare from, BoardSquare to)
         {
@@ -41,13 +48,15 @@ namespace ChessCore.Modes.Standard.Pieces
                     BoardBefore = state
                 };
             }
-            else if (Math.Abs(from.GetFile() - to.GetFile()) <= 1)
+            if (Math.Abs(from.GetFile() - to.GetFile()) <= 1)
             {
                 return base.GenerateMove(state, from, to);
             }
 
             return null;
         }
+
+
 
         private bool IsCastle(StandardBoardState state, BoardSquare from, BoardSquare to)
         {
@@ -86,13 +95,17 @@ namespace ChessCore.Modes.Standard.Pieces
             for (int file = Math.Min(rookSquare.GetFile(), kingSquare.GetFile()); file < Math.Max(rookSquare.GetFile(), kingSquare.GetFile()); file++)
             {
                 var square = state.GetBoard().GetSquare(file, kingSquare.GetRank());
-                if (square == kingSquare)
+
+                if (Math.Abs(square.GetFile() - kingSquare.GetFile()) <= 2) // check threats up to king's target square
                 {
-                    return state.GetThreatMap().GetThreatCount(square, (GetPlayer() + 1) % 2) > 0;
+                    if (state.GetThreatMap().GetThreatCount(square, (GetPlayer() + 1) % 2) > 0)
+                    {
+                        return true;
+                    }
                 }
-                if (square != rookSquare)
+                if (square != kingSquare && square != rookSquare) // check piece presence for all squares in-between
                 {
-                    if (square.GetPiece() != null || state.GetThreatMap().GetThreatCount(square, (GetPlayer() + 1) % 2) > 0)
+                    if (square.GetPiece() != null)
                     {
                         return true;
                     }

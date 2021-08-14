@@ -21,7 +21,6 @@ namespace ChessCore.Modes.Standard
             {
                 throw new InvalidMoveException("Invalid move supplied.");
             }
-            move.Piece.SetMoveCount(move.Piece.GetMoveCount() + 1);
             return ((StandardMove)move).Process();
         }
 
@@ -54,6 +53,11 @@ namespace ChessCore.Modes.Standard
 
             int fileFrom = move.From.GetFile();
             int fileTo = move.To.GetFile();
+
+            if (move is MoveCastle)
+            {
+                return move.To.GetFile() > move.From.GetFile() ? "O-O" : "O-O-O";
+            }
 
             if (move is MoveCapture && move.Piece is Pawn)
             {
