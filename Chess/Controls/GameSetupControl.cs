@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Chess.Controls
+namespace ChessGUI.Controls
 {
     /// <summary>
     /// A control which allows the user to configure the game before start.

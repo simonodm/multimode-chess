@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Chess.Controls
+namespace ChessGUI.Controls
 {
     /// <summary>
     /// A control which displays a chess game and enables the user to play it.

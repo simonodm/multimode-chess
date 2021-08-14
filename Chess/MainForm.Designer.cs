@@ -1,5 +1,5 @@
 ﻿
-namespace Chess
+namespace ChessGUI
 {
     partial class MainForm
     {

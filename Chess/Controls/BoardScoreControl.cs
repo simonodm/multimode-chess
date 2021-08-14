@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Chess.Controls
+namespace ChessGUI.Controls
 {
     /// <summary>
     /// A control for displaying board score.

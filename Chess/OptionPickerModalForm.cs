@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Chess
+namespace ChessGUI
 {
     /// <summary>
     /// A form which lists possible options and enables the user to choose one of them.

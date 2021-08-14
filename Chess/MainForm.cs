@@ -1,9 +1,9 @@
-﻿using Chess.Controls;
+﻿using ChessGUI.Controls;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Chess
+namespace ChessGUI
 {
     public partial class MainForm : Form
     {

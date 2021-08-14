@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Chess.Controls
+namespace ChessGUI.Controls
 {
     /// <summary>
     /// An interactive, playable chess board.

@@ -1,4 +1,4 @@
-﻿namespace Chess
+﻿namespace ChessGUI
 {
     delegate void GameStartEventHandler(object sender, GameStartEventArgs e);
     delegate void MoveEventHandler(object sender, MoveEventArgs e);
