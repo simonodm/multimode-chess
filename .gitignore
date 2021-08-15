@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/NPRG038_Chess.rar
+/NPRG038_Chess.zip

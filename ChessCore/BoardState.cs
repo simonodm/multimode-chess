@@ -54,7 +54,7 @@ namespace ChessCore
         /// Updates the state's minimax score
         /// </summary>
         /// <param name="score">Minimax score</param>
-        public void SetScore(MinimaxResult score)
+        internal void SetScore(MinimaxResult score)
         {
             lock (_scoreLock)
             {

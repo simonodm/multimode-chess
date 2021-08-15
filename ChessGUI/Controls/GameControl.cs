@@ -21,6 +21,8 @@ namespace ChessGUI.Controls
         // Must be locked every time a child control is being disposed.
         private readonly object _disposeLock = new object();
 
+        private readonly object _evaluatedStatesLock = new object();
+
         /// <summary>
         /// Occurs when the game requires user input to continue.
         /// </summary>
@@ -41,9 +43,9 @@ namespace ChessGUI.Controls
         private readonly ChessGame _game;
         private readonly bool _versusAi;
         private readonly int _humanPlayer;
-        private readonly HashSet<BoardState> _evaluatedStates = new HashSet<BoardState>();
-        private readonly TaskFactory _taskFactory = new TaskFactory();
+        private readonly Dictionary<BoardState, Task> _evaluationTasks = new Dictionary<BoardState, Task>();
         private readonly CancellationTokenSource _cancellationSource = new CancellationTokenSource();
+        private BoardState _currentSelectedBoardState;
         private Board _currentGameBoard;
 
         public GameControl(GameStartEventArgs startArgs)
@@ -165,7 +167,8 @@ namespace ChessGUI.Controls
             }
             else if (_humanPlayer == 1)
             {
-                RunCancellableTask(ProcessAiMove);
+                var task = CreateCancellableTask(ProcessAiMove);
+                RunCancellableTask(task);
             }
         }
 
@@ -182,26 +185,27 @@ namespace ChessGUI.Controls
             var move = e.Move;
             bool isBoardCurrent = move.BoardAfter.GetBoard() == _currentGameBoard;
             _boardControl.UpdateBoard(move.BoardAfter.GetBoard(), isBoardCurrent);
+            _currentSelectedBoardState = move.BoardAfter;
 
-            if (!_evaluatedStates.Contains(move.BoardAfter))
-            {
-                _evaluatedStates.Add(move.BoardAfter);
-
-                RunCancellableTask(() => EvaluateStateJob(move));
-            }
-            else if (move.BoardAfter.GetScore() != null)
-            {
-                _scoreControl.SetScore(GetScoreString(move.BoardAfter.GetScore()));
-            }
-            else
+            var evaluationTask = GetEvaluationTask(move.BoardAfter);
+            if (!evaluationTask.IsCompleted)
             {
                 _scoreControl.SetScore(CALCULATING_STRING);
             }
+
+            evaluationTask.ContinueWith(previous =>
+            {
+                if (move.BoardAfter == _currentSelectedBoardState)
+                {
+                    SafeInvoke(_scoreControl, () => _scoreControl.SetScore(GetScoreString(move.BoardAfter.GetScore())));
+                }
+            });
         }
 
         private void board_OnMove(object sender, MoveEventArgs e)
         {
-            RunCancellableTask(() => ProcessMoveJob(e));
+            var task = CreateCancellableTask(() => ProcessMoveJob(e));
+            RunCancellableTask(task);
         }
 
         private void board_OnMoveInputRequired(object sender, MoveEventArgs e)
@@ -257,11 +261,30 @@ namespace ChessGUI.Controls
         }
         #endregion
         #region Workers
-        private void RunCancellableTask(Action action)
+        private Task GetEvaluationTask(BoardState state)
+        {
+            lock (_evaluatedStatesLock)
+            {
+                if(!_evaluationTasks.ContainsKey(state))
+                {
+                    _evaluationTasks[state] = CreateCancellableTask(() => _game.Evaluate(state));
+                    RunCancellableTask(_evaluationTasks[state]);
+                }
+
+                return _evaluationTasks[state];
+            }
+        }
+
+        private Task CreateCancellableTask(Action action)
+        {
+            return new Task(action, _cancellationSource.Token, TaskCreationOptions.LongRunning);
+        }
+
+        private void RunCancellableTask(Task task)
         {
             try
             {
-                _taskFactory.StartNew(action, _cancellationSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                task.Start();
             }
             catch (AggregateException ae)
             {
@@ -284,23 +307,6 @@ namespace ChessGUI.Controls
             return score.Score.ToString("F2");
         }
 
-        private void EvaluateStateJob(Move move)
-        {
-            SafeInvoke(_scoreControl, () =>
-            {
-                _scoreControl.SetScore(CALCULATING_STRING);
-            });
-
-            var score = _game.Evaluate(move.BoardAfter);
-            if (move.BoardAfter.GetBoard() == _currentGameBoard)
-            {
-                SafeInvoke(_scoreControl, () =>
-                {
-                    _scoreControl.SetScore(GetScoreString(score));
-                });
-            }
-        }
-
         private void ProcessMoveJob(MoveEventArgs e)
         {
             if (e.Move == null)
@@ -320,13 +326,18 @@ namespace ChessGUI.Controls
 
         private void ProcessAiMove()
         {
-            var aiMove = _game.GetNextBestMove();
-            if (aiMove == null)
+            var currentState = _game.GetBoardState();
+            var evaluationTask = GetEvaluationTask(currentState);
+            evaluationTask.ContinueWith(previous =>
             {
-                throw new Exception("No AI move returned by the engine.");
-            }
+                var aiMove = _game.GetNextBestMove();
+                if (aiMove == null)
+                {
+                    throw new Exception("No AI move returned by the engine.");
+                }
 
-            ProcessMove(aiMove);
+                ProcessMove(aiMove);
+            });
         }
 
         private void ProcessMove(Move move)
